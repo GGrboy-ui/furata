@@ -1,0 +1,18 @@
+{
+  "feature": "K3 direct manual upright balance",
+  "date": "2026-10-10",
+  "project": "G:/furata/furata/furata.gprj",
+  "bitstream": "G:\\furata\\furata\\build\\releases\\furata_k3_manual_balance_20261010.fs",
+  "sha256": "9B397167438947607989A7E7AF32BFC690E55EFCA01F49794BAA50D0883C926E",
+  "center": 1011,
+  "pulse_ms": 120,
+  "start_percent": 45,
+  "tests_passed": 19,
+  "tests_total": 19,
+  "fmax_mhz": 64.451,
+  "worst_setup_slack_ns": 4.485,
+  "setup_violations": 0,
+  "hold_violations": 0,
+  "backup": "G:/furata/furata/build/backups/k3_balance_20261010_201453",
+  "programmed_hardware": false
+}

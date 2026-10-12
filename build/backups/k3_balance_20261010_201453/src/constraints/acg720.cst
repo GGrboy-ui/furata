@@ -1,0 +1,136 @@
+// acg720.cst - physical constraints for the ACG720 (GW5AT-LV60PG484AC1/I0) board.
+//
+// STATUS: ACTIVE BOARD-ADC MAPPING. This file matches board/acg720_top.v for the Jiangxie TB6612 wiring.
+//   The active design uses ACG720's onboard ADC128S102 for angle sensing.
+//   Its verified digital balls are CS=M6, DIN=M5, DOUT=P6, SCLK=N5; as used by the active top. The ACG720 board schematic page 15 shows analog P5-1=Analog_In0 and P5-2=AGND; verify the connector is populated before wiring.
+//   The pins below are the ones that are CONFIRMED - either by the official pin table
+//   (ACG720-138&60K通用管脚分配表.xlsx) or by an official example project's own .cst. Nothing
+//   here is a guess. The active mapping uses the Jiangxie TB6612 board.
+//   ACG720 board schematic page 11 maps GPIO0 to P7 (A13=P7-1, A15=P7-3,
+//   GND=P7-12/30); verify the actual header orientation before cabling.
+//   See doc/pinout.md and hardware/furata_adapter/README.md.
+//
+// HOW THESE WERE DERIVED
+//   - clk / rst_n: official example projects use clk50M = Y18 and rst_n = B21, and the 138K and
+//     60K boards agree on both pins. The 50 MHz figure is from the chapter-2 LED example, whose
+//     counter terminal count of 49_999_999 gives exactly 1 Hz at 50 MHz.
+//   - uart: from the chapter-33 example .cst (FPGA_UART_RX = J21, FPGA_UART_TX = M15).
+//   - enc_a/enc_b, pwm_a, ain1, ain2, stby_fpga, dbg_tick: assigned by this project to the
+//     GPIO0 header (GPIO0_0..GPIO0_35). See the adapter-board spec for the rationale
+//     (safety grouping of the three motor outputs, encoder pair adjacency, isolation of the
+//     angle signal from the PWM lines).
+//
+// >>> BEFORE THIS FILE IS USED ON HARDWARE <<<
+//   The GPIO0 bank supply is SELECTABLE between 3.3V / 1.5V / 1.8V / 2.5V on this board.
+//   Every bank on this board that carries general IO is configured LVCMOS33 in the official
+//   examples, but the GPIO0 header in particular MUST be measured with a multimeter and set to
+//   3.3V before anything from the pendulum kit is connected. Driving a 3.3V input from a 1.5V
+//   bank does not work, and the reverse can damage parts.
+//
+// Notes on the port attributes:
+//   DRIVE=8        - 8 mA is ample for these signals.
+//   PULL_MODE=DOWN - used on the four motor-related FPGA outputs. The adapter board also has
+//                    external pull-downs. During FPGA configuration the motor driver stays off.
+//   PULL_MODE=DOWN - encoder/data inputs remain defined with the cable disconnected.
+//   Raw encoder voltage/type is handled by the adapter's LVC2G17, not the FPGA pull-up.
+//   BANK_VCCIO=3.3 - matches the LVCMOS33 standard and the required GPIO0 setting above.
+
+// ---------------------------------------------------------------------------
+// System clock and reset (CONFIRMED)
+// ---------------------------------------------------------------------------
+IO_LOC "clk" Y18;
+IO_PORT "clk" IO_TYPE=LVCMOS33 PULL_MODE=NONE BANK_VCCIO=3.3;
+
+IO_LOC "rst_n" B21;
+IO_PORT "rst_n" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+
+// ---------------------------------------------------------------------------
+// Debug UART (CONFIRMED - same pins the official chapter-33 example uses)
+// ---------------------------------------------------------------------------
+IO_LOC "uart_rx" J21;
+// UART idle is high; the pull-up keeps a disconnected RX from generating noise commands.
+IO_PORT "uart_rx" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+
+IO_LOC "uart_tx" M15;
+IO_PORT "uart_tx" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+
+// Onboard eight-digit display, verified against official ch13_hex8_hc595
+// and the ACG720 schematic: U24 digit selects -> U25 segment data.
+IO_LOC "seg7_dio" M18;
+IO_PORT "seg7_dio" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "seg7_rclk" C2;
+IO_PORT "seg7_rclk" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "seg7_sclk" F4;
+IO_PORT "seg7_sclk" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+
+// ---------------------------------------------------------------------------
+// Adapter SW1..SW4 / K1..K4: U1 pins 33/35/37/39 -> ACG720 P7, active low.
+// Source: ACG70_2026-09-26.epro2 schematic (PCB section is the older Jiangxie board).
+// ACG720 schematic page 11 and official pin table: GPIO0_28/30/32/34.
+// ---------------------------------------------------------------------------
+IO_LOC "key1_n" D20;
+IO_PORT "key1_n" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_LOC "key2_n" E19;
+IO_PORT "key2_n" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_LOC "key3_n" F18;
+IO_PORT "key3_n" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_LOC "key4_n" F19;
+IO_PORT "key4_n" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+
+// ---------------------------------------------------------------------------
+// Encoder (GPIO0_0, GPIO0_1) - feeds rtl/encoder_qei.v
+// ---------------------------------------------------------------------------
+IO_LOC "enc_a" A13;
+IO_PORT "enc_a" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+
+IO_LOC "enc_b" A14;
+IO_PORT "enc_b" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+
+// ---------------------------------------------------------------------------
+// Motor driver (GPIO0_2..GPIO0_5) - pwm/ain feed rtl/pwm_motor.v.
+// STBY must be isolated from the Jiangxie board 3V3 tie before FPGA control.
+// The motor enable path retains the existing startup delay.
+// ---------------------------------------------------------------------------
+IO_LOC "pwm_a" A15;
+IO_PORT "pwm_a" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8 BANK_VCCIO=3.3;
+
+IO_LOC "ain1" A16;
+IO_PORT "ain1" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8 BANK_VCCIO=3.3;
+
+IO_LOC "ain2" A18;
+IO_PORT "ain2" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8 BANK_VCCIO=3.3;
+
+IO_LOC "stby_fpga" A19;
+IO_PORT "stby_fpga" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8 BANK_VCCIO=3.3;
+
+// ---------------------------------------------------------------------------
+// Debug sampling tick (GPIO0_9)
+// ---------------------------------------------------------------------------
+IO_LOC "dbg_tick" E14;
+IO_PORT "dbg_tick" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+
+// ---------------------------------------------------------------------------
+// Onboard ADC128S102 (ACG720 U43, channel IN0 on P5-1)
+// ---------------------------------------------------------------------------
+IO_LOC "board_adc_cs_n" M6;
+IO_PORT "board_adc_cs_n" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "board_adc_din" M5;
+IO_PORT "board_adc_din" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "board_adc_dout" P6;
+IO_PORT "board_adc_dout" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+IO_LOC "board_adc_sclk" N5;
+IO_PORT "board_adc_sclk" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+
+// The analogue signal is not an FPGA GPIO: connect the potentiometer wiper to
+// ACG720 P5-1 (Analog_In0), P5-2 to AGND. Verify that P5 is populated before power.
+// ---------------------------------------------------------------------------
+// NOT YET WRITTEN - do not add these until the corresponding hardware fact is verified:
+//
+//   Optional switches, LEDs and extra sensors on unused GPIO.
+//       Reserved in the adapter-board spec section 4. Not needed for the basic build: the board
+//       already has SW0..SW7 and LED0..LED7 wired, which covers the competition's "set the target
+//       position with switches" requirement for free.
+//
+//   Self-made 8-bit switch / LED arrays
+//       Add here only if the design actually drives them.
+// ---------------------------------------------------------------------------

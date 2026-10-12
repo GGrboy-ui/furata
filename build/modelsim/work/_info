@@ -1,0 +1,488 @@
+m255
+K3
+13
+cModel Technology
+Z0 dG:\furata\furata
+vacg720_top
+Z1 DXx6 sv_std 3 std 0 22 F[19LRNL:5;XmIFh[XOPn1
+!i10b 1
+Z2 !s100 ZPe?j?^;WCmZeD1[z]Dhg1
+Z3 IY9eMoEFid]gb=6=CohH<=2
+Z4 VkK8@jE<A^OF9bK3M]kYdd2
+Z5 !s105 acg720_top_v_unit
+S1
+Z6 dG:\furata\furata
+Z7 w1790417164
+Z8 8G:\furata\furata\src\board\acg720_top.v
+Z9 FG:\furata\furata\src\board\acg720_top.v
+L0 7
+Z10 OL;L;10.1c;51
+r1
+!s85 0
+31
+Z11 !s108 1790417835.228000
+Z12 !s107 G:\furata\furata\sim\tb_tick_gen.v|G:\furata\furata\sim\tb_smoke_selftest.v|G:\furata\furata\sim\tb_safety_monitor.v|G:\furata\furata\sim\tb_pwm_motor.v|G:\furata\furata\sim\tb_pid_fixed.v|G:\furata\furata\sim\tb_divider_seq.v|G:\furata\furata\sim\tb_control_core.v|G:\furata\furata\sim\tb_clock_reset.v|G:\furata\furata\sim\tb_adc128s102_reader.v|G:\furata\furata\sim\tb_acg720_top.v|G:\furata\furata\src\board\acg720_top.v|G:\furata\furata\src\rtl\uart_commands.v|G:\furata\furata\src\rtl\tick_gen.v|G:\furata\furata\src\rtl\sensor_if.v|G:\furata\furata\src\rtl\safety_monitor.v|G:\furata\furata\src\rtl\pwm_motor.v|G:\furata\furata\src\rtl\pid_fixed.v|G:\furata\furata\src\rtl\encoder_qei.v|G:\furata\furata\src\rtl\divider_seq.v|G:\furata\furata\src\rtl\control_core.v|G:\furata\furata\src\rtl\clock_reset.v|G:\furata\furata\src\rtl\adc128s102_reader.v|
+Z13 !s90 -sv|-work|build\modelsim\work|G:\furata\furata\src\rtl\adc128s102_reader.v|G:\furata\furata\src\rtl\clock_reset.v|G:\furata\furata\src\rtl\control_core.v|G:\furata\furata\src\rtl\divider_seq.v|G:\furata\furata\src\rtl\encoder_qei.v|G:\furata\furata\src\rtl\pid_fixed.v|G:\furata\furata\src\rtl\pwm_motor.v|G:\furata\furata\src\rtl\safety_monitor.v|G:\furata\furata\src\rtl\sensor_if.v|G:\furata\furata\src\rtl\tick_gen.v|G:\furata\furata\src\rtl\uart_commands.v|G:\furata\furata\src\board\acg720_top.v|G:\furata\furata\sim\tb_acg720_top.v|G:\furata\furata\sim\tb_adc128s102_reader.v|G:\furata\furata\sim\tb_clock_reset.v|G:\furata\furata\sim\tb_control_core.v|G:\furata\furata\sim\tb_divider_seq.v|G:\furata\furata\sim\tb_pid_fixed.v|G:\furata\furata\sim\tb_pwm_motor.v|G:\furata\furata\sim\tb_safety_monitor.v|G:\furata\furata\sim\tb_smoke_selftest.v|G:\furata\furata\sim\tb_tick_gen.v|
+Z14 o-sv -work {build\modelsim\work} -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF
+vadc128s102_reader
+R1
+!i10b 1
+Z15 !s100 Cl;R;nm2We:AV7bh=>]c63
+Z16 INY4UJZ7943WEj8@9aKa9a3
+Z17 VOGfjgTDO06>SWD=2MjePd1
+Z18 !s105 adc128s102_reader_v_unit
+S1
+R6
+Z19 w1790411189
+Z20 8G:\furata\furata\src\rtl\adc128s102_reader.v
+Z21 FG:\furata\furata\src\rtl\adc128s102_reader.v
+L0 7
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vclock_reset
+R1
+!i10b 1
+Z22 !s100 3?e3`HnKeTf4NIdO9RD0l0
+Z23 IbMMQMVT5dW9Hjo9Zg@O472
+Z24 VDSk`;;0mO0omgC_12SQ[31
+Z25 !s105 clock_reset_v_unit
+S1
+R6
+Z26 w1789803492
+Z27 8G:\furata\furata\src\rtl\clock_reset.v
+Z28 FG:\furata\furata\src\rtl\clock_reset.v
+L0 20
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vcontrol_core
+R1
+!i10b 1
+Z29 !s100 RX65fG;:hf078:2MFOca^3
+Z30 I?:cRh<cEhSljoS:hSPdjh0
+Z31 VAa00LfBRIA1o^b[614c@f0
+Z32 !s105 control_core_v_unit
+S1
+R6
+Z33 w1790417436
+Z34 8G:\furata\furata\src\rtl\control_core.v
+Z35 FG:\furata\furata\src\rtl\control_core.v
+L0 4
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vdivider_seq
+R1
+!i10b 1
+Z36 !s100 gfZKTDKZ1mUb_6Gc]J8<k1
+Z37 Ib3`R3Ni`Bn52UHD27jTdT2
+Z38 VoI;JJKB0kfUb78>80L<Nn3
+Z39 !s105 divider_seq_v_unit
+S1
+R6
+Z40 w1789912670
+Z41 8G:\furata\furata\src\rtl\divider_seq.v
+Z42 FG:\furata\furata\src\rtl\divider_seq.v
+L0 30
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vencoder_qei
+R1
+!i10b 1
+Z43 !s100 Tj4mNemNOZ>;0D1jKjjV32
+Z44 Io49g>g@<JHhh19K?6@d6o3
+Z45 V<4`2X95b=^_cYI5gndGKg0
+Z46 !s105 encoder_qei_v_unit
+S1
+R6
+Z47 w1790404326
+Z48 8G:\furata\furata\src\rtl\encoder_qei.v
+Z49 FG:\furata\furata\src\rtl\encoder_qei.v
+L0 40
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vpid_fixed
+R1
+!i10b 1
+Z50 !s100 6zI:JQ;lQD[@W<EZYJTfS3
+Z51 IQ>YOKI@L:ckkU5FCn4Jn]0
+Z52 V<J0ANOz]>k84laeBDIM901
+Z53 !s105 pid_fixed_v_unit
+S1
+R6
+Z54 w1790417530
+Z55 8G:\furata\furata\src\rtl\pid_fixed.v
+Z56 FG:\furata\furata\src\rtl\pid_fixed.v
+L0 5
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vpwm_motor
+R1
+!i10b 1
+Z57 !s100 7:O6OH_UdOo4eVg9H1i4L1
+Z58 IgnML8FYahlmb>L6H8AV2]3
+Z59 VmOeeRnFH9T;D8oGz2Q@8M1
+Z60 !s105 pwm_motor_v_unit
+S1
+R6
+Z61 w1789803526
+Z62 8G:\furata\furata\src\rtl\pwm_motor.v
+Z63 FG:\furata\furata\src\rtl\pwm_motor.v
+L0 34
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vsafety_monitor
+R1
+!i10b 1
+Z64 !s100 71ddFfFFcJ6B0JBGgZhXA0
+Z65 Iod]_F^W89_2Z?`lB0Z0X63
+Z66 VOR^ZUmI78BC5Hd_Ue5F?l2
+Z67 !s105 safety_monitor_v_unit
+S1
+R6
+Z68 w1790399960
+Z69 8G:\furata\furata\src\rtl\safety_monitor.v
+Z70 FG:\furata\furata\src\rtl\safety_monitor.v
+L0 4
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vsensor_if
+R1
+!i10b 1
+Z71 !s100 O[^7]3?ZFcSmeR9T^HHP;3
+Z72 IKSQQHJ9j?<^P@?j3aJ^C92
+Z73 Vn=MPZMN^Zg5LzME_m`dod0
+Z74 !s105 sensor_if_v_unit
+S1
+R6
+Z75 w1790401511
+Z76 8G:\furata\furata\src\rtl\sensor_if.v
+Z77 FG:\furata\furata\src\rtl\sensor_if.v
+L0 4
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vsmoke_selftest
+R1
+!i10b 1
+Z78 !s100 Oz=l8Y3>hKNGSQ?NndIjb1
+Z79 I@=HNfJJ9A0?TJZePDM^2c2
+Z80 V>2a52GQFC;X=n>f7JP;041
+Z81 !s105 tb_smoke_selftest_v_unit
+S1
+R6
+Z82 w1789802388
+Z83 8G:\furata\furata\sim\tb_smoke_selftest.v
+Z84 FG:\furata\furata\sim\tb_smoke_selftest.v
+L0 9
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_acg720_top
+R1
+!i10b 1
+!s100 5TW^cI?Tf_2>14YR13YPG0
+II?Gho6jfWAH7O=`A6m4>i1
+Z85 Vl`MMnOMeR?K9X^5KOd8I82
+Z86 !s105 tb_acg720_top_v_unit
+S1
+R6
+w1790417786
+Z87 8G:\furata\furata\sim\tb_acg720_top.v
+Z88 FG:\furata\furata\sim\tb_acg720_top.v
+L0 2
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_adc128s102_reader
+R1
+!i10b 1
+Z89 !s100 HDZYJWckXzI5MLJ;79AR[1
+Z90 IclB0UViH0Ak=Z6Ck>;bVm2
+Z91 Vk:Vc]]Y4;c9R]Zn:ifGW11
+Z92 !s105 tb_adc128s102_reader_v_unit
+S1
+R6
+Z93 w1790402106
+Z94 8G:\furata\furata\sim\tb_adc128s102_reader.v
+Z95 FG:\furata\furata\sim\tb_adc128s102_reader.v
+L0 2
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_clock_reset
+R1
+!i10b 1
+Z96 !s100 0YEdKjQn5Xa_bJFk8I1l;0
+Z97 Il^X;ciX]8YLlc]:hk:IbY3
+Z98 VY=>o];9V7Ic4W0W:aUaQL1
+Z99 !s105 tb_clock_reset_v_unit
+S1
+R6
+Z100 w1789803408
+Z101 8G:\furata\furata\sim\tb_clock_reset.v
+Z102 FG:\furata\furata\sim\tb_clock_reset.v
+L0 10
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_control_core
+R1
+!i10b 1
+Z103 !s100 Q3oiHS6a54g?4QeaFj4Q@3
+Z104 I>]6W;XN<k7fHFSE>KFKNE2
+Z105 VcaRO2j1Cc4[g17A<lB]FF2
+Z106 !s105 tb_control_core_v_unit
+S1
+R6
+Z107 w1790406373
+Z108 8G:\furata\furata\sim\tb_control_core.v
+Z109 FG:\furata\furata\sim\tb_control_core.v
+L0 2
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_divider_seq
+R1
+!i10b 1
+Z110 !s100 Ui?^=FlO1QAHVUJSQLz@>1
+Z111 I[5aE`^3E8SVdDLMdNoIHX1
+Z112 VP:ki3OLm`FA`zTBoB8Fio2
+Z113 !s105 tb_divider_seq_v_unit
+S1
+R6
+Z114 w1790312671
+Z115 8G:\furata\furata\sim\tb_divider_seq.v
+Z116 FG:\furata\furata\sim\tb_divider_seq.v
+L0 10
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_pid_fixed
+R1
+!i10b 1
+Z117 !s100 5X?<@ZbhEJol6hcRL_jE13
+Z118 IeTY=lccCo_KH84b2AFA__2
+Z119 VdYL7@?dihg0i^XDL8NMj]3
+Z120 !s105 tb_pid_fixed_v_unit
+S1
+R6
+Z121 w1790417540
+Z122 8G:\furata\furata\sim\tb_pid_fixed.v
+Z123 FG:\furata\furata\sim\tb_pid_fixed.v
+L0 4
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_pwm_motor
+R1
+!i10b 1
+Z124 !s100 0F`;m5Dnjd;:bdggG15>:1
+Z125 I?nfa[2721h1nINf^>_L8b0
+Z126 V=a1az?QPXhW=4^]?o4lQ_2
+Z127 !s105 tb_pwm_motor_v_unit
+S1
+R6
+Z128 w1789803518
+Z129 8G:\furata\furata\sim\tb_pwm_motor.v
+Z130 FG:\furata\furata\sim\tb_pwm_motor.v
+L0 18
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_safety_monitor
+R1
+!i10b 1
+Z131 !s100 _zTz5zhB2A?`DXR]j@Zkm2
+Z132 IiDRQe?B[9zW4z_5`4KgVD0
+Z133 V]=;=z5d?efI2WGUV3alk62
+Z134 !s105 tb_safety_monitor_v_unit
+S1
+R6
+Z135 w1790402472
+Z136 8G:\furata\furata\sim\tb_safety_monitor.v
+Z137 FG:\furata\furata\sim\tb_safety_monitor.v
+L0 2
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_smoke_selftest
+R1
+!i10b 1
+Z138 !s100 mjddJ<nV7dAi1kc@miXcm2
+Z139 I>0ag?HBD;zL<M@b3ecZ>G2
+Z140 V<eT8DLhZY106DiRYg0LWN1
+R81
+S1
+R6
+R82
+R83
+R84
+L0 38
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtb_tick_gen
+R1
+!i10b 1
+Z141 !s100 GP8ad7n7@AiD@jSddRVMB1
+Z142 IQM[NQYof?6R8zIgL=N3VQ2
+Z143 VbhNghS=1XEAf`E=ZY_BjT0
+Z144 !s105 tb_tick_gen_v_unit
+S1
+R6
+R100
+Z145 8G:\furata\furata\sim\tb_tick_gen.v
+Z146 FG:\furata\furata\sim\tb_tick_gen.v
+L0 14
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vtick_gen
+R1
+!i10b 1
+Z147 !s100 b?`=QG`e`Qc`CUo8<5V;o0
+Z148 I6VzJP:`JMN]fRlNUmUK4E0
+Z149 VTSiSYo^29FOf95VU4`4T20
+Z150 !s105 tick_gen_v_unit
+S1
+R6
+Z151 w1789803496
+Z152 8G:\furata\furata\src\rtl\tick_gen.v
+Z153 FG:\furata\furata\src\rtl\tick_gen.v
+L0 21
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14
+vuart_commands
+R1
+!i10b 1
+Z154 !s100 fQ1`a9d8mbkP1<5Pf@[]>2
+Z155 IMY=F2G405d7IT6U7YeH0Q2
+Z156 V[MH7I761kW@9Z4EamSal^0
+Z157 !s105 uart_commands_v_unit
+S1
+R6
+Z158 w1790411725
+Z159 8G:\furata\furata\src\rtl\uart_commands.v
+Z160 FG:\furata\furata\src\rtl\uart_commands.v
+L0 4
+R10
+r1
+!s85 0
+31
+R11
+R12
+R13
+R14

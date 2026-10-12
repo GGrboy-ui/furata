@@ -1,0 +1,113 @@
+{
+  "project": "G:/furata/furata/furata.gprj",
+  "download_file": "G:\\furata\\furata\\build\\releases\\furata_k2_pwm20_k4_reset_20261010.fs",
+  "bitstream_sha256": "93F3C7CD1BF3F2FF41AFED142B08F3DCA6391E4AE09D1B32940F8D1B94D93990",
+  "bitstream_size": 17311931,
+  "k2_pwm_percent": 20,
+  "k4": "stop and reset control; healthy sensors return to 00",
+  "tests_passed": 18,
+  "fmax_mhz": 64.677,
+  "worst_setup_slack_ns": 4.539,
+  "setup_violated_endpoints": 0,
+  "hold_violated_endpoints": 0,
+  "programmed_hardware": false,
+  "backup": "G:/furata/furata/build/backups/k2_motor_test_k4_reset_20261010_192942",
+  "source_hashes": [
+    {
+      "path": "G:\\furata\\furata\\src\\furata.sdc",
+      "sha256": "34D9E960A1AFC81EEF23426BFA75A15C390C5929BE1DBE1D3E87EB91BA0CCD59"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\board\\acg720_top.v",
+      "sha256": "CA7B336B444D875BC4C21189876A49A2CF0CC2B53AB44068B7BD3CAE80E002A3"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\constraints\\acg720.cst",
+      "sha256": "84A1EB84E962553FAAFC55A0DE6C84D2ABC8ECC58EEB1C945E9DF0D87D887CE0"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\constraints\\archive\\acg720_a1_external_adc.cst",
+      "sha256": "11F853C83A0C25B686E33BACE2259064BFFA2A4DA499EE338D59DBC1B6D1EA98"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\adc128s102_reader.v",
+      "sha256": "B3F7D1470DAF9607572405C29EF733B82C931C46A2D4716C1B768D8D0D23D367"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\angle_display_data.v",
+      "sha256": "48202A641A166F58ACDCA4AD4D7B28BE6E11368C601A78F9A288580B1017939D"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\clock_reset.v",
+      "sha256": "FEC25614C9981A737B130A6F1DB059F7C40057403E9FD75623D3EA92A2FEFF74"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\control_core.v",
+      "sha256": "6F7814B3C993D87356FDC27EC8FED6ED106E06888AC417F0B28DB3357352EB93"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\divider_seq.v",
+      "sha256": "1E359ED348C356E63C575E1A58A6A8BF03F09F633125041FB514F59A61DD0CB3"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\encoder_qei.v",
+      "sha256": "80BFD7A98BDB51A2F16117DC2D94256560F32182D6EAF97D353E10AE4C8315CD"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\key_input.v",
+      "sha256": "DD0F604EC233BE850CD492F32CB579ADB4D07370E5D22094E0B0AB506BDD3D5C"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\pid_fixed.v",
+      "sha256": "6AAA5AEDAD67D4BED8BCF00AC3265120AFB74BBDB419C094ECE6D10285C40E0D"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\position_target.v",
+      "sha256": "A6497565F1A8DFC8239CFBA8620008AF7F000456BA3BA0FD049BDEB9A3190161"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\pwm_motor.v",
+      "sha256": "7CE59EDDB112CAA4DD8C7CD842C0DB61DF17DA81C69861CE7CAE172EB269BAA3"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\safety_monitor.v",
+      "sha256": "9052680E01C169D98F076B61CF07CF59F16723E31B4172F91AFA871558B41C4A"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\seg595_scan.v",
+      "sha256": "C357486D50333BAC2235ACE813CCFDEBE6DFEAAA1AC8A859953C6694D756FDCA"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\sensor_if.v",
+      "sha256": "71E75525262BF4DA4BD4FEBA551A1707E28AD4D167D8F3957D73324F8763E5D0"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\tick_gen.v",
+      "sha256": "AFA04FBB43FC4DC5424A7405D7F1E8B12D7CB0C8BD995647E89505B7CC212D6D"
+    },
+    {
+      "path": "G:\\furata\\furata\\src\\rtl\\uart_commands.v",
+      "sha256": "05EF51F6078D47E15F0AA195AD56EC0F68B0DE59FD13B5121AD2C3E926608DC0"
+    },
+    {
+      "path": "G:\\furata\\furata\\furata.gprj",
+      "sha256": "8C01ED4C290BA228035410C31F38EF40CFFE79876E8BB0C79C034663D2891C88"
+    },
+    {
+      "path": "G:\\furata\\furata\\run_gowin.ps1",
+      "sha256": "D858F9DBC235061A1D7D572B713A0A05463A51E8638B7516A926117B7E40EA2E"
+    },
+    {
+      "path": "G:\\furata\\furata\\sim\\tb_acg720_keys.v",
+      "sha256": "D47329AA99ADFE226B54CAF78086092E7F059F394A7007C5621657E7BFDC990A"
+    },
+    {
+      "path": "G:\\furata\\furata\\sim\\tb_acg720_motor_test.v",
+      "sha256": "D6CEB3B57868315191C71599F652B952B436A95F475D3BDEC6FFD9860CFA57FC"
+    },
+    {
+      "path": "G:\\furata\\furata\\sim\\tb_control_core.v",
+      "sha256": "6EC328C4DF09909988B6FEFACB49570CADFF0703A87B8F22CFFC8F333236C35E"
+    }
+  ]
+}

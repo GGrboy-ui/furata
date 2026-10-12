@@ -1,0 +1,207 @@
+
+=== [sim] tb_acg720_display ===
+  VCD info: dumpfile tb_acg720_display.vcd opened for output.
+  TEST PASSED: tb_acg720_display (ADC-to-display, UART A/D, faults, S/X/C, motor isolation)
+  G:\furata\furata\sim\tb_acg720_display.v:55: $finish called at 613710000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_acg720_keys ===
+  VCD info: dumpfile tb_acg720_keys.vcd opened for output.
+  TEST PASSED: tb_acg720_keys
+  G:\furata\furata\sim\tb_acg720_keys.v:90: $finish called at 43930000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_acg720_manual_balance ===
+  VCD info: dumpfile tb_acg720_manual_balance.vcd opened for output.
+  TEST PASSED: tb_acg720_manual_balance (K3 direct PID, admission, hold, stop and faults)
+  G:\furata\furata\sim\tb_acg720_manual_balance.v:80: $finish called at 164430000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_acg720_motor_test ===
+  VCD info: dumpfile tb_acg720_motor_test.vcd opened for output.
+  TEST PASSED: tb_acg720_motor_test (20 percent PWM, reset, stop and fault paths)
+  G:\furata\furata\sim\tb_acg720_motor_test.v:88: $finish called at 166540000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_acg720_oled ===
+  VCD info: dumpfile tb_acg720_oled.vcd opened for output.
+  PASS: AB->RAW/POS/REL, K3 capture, K4 retention, unplugged motor modes and safety
+  G:\furata\furata\sim\tb_acg720_oled.v:68: $finish called at 10960951000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_acg720_top ===
+  VCD info: dumpfile tb_acg720_top.vcd opened for output.
+  TEST PASSED: tb_acg720_top
+  G:\furata\furata\sim\tb_acg720_top.v:61: $finish called at 4161000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_adc128s102_reader ===
+  VCD info: dumpfile tb_adc128s102_reader.vcd opened for output.
+  TEST PASSED: tb_adc128s102_reader
+  G:\furata\furata\sim\tb_adc128s102_reader.v:43: $finish called at 741000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_angle_display_data ===
+  VCD info: dumpfile tb_angle_display_data.vcd opened for output.
+  TEST PASSED: tb_angle_display_data (4096 ADC codes, calibration, sign, averaging, faults)
+  G:\furata\furata\sim\tb_angle_display_data.v:87: $finish called at 2747891000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_clock_reset ===
+  VCD info: dumpfile tb_clock_reset.vcd opened for output.
+  INFO: released after 11 clocks (stretch=8)
+  TEST PASSED: tb_clock_reset
+  G:\furata\furata\sim\tb_clock_reset.v:132: $finish called at 1236000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_control_core ===
+  VCD info: dumpfile tb_control_core.vcd opened for output.
+  TEST PASSED: tb_control_core
+  G:\furata\furata\sim\tb_control_core.v:40: $finish called at 216000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_divider_seq ===
+  VCD info: dumpfile tb_divider_seq.vcd opened for output.
+  
+  --- small values ---
+    OK [100/7]: 100 / 7 = 14 r 2  (65 cycles)
+    OK [1/1]: 1 / 1 = 1 r 0  (65 cycles)
+    OK [0/5]: 0 / 5 = 0 r 0  (65 cycles)
+    OK [5/1]: 5 / 1 = 5 r 0  (65 cycles)
+    OK [12/12]: 12 / 12 = 1 r 0  (65 cycles)
+    OK [11/12]: 11 / 12 = 0 r 11  (65 cycles)
+  
+  --- exact encoder constant, the cases the speed path uses ---
+    OK [VEL_K/960]: 12800000000 / 960 = 13333333 r 320  (65 cycles)
+    OK [VEL_K/480]: 12800000000 / 480 = 26666666 r 320  (65 cycles)
+    OK [VEL_K/9600]: 12800000000 / 9600 = 1333333 r 3200  (65 cycles)
+    OK [VEL_K/48000 (about 60 rpm)]: 12800000000 / 48000 = 266666 r 32000  (65 cycles)
+    OK [VEL_K/1 (saturation case)]: 12800000000 / 1 = 12800000000 r 0  (65 cycles)
+  
+  --- large and awkward divisors ---
+    OK [VEL_K/50e6]: 12800000000 / 50000000 = 256 r 0  (65 cycles)
+    OK [VEL_K / wide divisor]: 12800000000 / 2500000000 = 5 r 300000000  (65 cycles)
+    OK [max/max]: 18446744073709551615 / 18446744073709551615 = 1 r 0  (65 cycles)
+    OK [max/1]: 18446744073709551615 / 1 = 18446744073709551615 r 0  (65 cycles)
+  
+  TEST PASSED: tb_divider_seq
+  G:\furata\furata\sim\tb_divider_seq.v:106: $finish called at 20520000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_encoder_qei ===
+  VCD info: dumpfile tb_encoder_qei.vcd opened for output.
+  
+  --- 1. reset state ---
+    OK: position/vel/delta all zero
+  
+  --- 2. 4x decode, forward 500 quadrature steps ---
+      [per] period=22 clocks -> Q8.8 quotient would be 581818181
+      [per] period=40 clocks -> Q8.8 quotient would be 320000000
+    OK: position=500 after 500 quadrature steps (4x decode confirmed)
+  
+  --- 3. 4x decode, reverse 500 quadrature steps ---
+      [per] period=80 clocks -> Q8.8 quotient would be 160000000
+      [per] period=40 clocks -> Q8.8 quotient would be 320000000
+    OK: position returned to 0 (reverse direction confirmed)
+  
+  --- 4. 10 changes / 10 ms, physical speed calibration ---
+      [per] period=81 clocks -> Q8.8 quotient would be 158024691
+      [per] period=50000 clocks -> Q8.8 quotient would be 256000
+      [spin] edges=10 clks=500000 edge_len=50000 -> dpos=10 ticks=50 delta_sum=-241 zero=40 ab=11
+      ticks=50 dpos=10 zero_deltas=40/50 vel=256000 expected=256000 (1000 counts/s)
+    OK: period-based speed 256000 within 1% of 256000 (1000 counts/s)
+    OK: delta-per-tick read 0 on 40/50 ticks (too coarse to be the speed term)
+  
+  --- 5. 20 changes / 10 ms -> exactly twice the speed of test 4 ---
+      [per] period=25000 clocks -> Q8.8 quotient would be 512000
+      [spin] edges=20 clks=500000 edge_len=25000 -> dpos=20 ticks=50 delta_sum=20 zero=30 ab=11
+      ticks=50  zero_deltas=30  vel=512000  (test 4 was 256000)
+    OK: reading 512000 is 2x test 4's 256000 - the speed path is linear in edge rate
+  
+  --- 6. glitch immunity (single-channel toggles) ---
+      [per] period=24999 clocks -> Q8.8 quotient would be 512020
+      [per] period=60 clocks -> Q8.8 quotient would be 213333333
+    OK: 20 single-channel glitches left position at 30
+  
+  --- 7. stopped shaft holds the last measured speed ---
+      [per] period=161 clocks -> Q8.8 quotient would be 79503105
+      [per] period=2000 clocks -> Q8.8 quotient would be 6400000
+      [spin] edges=200 clks=400000 edge_len=2000 -> dpos=200 ticks=40 delta_sum=194 zero=1 ab=11
+      vel immediately after the shaft stopped = 6400000 (must be non-zero)
+      vel after 20 ms at rest   = 6400000 (still held: the period just went stale)
+    OK: speed held at 6400000 through 40 ms of rest (timeout is 1 s)
+  
+  --- 8. short-timeout instance: zeroed once the timeout elapses ---
+      short-timeout instance: vel right after the transitions = -8000000
+    OK: instance with VEL_TIMEOUT_CLKS=50 was forced to exactly 0
+  
+  TEST PASSED: tb_encoder_qei
+  G:\furata\furata\sim\tb_encoder_qei.v:421: $finish called at 69056191000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_key_input ===
+  VCD info: dumpfile tb_key_input.vcd opened for output.
+  TEST PASSED: tb_key_input
+  G:\furata\furata\sim\tb_key_input.v:35: $finish called at 1540000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_oled_encoder_display ===
+  VCD info: dumpfile tb_oled_encoder_display.vcd opened for output.
+  PASS: init/page protocol, signed limits, frame snapshot, refresh, unplug/reconnect
+  G:\furata\furata\sim\tb_oled_encoder_display.v:91: $finish called at 472483500000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_oled_i2c_writer ===
+  VCD info: dumpfile tb_oled_i2c_writer.vcd opened for output.
+  PASS: byte order, chained transaction, ACK/NACK, stretching, timeout/recovery
+  G:\furata\furata\sim\tb_oled_i2c_writer.v:47: $finish called at 2783400000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_pid_fixed ===
+  VCD info: dumpfile tb_pid_fixed.vcd opened for output.
+  TEST PASSED: tb_pid_fixed
+  G:\furata\furata\sim\tb_pid_fixed.v:26: $finish called at 76000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_position_target ===
+  VCD info: dumpfile tb_position_target.vcd opened for output.
+  TEST PASSED: tb_position_target
+  G:\furata\furata\sim\tb_position_target.v:49: $finish called at 256691000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_pwm_motor ===
+  VCD info: dumpfile tb_pwm_motor.vcd opened for output.
+  INFO: reversal duty: 10 8 6 4 2 0 0 0 0 2 4 6 8 10 10 10 10 10 10 10 10 10 10 10
+  INFO: reversal dir : 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+  TEST PASSED: tb_pwm_motor
+  G:\furata\furata\sim\tb_pwm_motor.v:209: $finish called at 29077000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_safety_monitor ===
+  VCD info: dumpfile tb_safety_monitor.vcd opened for output.
+  TEST PASSED: tb_safety_monitor
+  G:\furata\furata\sim\tb_safety_monitor.v:33: $finish called at 131000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_seg595_scan ===
+  VCD info: dumpfile tb_seg595_scan.vcd opened for output.
+  TEST PASSED: tb_seg595_scan (wire bit order, polarity, blanking, frame snapshot, pulse width)
+  G:\furata\furata\sim\tb_seg595_scan.v:40: $finish called at 79901000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_smoke_selftest ===
+  VCD info: dumpfile smoke.vcd opened for output.
+  PASS: count=50 after 49 ticks
+  SMOKE     OK
+  G:\furata\furata\sim\tb_smoke_selftest.v:68: $finish called at 2023000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_tick_gen ===
+  VCD info: dumpfile tb_tick_gen.vcd opened for output.
+  INFO: real  over 50000 clocks: speed=5000 ctrl=1000 log=10
+  INFO: fast  over 1000 clocks: speed=200 ctrl=50 log=5
+  TEST PASSED: tb_tick_gen
+  G:\furata\furata\sim\tb_tick_gen.v:151: $finish called at 510300000 (1ps)
+  RESULT: PASS
+
+=== summary: 22 / 22 testbench(es) passed ===

@@ -1,0 +1,29 @@
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file 'G:\furata\furata\src\board\acg720_top.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\adc128s102_reader.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\angle_display_data.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\seg595_scan.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\clock_reset.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\control_core.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\divider_seq.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\encoder_qei.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\pid_fixed.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\pwm_motor.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\safety_monitor.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\sensor_if.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\tick_gen.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\uart_commands.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\key_input.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\position_target.v'
+Compiling module 'acg720_top'("G:\furata\furata\src\board\acg720_top.v":5)
+Compiling module 'clock_reset'("G:\furata\furata\src\rtl\clock_reset.v":20)
+Compiling module 'key_input'("G:\furata\furata\src\rtl\key_input.v":4)
+Compiling module 'uart_commands'("G:\furata\furata\src\rtl\uart_commands.v":4)
+Compiling module 'sensor_if'("G:\furata\furata\src\rtl\sensor_if.v":4)
+Compiling module 'adc128s102_reader'("G:\furata\furata\src\rtl\adc128s102_reader.v":7)
+Compiling module 'encoder_qei'("G:\furata\furata\src\rtl\encoder_qei.v":40)
+Compiling module 'divider_seq'("G:\furata\furata\src\rtl\divider_seq.v":30)
+ERROR (EX3937) : Instantiating unknown module 'oled_encoder_display'("G:\furata\furata\src\board\acg720_top.v":105)
+Module 'acg720_top' remains a black box due to errors in its contents("G:\furata\furata\src\board\acg720_top.v":5)
+GowinSynthesis finish

@@ -1,0 +1,90 @@
+[
+  {
+    "path": "G:\\furata\\furata\\src\\furata.sdc",
+    "sha256": "34D9E960A1AFC81EEF23426BFA75A15C390C5929BE1DBE1D3E87EB91BA0CCD59"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\board\\acg720_top.v",
+    "sha256": "1BD3490DC14BB3220B14DAC1F298B8FC239E579AC12B6F7EAD9DF11711FAC2A6"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\constraints\\acg720.cst",
+    "sha256": "6DA573CC15AD1B288FE86C9A7D6A7129D5950C62C61207FF1306F50B543F0F4E"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\constraints\\archive\\acg720_a1_external_adc.cst",
+    "sha256": "11F853C83A0C25B686E33BACE2259064BFFA2A4DA499EE338D59DBC1B6D1EA98"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\adc128s102_reader.v",
+    "sha256": "B3F7D1470DAF9607572405C29EF733B82C931C46A2D4716C1B768D8D0D23D367"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\angle_display_data.v",
+    "sha256": "48202A641A166F58ACDCA4AD4D7B28BE6E11368C601A78F9A288580B1017939D"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\clock_reset.v",
+    "sha256": "FEC25614C9981A737B130A6F1DB059F7C40057403E9FD75623D3EA92A2FEFF74"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\control_core.v",
+    "sha256": "2D8002347E9ADFB09CC2DD5ED0145D564914F39FC7453962703F893E11D4D365"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\divider_seq.v",
+    "sha256": "1E359ED348C356E63C575E1A58A6A8BF03F09F633125041FB514F59A61DD0CB3"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\encoder_qei.v",
+    "sha256": "80BFD7A98BDB51A2F16117DC2D94256560F32182D6EAF97D353E10AE4C8315CD"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\key_input.v",
+    "sha256": "DD0F604EC233BE850CD492F32CB579ADB4D07370E5D22094E0B0AB506BDD3D5C"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\oled_encoder_display.v",
+    "sha256": "7B50CF244141F49FE37C1F4883A371C266D5A67A6A4919DE35FD0BC0CFBFBB83"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\oled_i2c_writer.v",
+    "sha256": "563C13995AF7953C3D7A1B15A5E07D791E6523E434E37C90283238C0454DD2E6"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\pid_fixed.v",
+    "sha256": "6AAA5AEDAD67D4BED8BCF00AC3265120AFB74BBDB419C094ECE6D10285C40E0D"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\position_target.v",
+    "sha256": "A6497565F1A8DFC8239CFBA8620008AF7F000456BA3BA0FD049BDEB9A3190161"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\pwm_motor.v",
+    "sha256": "7CE59EDDB112CAA4DD8C7CD842C0DB61DF17DA81C69861CE7CAE172EB269BAA3"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\safety_monitor.v",
+    "sha256": "9052680E01C169D98F076B61CF07CF59F16723E31B4172F91AFA871558B41C4A"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\seg595_scan.v",
+    "sha256": "C357486D50333BAC2235ACE813CCFDEBE6DFEAAA1AC8A859953C6694D756FDCA"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\sensor_if.v",
+    "sha256": "71E75525262BF4DA4BD4FEBA551A1707E28AD4D167D8F3957D73324F8763E5D0"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\tick_gen.v",
+    "sha256": "AFA04FBB43FC4DC5424A7405D7F1E8B12D7CB0C8BD995647E89505B7CC212D6D"
+  },
+  {
+    "path": "G:\\furata\\furata\\src\\rtl\\uart_commands.v",
+    "sha256": "05EF51F6078D47E15F0AA195AD56EC0F68B0DE59FD13B5121AD2C3E926608DC0"
+  },
+  {
+    "path": "G:\\furata\\furata\\furata.gprj",
+    "sha256": "41D14E75CF42F700BA408306CE48991B72F1889546924DC31418DCAD0509D584"
+  }
+]

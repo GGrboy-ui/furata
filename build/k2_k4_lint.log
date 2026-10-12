@@ -1,0 +1,164 @@
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\pwm_motor.v:38:22: Operator VAR 'PWM_MAX' expects 16 bits on the Initial value, but Initial value's CONST '32'h9c4' generates 32 bits.
+   38 |     parameter [15:0] PWM_MAX          = 16'd2500,
+      |                      ^~~~~~~
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.053
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\angle_display_data.v:60:23: Operator VAR 'RANGE_CONSTANT' expects 24 bits on the Initial value, but Initial value's VARREF 'RANGE_TENTHS' generates 32 bits.
+                                                                        : ... note: In instance 'acg720_top.angle_display'
+   60 |     localparam [23:0] RANGE_CONSTANT=RANGE_TENTHS;
+      |                       ^~~~~~~~~~~~~~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\angle_display_data.v:61:23: Operator VAR 'ROUND_CONSTANT' expects 24 bits on the Initial value, but Initial value's DIVS generates 32 bits.
+                                                                        : ... note: In instance 'acg720_top.angle_display'
+   61 |     localparam [23:0] ROUND_CONSTANT=ADC_SPAN/2;
+      |                       ^~~~~~~~~~~~~~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\angle_display_data.v:63:23: Operator VAR 'SPAN_CONSTANT' expects 24 bits on the Initial value, but Initial value's VARREF 'ADC_SPAN' generates 32 bits.
+                                                                        : ... note: In instance 'acg720_top.angle_display'
+   63 |     localparam [23:0] SPAN_CONSTANT=ADC_SPAN;
+      |                       ^~~~~~~~~~~~~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\position_target.v:16:30: Operator VAR 'STEP_10_Q' expects 32 bits on the Initial value, but Initial value's DIVS generates 64 bits.
+                                                                     : ... note: In instance 'acg720_top.target'
+   16 |     localparam signed [31:0] STEP_10_Q=(64'sd65536*COUNTS_PER_REV+18)/36;
+      |                              ^~~~~~~~~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\position_target.v:17:30: Operator VAR 'REV_Q' expects 32 bits on the Initial value, but Initial value's MULS generates 64 bits.
+                                                                     : ... note: In instance 'acg720_top.target'
+   17 |     localparam signed [31:0] REV_Q=64'sd65536*COUNTS_PER_REV;
+      |                              ^~~~~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\position_target.v:19:30: Operator VAR 'SLEW_Q' expects 32 bits on the Initial value, but Initial value's COND generates 64 bits.
+                                                                     : ... note: In instance 'acg720_top.target'
+   19 |     localparam signed [31:0] SLEW_Q=(RATE_Q<1) ? 1 : RATE_Q;
+      |                              ^~~~~~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\position_target.v:22:30: Operator VAR 'LIMIT_Q' expects 33 bits on the Initial value, but Initial value's MULS generates 64 bits.
+                                                                     : ... note: In instance 'acg720_top.target'
+   22 |     localparam signed [32:0] LIMIT_Q=64'sd65536*LIMIT_COUNTS;
+      |                              ^~~~~~~
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\pid_fixed.v:39:27: Operator NEGATE expects 64 bits on the LHS, but LHS's SIGNED generates 32 bits.
+                                                                : ... note: In instance 'acg720_top.core.position_pid'
+   39 |         else if (isum_w < -$signed(I_LIMIT)) inext_q=-I_LIMIT;
+      |                           ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.053
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\pid_fixed.v:38:25: Operator GTS expects 64 bits on the RHS, but RHS's SIGNED generates 32 bits.
+                                                                : ... note: In instance 'acg720_top.core.position_pid'
+   38 |         else if (isum_w > $signed(I_LIMIT)) inext_q=I_LIMIT;
+      |                         ^
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\pid_fixed.v:78:39: Operator NEGATE expects 64 bits on the LHS, but LHS's SIGNED generates 32 bits.
+                                                                : ... note: In instance 'acg720_top.core.position_pid'
+   78 |                     else if (scaled_w<-$signed(OUT_LIMIT)) out_q<=-$signed(OUT_LIMIT);
+      |                                       ^
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\pid_fixed.v:77:33: Operator GTS expects 64 bits on the RHS, but RHS's SIGNED generates 32 bits.
+                                                                : ... note: In instance 'acg720_top.core.position_pid'
+   77 |                     if (scaled_w>$signed(OUT_LIMIT)) out_q<=OUT_LIMIT;
+      |                                 ^
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\adc128s102_reader.v:44:57: Bit extraction of var[15:0] requires 4 bit index, not 5 bits.
+                                                                       : ... note: In instance 'acg720_top.sensor.adc'
+   44 |                         if (sclk) begin sclk<=0; din<=tx[bit_index]; end
+      |                                                         ^
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\seg595_scan.v:36:31: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's SUB generates 32 bits.
+                                                                 : ... note: In instance 'acg720_top.segment_driver'
+   36 |                     scan_count<=SCAN_CYCLES-1;
+      |                               ^~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\seg595_scan.v:43:31: Operator ASSIGNDLY expects 5 bits on the Assign RHS, but Assign RHS's SUB generates 32 bits.
+                                                                 : ... note: In instance 'acg720_top.segment_driver'
+   43 |                     half_count<=HALF_CYCLES-1; dio<=1; sclk<=0; rclk<=0; phase<=SHIFT;
+      |                               ^~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\seg595_scan.v:47:38: Operator ASSIGNDLY expects 5 bits on the Assign RHS, but Assign RHS's SUB generates 32 bits.
+                                                                 : ... note: In instance 'acg720_top.segment_driver'
+   47 |                            half_count<=HALF_CYCLES-1;
+      |                                      ^~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\seg595_scan.v:55:49: Operator ASSIGNDLY expects 5 bits on the Assign RHS, but Assign RHS's SUB generates 32 bits.
+                                                                 : ... note: In instance 'acg720_top.segment_driver'
+   55 |                 LATCH: begin rclk<=1; half_count<=HALF_CYCLES-1; phase<=UNLATCH; end
+      |                                                 ^~
+%Warning-WIDTHTRUNC: G:\furata\furata\src\rtl\seg595_scan.v:61:54: Operator ASSIGNDLY expects 5 bits on the Assign RHS, but Assign RHS's SUB generates 32 bits.
+                                                                 : ... note: In instance 'acg720_top.segment_driver'
+   61 |                         blank_transfer<=0; half_count<=HALF_CYCLES-1; phase<=SHIFT;
+      |                                                      ^~
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\position_target.v:42:31: Operator GTS expects 33 bits on the RHS, but RHS's SIGNED generates 32 bits.
+                                                                      : ... note: In instance 'acg720_top.target'
+   42 |                 if (distance_q>$signed(SLEW_Q)) target_q<=target_q+SLEW_Q;
+      |                               ^
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\key_input.v:30:30: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'count' generates 20 bits.
+                                                                : ... note: In instance 'acg720_top.keys'
+   30 |                     if (count==N-1) begin
+      |                              ^~
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\key_input.v:29:31: Operator LT expects 32 bits on the LHS, but LHS's VARREF 'count' generates 20 bits.
+                                                                : ... note: In instance 'acg720_top.keys'
+   29 |                 else if (count<N) begin
+      |                               ^
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\angle_display_data.v:30:46: Operator ADD expects 17 bits on the RHS, but RHS's VARREF 'sample' generates 12 bits.
+                                                                         : ... note: In instance 'acg720_top.angle_display'
+   30 |     wire [ACC_WIDTH-1:0] sum_next=average_sum+sample;
+      |                                              ^
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\angle_display_data.v:41:34: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'average_count' generates 4 bits.
+                                                                         : ... note: In instance 'acg720_top.angle_display'
+   41 |                 if (average_count==AVERAGE_LAST) begin
+      |                                  ^~
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\angle_display_data.v:55:58: Operator SUB expects 32 bits on the LHS, but LHS's SIGNED generates 13 bits.
+                                                                         : ... note: In instance 'acg720_top.angle_display'
+   55 |     wire signed [31:0] delta=$signed({1'b0,adc_snapshot})-ADC_ZERO;
+      |                                                          ^
+%Warning-WIDTHEXPAND: G:\furata\furata\src\rtl\angle_display_data.v:62:57: Operator ADD expects 37 bits on the RHS, but RHS's VARREF 'ROUND_CONSTANT' generates 24 bits.
+                                                                         : ... note: In instance 'acg720_top.angle_display'
+   62 |     wire [36:0] rounded_product=magnitude*RANGE_CONSTANT+ROUND_CONSTANT;
+      |                                                         ^
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:90:35: Signal is not used: 'relative_position'
+                                                                    : ... note: In instance 'acg720_top'
+   90 |     wire signed [31:0] command_q, relative_position;
+      |                                   ^~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.053
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:91:10: Signal is not used: 'angle_update'
+                                                                    : ... note: In instance 'acg720_top'
+   91 |     wire angle_update, position_update;
+      |          ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:91:24: Signal is not used: 'position_update'
+                                                                    : ... note: In instance 'acg720_top'
+   91 |     wire angle_update, position_update;
+      |                        ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:94:24: Signal is not used: 'displayed_angle'
+                                                                    : ... note: In instance 'acg720_top'
+   94 |     wire signed [15:0] displayed_angle;
+      |                        ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:95:17: Signal is not used: 'displayed_adc'
+                                                                    : ... note: In instance 'acg720_top'
+   95 |     wire [11:0] displayed_adc;
+      |                 ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:96:10: Signal is not used: 'display_angle_valid'
+                                                                    : ... note: In instance 'acg720_top'
+   96 |     wire display_angle_valid;
+      |          ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:107:24: Signal is not used: 'position_goal_q'
+                                                                     : ... note: In instance 'acg720_top'
+  107 |     wire signed [31:0] position_goal_q, position_target_q;
+      |                        ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\board\acg720_top.v:170:21: Bits of signal are not used: 'duty_product'[38:32,15:0]
+                                                                     : ... note: In instance 'acg720_top'
+  170 |         wire [38:0] duty_product=command_mag_q*COUNTS_PER_PERCENT;
+      |                     ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\rtl\angle_display_data.v:56:17: Bits of signal are not used: 'delta_magnitude'[31:13]
+                                                                          : ... note: In instance 'acg720_top.angle_display'
+   56 |     wire [31:0] delta_magnitude=(delta<0) ? -delta : delta;
+      |                 ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\rtl\angle_display_data.v:62:17: Bits of signal are not used: 'rounded_product'[36:24]
+                                                                          : ... note: In instance 'acg720_top.angle_display'
+   62 |     wire [36:0] rounded_product=magnitude*RANGE_CONSTANT+ROUND_CONSTANT;
+      |                 ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\rtl\angle_display_data.v:64:24: Signal is not used: 'divider_busy'
+                                                                          : ... note: In instance 'acg720_top.angle_display'
+   64 |     wire divider_done, divider_busy;
+      |                        ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\rtl\angle_display_data.v:86:17: Bits of signal are not used: 'adjusted_angle'[15]
+                                                                          : ... note: In instance 'acg720_top.angle_display'
+   86 |     wire [15:0] adjusted_angle=add_three(work_angle);
+      |                 ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\rtl\angle_display_data.v:87:17: Bits of signal are not used: 'adjusted_adc'[15]
+                                                                          : ... note: In instance 'acg720_top.angle_display'
+   87 |     wire [15:0] adjusted_adc=add_three(work_adc);
+      |                 ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: G:\furata\furata\src\rtl\adc128s102_reader.v:21:20: Bits of signal are not used: 'rx'[15]
+                                                                         : ... note: In instance 'acg720_top.sensor.adc'
+   21 |     reg [15:0] tx, rx;
+      |                    ^~
+- V e r i l a t i o n   R e p o r t: Verilator 5.053 devel rev v5.052-119-g014c9820d (mod)
+- Verilator: Built from 0.762 MB sources in 18 modules, into 0.344 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.085 s (elab=0.013, cvt=0.042, bld=0.000); cpu 0.000 s on 1 threads; allocated 19.773 MB

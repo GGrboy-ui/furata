@@ -1,0 +1,62 @@
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file 'G:\furata\furata\src\board\acg720_top.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\adc128s102_reader.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\angle_display_data.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\seg595_scan.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\clock_reset.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\control_core.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\divider_seq.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\encoder_qei.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\oled_i2c_writer.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\oled_encoder_display.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\pid_fixed.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\pwm_motor.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\safety_monitor.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\sensor_if.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\tick_gen.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\uart_commands.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\key_input.v'
+Analyzing Verilog file 'G:\furata\furata\src\rtl\position_target.v'
+Compiling module 'acg720_top'("G:\furata\furata\src\board\acg720_top.v":5)
+Compiling module 'clock_reset'("G:\furata\furata\src\rtl\clock_reset.v":20)
+Compiling module 'key_input'("G:\furata\furata\src\rtl\key_input.v":4)
+Compiling module 'uart_commands'("G:\furata\furata\src\rtl\uart_commands.v":4)
+Compiling module 'sensor_if'("G:\furata\furata\src\rtl\sensor_if.v":4)
+Compiling module 'adc128s102_reader'("G:\furata\furata\src\rtl\adc128s102_reader.v":7)
+Compiling module 'encoder_qei'("G:\furata\furata\src\rtl\encoder_qei.v":40)
+Compiling module 'divider_seq'("G:\furata\furata\src\rtl\divider_seq.v":30)
+Compiling module 'oled_encoder_display(ADDRESS=7'b0111100)'("G:\furata\furata\src\rtl\oled_encoder_display.v":4)
+Compiling module 'oled_i2c_writer'("G:\furata\furata\src\rtl\oled_i2c_writer.v":5)
+Compiling module 'angle_display_data(ADC_ZERO=1011)'("G:\furata\furata\src\rtl\angle_display_data.v":5)
+Compiling module 'divider_seq(WIDTH=24)'("G:\furata\furata\src\rtl\divider_seq.v":30)
+Compiling module 'seg595_scan'("G:\furata\furata\src\rtl\seg595_scan.v":5)
+Compiling module 'position_target'("G:\furata\furata\src\rtl\position_target.v":4)
+Compiling module 'safety_monitor'("G:\furata\furata\src\rtl\safety_monitor.v":4)
+Compiling module 'control_core(CENTER=1011,PULSE_MS=120)'("G:\furata\furata\src\rtl\control_core.v":4)
+Compiling module 'pid_fixed(KP=23661,KI=0,KD=23214)'("G:\furata\furata\src\rtl\pid_fixed.v":5)
+Compiling module 'pid_fixed(KP=0,KI=0,KD=0)'("G:\furata\furata\src\rtl\pid_fixed.v":5)
+Compiling module 'pwm_motor(PWM_MAX=2500)'("G:\furata\furata\src\rtl\pwm_motor.v":34)
+NOTE  (EX0101) : Current top module is "acg720_top"
+[5%] Running netlist conversion ...
+Running device independent optimization ...
+[10%] Optimizing Phase 0 completed
+[15%] Optimizing Phase 1 completed
+[25%] Optimizing Phase 2 completed
+Running inference ...
+[30%] Inferring Phase 0 completed
+[40%] Inferring Phase 1 completed
+[50%] Inferring Phase 2 completed
+[55%] Inferring Phase 3 completed
+Running technical mapping ...
+[60%] Tech-Mapping Phase 0 completed
+[65%] Tech-Mapping Phase 1 completed
+[75%] Tech-Mapping Phase 2 completed
+[80%] Tech-Mapping Phase 3 completed
+[90%] Tech-Mapping Phase 4 completed
+WARN  (NL0002) : The module "pid_fixed" instantiated to "position_pid" is swept in optimizing("G:\furata\furata\src\rtl\control_core.v":71)
+WARN  (NL0002) : The module "divider_seq" instantiated to "u_div" is swept in optimizing("G:\furata\furata\src\rtl\encoder_qei.v":226)
+WARN  (NL0002) : The module "position_target" instantiated to "target" is swept in optimizing("G:\furata\furata\src\board\acg720_top.v":129)
+[95%] Generate netlist file "G:\furata\furata\impl\gwsynthesis\furata.vg" completed
+[100%] Generate report file "G:\furata\furata\impl\gwsynthesis\furata_syn.rpt.html" completed
+GowinSynthesis finish

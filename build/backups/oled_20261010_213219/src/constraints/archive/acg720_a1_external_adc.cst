@@ -1,0 +1,7 @@
+// Archived A1 external MCP3201 mapping. Not used by the active board-ADC build.
+// Retained for hardware history only; do not include this file in synthesis.
+// IO_LOC "adc_cs_n" F13;
+// IO_LOC "adc_sclk" F14;
+// IO_LOC "adc_dout" E13;
+// Active replacement: board_adc_cs_n=M6, board_adc_din=M5,
+// board_adc_dout=P6, board_adc_sclk=N5.

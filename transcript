@@ -1,0 +1,1 @@
+# vsim -do {run -all; quit -f} -lib {build\modelsim\work} -c -lic_noqueue tb_pid_fixed 

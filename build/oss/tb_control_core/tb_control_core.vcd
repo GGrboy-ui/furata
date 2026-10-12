@@ -1,0 +1,764 @@
+$date
+	Sat Oct 10 21:49:15 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_control_core $end
+$var wire 3 ! state [2:0] $end
+$var wire 1 " running $end
+$var wire 4 # request_fault [3:0] $end
+$var wire 32 $ relative_position [31:0] $end
+$var wire 1 % position_update $end
+$var wire 32 & command_q [31:0] $end
+$var wire 1 ' angle_update $end
+$var reg 1 ( clk $end
+$var reg 1 ) fault_latched $end
+$var reg 1 * permit $end
+$var reg 32 + position [31:0] $end
+$var reg 1 , rst_n $end
+$var reg 12 - sample [11:0] $end
+$var reg 1 . sample_ready $end
+$var reg 1 / sample_valid $end
+$var reg 1 0 start_cmd $end
+$var reg 1 1 stop_cmd $end
+$var integer 32 2 errors [31:0] $end
+$var integer 32 3 trace [31:0] $end
+$scope module dut $end
+$var wire 1 4 angle_tick $end
+$var wire 1 5 balance_cmd $end
+$var wire 1 6 centered $end
+$var wire 1 ( clk $end
+$var wire 1 ) fault_latched $end
+$var wire 1 7 motor_test_cmd $end
+$var wire 1 * permit $end
+$var wire 32 8 position [31:0] $end
+$var wire 32 9 position_target_q [31:0] $end
+$var wire 1 : position_tick $end
+$var wire 1 ; prev_centered $end
+$var wire 32 < pulse_q [31:0] $end
+$var wire 1 , rst_n $end
+$var wire 1 " running $end
+$var wire 12 = sample [11:0] $end
+$var wire 1 . sample_ready $end
+$var wire 1 / sample_valid $end
+$var wire 1 0 start_cmd $end
+$var wire 1 1 stop_cmd $end
+$var wire 1 > swinging $end
+$var wire 32 ? test_q [31:0] $end
+$var wire 32 @ target_angle [31:0] $end
+$var wire 1 A reset_pid $end
+$var wire 32 B relative_position [31:0] $end
+$var wire 33 C rel_w [32:0] $end
+$var wire 1 % position_update $end
+$var wire 32 D position_out [31:0] $end
+$var wire 64 E measured_position_w [63:0] $end
+$var wire 32 F measured_position [31:0] $end
+$var wire 32 G measured_angle [31:0] $end
+$var wire 32 H command_q [31:0] $end
+$var wire 1 I balance $end
+$var wire 1 ' angle_update $end
+$var wire 32 J angle_out [31:0] $end
+$var parameter 32 K ANGLE_KD $end
+$var parameter 32 L ANGLE_KI $end
+$var parameter 32 M ANGLE_KP $end
+$var parameter 32 N ANGLE_MS $end
+$var parameter 3 O BALANCE $end
+$var parameter 32 P CAPTURE_RANGE $end
+$var parameter 32 Q CENTER $end
+$var parameter 32 R CHECK_MS $end
+$var parameter 3 S FAULT $end
+$var parameter 3 T MOTOR_TEST $end
+$var parameter 32 U MOTOR_TEST_PERCENT $end
+$var parameter 32 V MOTOR_TEST_REVERSE $end
+$var parameter 32 W POSITION_KD $end
+$var parameter 32 X POSITION_KI $end
+$var parameter 32 Y POSITION_KP $end
+$var parameter 32 Z POSITION_LIMIT_COUNTS $end
+$var parameter 32 [ POSITION_MS $end
+$var parameter 3 \ PULL $end
+$var parameter 32 ] PULSE_MS $end
+$var parameter 3 ^ PUSH $end
+$var parameter 32 _ START_PERCENT $end
+$var parameter 3 ` STOP $end
+$var parameter 32 a SWING_TIMEOUT_MS $end
+$var parameter 32 b TEST_PERCENT $end
+$var parameter 3 c WAIT_PEAK $end
+$var reg 32 d angle_count [31:0] $end
+$var reg 32 e check_count [31:0] $end
+$var reg 2 f history_count [1:0] $end
+$var reg 32 g measured_angle_q [31:0] $end
+$var reg 32 h measured_position_q [31:0] $end
+$var reg 12 i older [11:0] $end
+$var reg 32 j origin [31:0] $end
+$var reg 32 k position_count [31:0] $end
+$var reg 1 l positive_first $end
+$var reg 12 m previous [11:0] $end
+$var reg 32 n pulse_count [31:0] $end
+$var reg 4 o request_fault [3:0] $end
+$var reg 3 p state [2:0] $end
+$var reg 32 q swing_count [31:0] $end
+$var reg 32 r target_angle_q [31:0] $end
+$var reg 32 s target_position_q [31:0] $end
+$scope module angle_pid $end
+$var wire 32 t actual_q [31:0] $end
+$var wire 1 A clear $end
+$var wire 1 ( clk $end
+$var wire 1 , rst_n $end
+$var wire 32 u target_q [31:0] $end
+$var wire 1 4 tick $end
+$var parameter 32 v I_LIMIT $end
+$var parameter 32 w KD $end
+$var parameter 32 x KI $end
+$var parameter 32 y KP $end
+$var parameter 32 z OUT_LIMIT $end
+$var reg 32 { delta_q [31:0] $end
+$var reg 32 | delta_stage_q [31:0] $end
+$var reg 64 } delta_w [63:0] $end
+$var reg 32 ~ error_q [31:0] $end
+$var reg 32 !" error_stage_q [31:0] $end
+$var reg 64 "" error_w [63:0] $end
+$var reg 32 #" inext_q [31:0] $end
+$var reg 32 $" integral_q [31:0] $end
+$var reg 32 %" integral_stage_q [31:0] $end
+$var reg 64 &" isum_w [63:0] $end
+$var reg 64 '" kd_term [63:0] $end
+$var reg 64 (" ki_term [63:0] $end
+$var reg 64 )" kp_term [63:0] $end
+$var reg 32 *" out_q [31:0] $end
+$var reg 32 +" previous_q [31:0] $end
+$var reg 1 ," sample_pending $end
+$var reg 64 -" scaled_w [63:0] $end
+$var reg 64 ." sum_w [63:0] $end
+$var reg 1 ' valid $end
+$scope function clamp32 $end
+$var reg 64 /" x [63:0] $end
+$upscope $end
+$upscope $end
+$scope module position_pid $end
+$var wire 32 0" actual_q [31:0] $end
+$var wire 1 A clear $end
+$var wire 1 ( clk $end
+$var wire 1 , rst_n $end
+$var wire 32 1" target_q [31:0] $end
+$var wire 1 : tick $end
+$var parameter 32 2" I_LIMIT $end
+$var parameter 32 3" KD $end
+$var parameter 32 4" KI $end
+$var parameter 32 5" KP $end
+$var parameter 32 6" OUT_LIMIT $end
+$var reg 32 7" delta_q [31:0] $end
+$var reg 32 8" delta_stage_q [31:0] $end
+$var reg 64 9" delta_w [63:0] $end
+$var reg 32 :" error_q [31:0] $end
+$var reg 32 ;" error_stage_q [31:0] $end
+$var reg 64 <" error_w [63:0] $end
+$var reg 32 =" inext_q [31:0] $end
+$var reg 32 >" integral_q [31:0] $end
+$var reg 32 ?" integral_stage_q [31:0] $end
+$var reg 64 @" isum_w [63:0] $end
+$var reg 64 A" kd_term [63:0] $end
+$var reg 64 B" ki_term [63:0] $end
+$var reg 64 C" kp_term [63:0] $end
+$var reg 32 D" out_q [31:0] $end
+$var reg 32 E" previous_q [31:0] $end
+$var reg 1 F" sample_pending $end
+$var reg 64 G" scaled_w [63:0] $end
+$var reg 64 H" sum_w [63:0] $end
+$var reg 1 % valid $end
+$scope function clamp32 $end
+$var reg 64 I" x [63:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope task samp $end
+$var reg 12 J" v [11:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b11001000000000000000000 6"
+b110011001100110 5"
+b0 4"
+b1000000000000000000 3"
+b1000000000000000000000000000000 2"
+b11001000000000000000000 z
+b101110001101101 y
+b0 x
+b101101010101110 w
+b1000000000000000000000000000000 v
+b11 c
+b10100 b
+b10100 a
+b0 `
+b100011 _
+b1 ^
+b10 ]
+b10 \
+b100 [
+b1100100 Z
+b110011001100110 Y
+b0 X
+b1000000000000000000 W
+b0 V
+b10100 U
+b110 T
+b101 S
+b10 R
+b1111110110 Q
+b111110100 P
+b100 O
+b10 N
+b101110001101101 M
+b0 L
+b101101010101110 K
+$end
+#0
+$dumpvars
+bx J"
+bx I"
+bx H"
+bx G"
+xF"
+bx E"
+bx D"
+bx C"
+bx B"
+bx A"
+bx @"
+bx ?"
+bx >"
+bx ="
+bx <"
+bx ;"
+bx :"
+bx 9"
+bx 8"
+bx 7"
+bx 1"
+bx 0"
+bx /"
+bx ."
+bx -"
+x,"
+bx +"
+bx *"
+bx )"
+bx ("
+bx '"
+bx &"
+bx %"
+bx $"
+bx #"
+bx ""
+bx !"
+bx ~
+bx }
+bx |
+bx {
+bx u
+bx t
+bx s
+bx r
+bx q
+bx p
+b0 o
+bx n
+bx m
+xl
+bx k
+bx j
+bx i
+bx h
+bx g
+bx f
+bx e
+bx d
+bx J
+xI
+bx H
+b11111101100000000000000000 G
+bx F
+bx E
+bx D
+bx C
+bx B
+xA
+bx @
+b101000000000000000000 ?
+x>
+b1111110110 =
+b1000110000000000000000 <
+x;
+0:
+b0 9
+b0 8
+07
+16
+05
+04
+b10000000000000000000000000000011 3
+b0 2
+01
+00
+0/
+0.
+b1111110110 -
+0,
+b0 +
+1*
+0)
+0(
+x'
+bx &
+x%
+bx $
+b0 #
+x"
+bx !
+$end
+#5000
+b0 &
+b0 H
+b0 F
+0"
+b0 E
+b0 $
+b0 B
+b0 C
+0;
+0>
+b0 G"
+b0 H"
+b0 A"
+b0 B"
+b0 C"
+b0 7"
+b0 9"
+b0 ="
+b0 @"
+b0 :"
+b0 I"
+b0 <"
+b0 -"
+b0 ."
+b0 '"
+b0 ("
+b0 )"
+b11111101100000000000000000 {
+b11111101100000000000000000 }
+b0 #"
+b11111101100000000000000000 &"
+b11111101100000000000000000 ~
+b11111101100000000000000000 /"
+b11111101100000000000000000 ""
+0,"
+b0 |
+b0 %"
+b0 !"
+0'
+b0 $"
+b0 +"
+b0 J
+b0 *"
+0F"
+b0 8"
+b0 ?"
+b0 ;"
+0%
+b0 >"
+b0 E"
+b11111101100000000000000000 @
+b0 D
+b0 D"
+b11111101100000000000000000 r
+b11111101100000000000000000 u
+b0 s
+b0 1"
+b0 h
+b0 0"
+b0 g
+b0 t
+b0 j
+b0 f
+b0 i
+b0 m
+1l
+b0 k
+b0 d
+b0 q
+b0 e
+b0 n
+1A
+0I
+b0 !
+b0 p
+1(
+#10000
+0(
+#12000
+1/
+b1111110110 J"
+10
+1.
+1,
+#15000
+1"
+1>
+b1000110000000000000000 &
+b1000110000000000000000 H
+b0 {
+b0 }
+b0 &"
+b0 ~
+b0 /"
+b0 ""
+b1 !
+b1 p
+b11111101100000000000000000 g
+b11111101100000000000000000 t
+1(
+#16000
+00
+1/
+#20000
+0(
+#25000
+b1 n
+b1 q
+1(
+#26000
+1/
+#30000
+0(
+#35000
+b11111111110111010000000000000000 &
+b11111111110111010000000000000000 H
+b10 !
+b10 p
+b0 n
+b10 q
+1(
+#36000
+1/
+#40000
+0(
+#45000
+b1 n
+b11 q
+1(
+#46000
+1/
+#50000
+0(
+#55000
+b0 &
+b0 H
+b11 !
+b11 p
+b0 n
+b100 q
+1(
+#56000
+1/
+#60000
+0(
+#65000
+b1 e
+b101 q
+1(
+#66000
+1/
+#70000
+0(
+#75000
+1;
+b1 f
+b1111110110 m
+b0 e
+b110 q
+1(
+#76000
+1/
+#80000
+0(
+#85000
+b1 e
+b111 q
+1(
+#86000
+1/
+#90000
+0(
+#95000
+0>
+0A
+1I
+b100 !
+b100 p
+b10 f
+b1111110110 i
+b0 e
+b1000 q
+1(
+#96000
+b10100000000000000000 F
+b10100000000000000000 E
+b1010 $
+b1010 B
+b1010 C
+b1010 +
+b1010 8
+1/
+#100000
+0(
+#105000
+b11111111111101100000000000000000 7"
+b1111111111111111111111111111111111111111111101100000000000000000 9"
+b1111111111111111111111111111111111111111111101100000000000000000 @"
+b11111111111101100000000000000000 :"
+b1111111111111111111111111111111111111111111101100000000000000000 I"
+b1111111111111111111111111111111111111111111101100000000000000000 <"
+14
+b10100000000000000000 h
+b10100000000000000000 0"
+b1 k
+b1 d
+1(
+#106000
+1/
+#110000
+0(
+#115000
+04
+b10 k
+b0 d
+1,"
+1(
+#116000
+1/
+#120000
+0(
+#125000
+1:
+14
+1'
+0,"
+b11 k
+b1 d
+1(
+#126000
+1/
+#130000
+0(
+#135000
+0:
+04
+b1111111111111111111111111111111111111111110101000000000000000100 G"
+b1111111111111111111111111101010000000000000001000000000000000000 H"
+b1111111111111111111111111101100000000000000000000000000000000000 A"
+b1111111111111111111111111111110000000000000001000000000000000000 C"
+b0 7"
+b0 I"
+b0 9"
+b0 k
+b0 d
+b11111111111101100000000000000000 8"
+b11111111111101100000000000000000 ;"
+b11111111111101100000000000000000 E"
+1F"
+1,"
+0'
+1(
+#136000
+1/
+#140000
+0(
+#145000
+14
+1'
+0,"
+b100001000011111111111111100 @
+b11111111110101000000000000000100 D
+b11111111110101000000000000000100 D"
+1%
+0F"
+b1 k
+b1 d
+1(
+#146000
+1/
+#150000
+0(
+#155000
+04
+b1010111111111111111100 {
+b1010111111111111111100 }
+b1010111111111111111100 &"
+b1010111111111111111100 ~
+b1010111111111111111100 /"
+b1010111111111111111100 ""
+b10 k
+b0 d
+b100001000011111111111111100 r
+b100001000011111111111111100 u
+0%
+1,"
+0'
+1(
+#156000
+1/
+#160000
+0(
+#165000
+1:
+14
+1'
+0,"
+b11 k
+b1 d
+1(
+#166000
+1/
+#170000
+0(
+#175000
+0:
+04
+b1111111111111111111111111111111111111111111111000000000000000100 G"
+b1111111111111111111111111111110000000000000001000000000000000000 H"
+b0 A"
+b0 I"
+b111110111100010100001 -"
+b1111101111000101000010010001110010100 ."
+b111110010101111001101001010101001000 '"
+b111111100010101110101000111001001100 )"
+b0 {
+b0 /"
+b0 }
+b0 k
+b0 d
+b0 8"
+1F"
+b1010111111111111111100 |
+b1010111111111111111100 !"
+b1010111111111111111100 +"
+1,"
+0'
+1(
+#176000
+1/
+#180000
+0(
+#185000
+b111110111100010100001 &
+b111110111100010100001 H
+14
+b111110111100010100001 J
+b111110111100010100001 *"
+1'
+0,"
+b11111110011111111111111100 @
+b11111111111111000000000000000100 D
+b11111111111111000000000000000100 D"
+1%
+0F"
+b1 k
+b1 d
+1(
+#186000
+1/
+#190000
+0(
+#195000
+04
+b11111110001010111010 -"
+b111111100010101110101000111001001100 ."
+b0 '"
+b11111111110110000000000000000000 {
+b1111111111111111111111111111111111111111110110000000000000000000 }
+b111111111111111100 &"
+b111111111111111100 ~
+b1111111111111111111111111111111111111111110110000000000000000000 /"
+b111111111111111100 ""
+b10 k
+b0 d
+b11111110011111111111111100 r
+b11111110011111111111111100 u
+0%
+b0 |
+1,"
+0'
+1(
+#196000
+b0 F
+b0 E
+b0 $
+b0 B
+b101 #
+b101 o
+06
+b1011101110000000000000000000 G
+b0 C
+b101110111000 -
+b101110111000 =
+b0 +
+b0 8
+1/
+#200000
+0(
+#205000
+b11111110001010111010 &
+b11111110001010111010 H
+b10100000000000000000 7"
+b10100000000000000000 I"
+b10100000000000000000 9"
+b0 @"
+b0 :"
+b0 <"
+b11111000000101100000000000000000 {
+b1111111111111111111111111111111111111000000101100000000000000000 }
+b1111111111111111111111111111111111111000010000011111111111111100 &"
+b11111000010000011111111111111100 ~
+b1111111111111111111111111111111111111000000101100000000000000000 /"
+b1111111111111111111111111111111111111000010000011111111111111100 ""
+1:
+14
+b11111110001010111010 J
+b11111110001010111010 *"
+1'
+0,"
+b0 h
+b0 0"
+b1011101110000000000000000000 g
+b1011101110000000000000000000 t
+b11 k
+b1 d
+1(
+#206000
+b0 &
+b0 H
+04
+0:
+b0 #
+b0 o
+11
+0/
+#210000
+0(
+#215000
+0"
+b0 k
+b0 d
+1A
+0I
+b0 !
+b0 p
+0'
+1(
+#216000
+01

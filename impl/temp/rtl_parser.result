@@ -1,0 +1,182 @@
+[
+    {
+        "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+        "InstLine": 5,
+        "InstName": "acg720_top",
+        "ModuleFile": "G:/furata/furata/src/board/acg720_top.v",
+        "ModuleLine": 5,
+        "ModuleName": "acg720_top",
+        "SubInsts": [
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 46,
+                "InstName": "reset_conditioner",
+                "ModuleFile": "G:/furata/furata/src/rtl/clock_reset.v",
+                "ModuleLine": 20,
+                "ModuleName": "clock_reset"
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 60,
+                "InstName": "keys",
+                "ModuleFile": "G:/furata/furata/src/rtl/key_input.v",
+                "ModuleLine": 4,
+                "ModuleName": "key_input"
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 66,
+                "InstName": "control_reset_conditioner",
+                "ModuleFile": "G:/furata/furata/src/rtl/clock_reset.v",
+                "ModuleLine": 20,
+                "ModuleName": "clock_reset"
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 72,
+                "InstName": "uart",
+                "ModuleFile": "G:/furata/furata/src/rtl/uart_commands.v",
+                "ModuleLine": 4,
+                "ModuleName": "uart_commands"
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 81,
+                "InstName": "sensor",
+                "ModuleFile": "G:/furata/furata/src/rtl/sensor_if.v",
+                "ModuleLine": 4,
+                "ModuleName": "sensor_if",
+                "SubInsts": [
+                    {
+                        "InstFile": "G:/furata/furata/src/rtl/sensor_if.v",
+                        "InstLine": 34,
+                        "InstName": "adc",
+                        "ModuleFile": "G:/furata/furata/src/rtl/adc128s102_reader.v",
+                        "ModuleLine": 7,
+                        "ModuleName": "adc128s102_reader"
+                    }
+                ]
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 88,
+                "InstName": "encoder",
+                "ModuleFile": "G:/furata/furata/src/rtl/encoder_qei.v",
+                "ModuleLine": 40,
+                "ModuleName": "encoder_qei",
+                "SubInsts": [
+                    {
+                        "InstFile": "G:/furata/furata/src/rtl/encoder_qei.v",
+                        "InstLine": 216,
+                        "InstName": "u_div",
+                        "ModuleFile": "G:/furata/furata/src/rtl/divider_seq.v",
+                        "ModuleLine": 30,
+                        "ModuleName": "divider_seq"
+                    }
+                ]
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 102,
+                "InstName": "oled",
+                "ModuleFile": "G:/furata/furata/src/rtl/oled_encoder_display.v",
+                "ModuleLine": 4,
+                "ModuleName": "oled_encoder_display",
+                "SubInsts": [
+                    {
+                        "InstFile": "G:/furata/furata/src/rtl/oled_encoder_display.v",
+                        "InstLine": 38,
+                        "InstName": "writer",
+                        "ModuleFile": "G:/furata/furata/src/rtl/oled_i2c_writer.v",
+                        "ModuleLine": 5,
+                        "ModuleName": "oled_i2c_writer"
+                    }
+                ]
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 113,
+                "InstName": "angle_display",
+                "ModuleFile": "G:/furata/furata/src/rtl/angle_display_data.v",
+                "ModuleLine": 5,
+                "ModuleName": "angle_display_data",
+                "SubInsts": [
+                    {
+                        "InstFile": "G:/furata/furata/src/rtl/angle_display_data.v",
+                        "InstLine": 66,
+                        "InstName": "scale",
+                        "ModuleFile": "G:/furata/furata/src/rtl/divider_seq.v",
+                        "ModuleLine": 30,
+                        "ModuleName": "divider_seq"
+                    }
+                ]
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 119,
+                "InstName": "segment_driver",
+                "ModuleFile": "G:/furata/furata/src/rtl/seg595_scan.v",
+                "ModuleLine": 5,
+                "ModuleName": "seg595_scan"
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 125,
+                "InstName": "target",
+                "ModuleFile": "G:/furata/furata/src/rtl/position_target.v",
+                "ModuleLine": 4,
+                "ModuleName": "position_target"
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 131,
+                "InstName": "safety",
+                "ModuleFile": "G:/furata/furata/src/rtl/safety_monitor.v",
+                "ModuleLine": 4,
+                "ModuleName": "safety_monitor"
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 139,
+                "InstName": "core",
+                "ModuleFile": "G:/furata/furata/src/rtl/control_core.v",
+                "ModuleLine": 4,
+                "ModuleName": "control_core",
+                "SubInsts": [
+                    {
+                        "InstFile": "G:/furata/furata/src/rtl/control_core.v",
+                        "InstLine": 66,
+                        "InstName": "angle_pid",
+                        "ModuleFile": "G:/furata/furata/src/rtl/pid_fixed.v",
+                        "ModuleLine": 5,
+                        "ModuleName": "pid_fixed"
+                    },
+                    {
+                        "InstFile": "G:/furata/furata/src/rtl/control_core.v",
+                        "InstLine": 69,
+                        "InstName": "position_pid",
+                        "ModuleFile": "G:/furata/furata/src/rtl/pid_fixed.v",
+                        "ModuleLine": 5,
+                        "ModuleName": "pid_fixed"
+                    }
+                ]
+            },
+            {
+                "InstFile": "G:/furata/furata/src/board/acg720_top.v",
+                "InstLine": 199,
+                "InstName": "motor",
+                "ModuleFile": "G:/furata/furata/src/rtl/pwm_motor.v",
+                "ModuleLine": 34,
+                "ModuleName": "pwm_motor"
+            }
+        ]
+    },
+    {
+        "InstFile": "G:/furata/furata/src/rtl/tick_gen.v",
+        "InstLine": 21,
+        "InstName": "tick_gen",
+        "ModuleFile": "G:/furata/furata/src/rtl/tick_gen.v",
+        "ModuleLine": 21,
+        "ModuleName": "tick_gen"
+    }
+]
