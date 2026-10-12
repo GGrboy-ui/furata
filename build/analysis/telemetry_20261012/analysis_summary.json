@@ -1,0 +1,114 @@
+{
+  "source": "D:\\Backup\\Downloads\\furuta-angle-2026-10-12T11-25-22-944Z.csv",
+  "samples": 6439,
+  "duration_s": 32.205,
+  "missing_sequence_slots": 3,
+  "first_motor_request_s": 10.735,
+  "last_motor_request_s": 27.18,
+  "analysis_interval_s": [
+    18.8,
+    26.5
+  ],
+  "exact_pwm_tracking_fraction": 0.9902660609993511,
+  "pwm_tracking_rms_counts": 24.62699014775928,
+  "pwm_sign_mismatches": 0,
+  "fitted_request_percent_per_degree": -4.4414441390221695,
+  "fit_intercept_percent": -0.09917704132037884,
+  "coded_kp_percent_per_degree": 4.439794179555532,
+  "coded_kd_percent_per_deg_s": 0.02177959132838894,
+  "coded_d_over_p_time_s": 0.0049055407632813495,
+  "first_requested_saturation_s": 27.075,
+  "requested_saturation_samples": 13,
+  "milestones": [
+    {
+      "time_s": 10.735,
+      "angle_deg": -0.1,
+      "requested_percent": 0.68,
+      "actual_percent": 0.68
+    },
+    {
+      "time_s": 18.8,
+      "angle_deg": -0.3,
+      "requested_percent": 1.44,
+      "actual_percent": 1.44
+    },
+    {
+      "time_s": 19.0,
+      "angle_deg": -2.4,
+      "requested_percent": 10.08,
+      "actual_percent": 10.08
+    },
+    {
+      "time_s": 24.0,
+      "angle_deg": -3.6,
+      "requested_percent": 15.16,
+      "actual_percent": 15.16
+    },
+    {
+      "time_s": 26.3,
+      "angle_deg": -5.3,
+      "requested_percent": 23.08,
+      "actual_percent": 23.08
+    },
+    {
+      "time_s": 26.5,
+      "angle_deg": -6.5,
+      "requested_percent": 29.2,
+      "actual_percent": 29.2
+    },
+    {
+      "time_s": 26.8,
+      "angle_deg": -8.9,
+      "requested_percent": 40.4,
+      "actual_percent": 40.4
+    },
+    {
+      "time_s": 27.0,
+      "angle_deg": -15.5,
+      "requested_percent": 56.8,
+      "actual_percent": 61.56
+    },
+    {
+      "time_s": 27.08,
+      "angle_deg": 18.5,
+      "requested_percent": -100.0,
+      "actual_percent": -100.0
+    },
+    {
+      "time_s": 27.1,
+      "angle_deg": 26.6,
+      "requested_percent": -100.0,
+      "actual_percent": -100.0
+    },
+    {
+      "time_s": 27.18,
+      "angle_deg": -26.3,
+      "requested_percent": 100.0,
+      "actual_percent": 100.0
+    },
+    {
+      "time_s": 27.185,
+      "angle_deg": -26.3,
+      "requested_percent": 0.0,
+      "actual_percent": 0.0
+    },
+    {
+      "time_s": 27.2,
+      "angle_deg": -38.7,
+      "requested_percent": 0.0,
+      "actual_percent": 0.0
+    },
+    {
+      "time_s": 27.25,
+      "angle_deg": -76.4,
+      "requested_percent": 0.0,
+      "actual_percent": 0.0
+    },
+    {
+      "time_s": 27.275,
+      "angle_deg": 240.7,
+      "requested_percent": 0.0,
+      "actual_percent": 0.0
+    }
+  ]
+}

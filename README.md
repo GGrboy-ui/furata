@@ -9,6 +9,7 @@
 - [下载、显示格式、串口命令和标定方法](doc/angle-display.md)
 - [K2 固定 20% PWM 试转与 K4 复位说明](doc/motor-test.md)
 - [K3 手动扶直后维持平衡](doc/manual-balance.md)
+- [转臂速度阻尼与调参](doc/arm-damping.md)
 - [OLED 编码器 RAW / POS / REL 显示与接线](doc/oled-encoder.md)
 - [网页角度与要求/实际 PWM 串口回传](doc/uart-telemetry.md)
 - [引脚表](doc/pinout.md)

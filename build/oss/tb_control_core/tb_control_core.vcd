@@ -1,5 +1,5 @@
 $date
-	Mon Oct 12 19:10:20 2026
+	Mon Oct 12 20:23:58 2026
 $end
 $version
 	Icarus Verilog
@@ -59,227 +59,251 @@ $var wire 64 E measured_position_w [63:0] $end
 $var wire 32 F measured_position [31:0] $end
 $var wire 32 G measured_angle [31:0] $end
 $var wire 32 H command_q [31:0] $end
-$var wire 1 I balance $end
+$var wire 33 I balance_sum [32:0] $end
+$var wire 32 J balance_command [31:0] $end
+$var wire 1 K balance $end
+$var wire 64 L arm_damping_product [63:0] $end
 $var wire 1 ' angle_update $end
-$var wire 32 J angle_out [31:0] $end
-$var parameter 32 K ANGLE_KD $end
-$var parameter 32 L ANGLE_KI $end
-$var parameter 32 M ANGLE_KP $end
-$var parameter 32 N ANGLE_MS $end
-$var parameter 3 O BALANCE $end
-$var parameter 32 P CAPTURE_RANGE $end
-$var parameter 32 Q CENTER $end
-$var parameter 32 R CHECK_MS $end
-$var parameter 3 S FAULT $end
-$var parameter 3 T MOTOR_TEST $end
-$var parameter 32 U MOTOR_TEST_PERCENT $end
-$var parameter 32 V MOTOR_TEST_REVERSE $end
-$var parameter 32 W POSITION_KD $end
-$var parameter 32 X POSITION_KI $end
-$var parameter 32 Y POSITION_KP $end
-$var parameter 32 Z POSITION_LIMIT_COUNTS $end
-$var parameter 32 [ POSITION_MS $end
-$var parameter 3 \ PULL $end
-$var parameter 32 ] PULSE_MS $end
-$var parameter 3 ^ PUSH $end
-$var parameter 32 _ START_PERCENT $end
-$var parameter 3 ` STOP $end
-$var parameter 32 a SWING_TIMEOUT_MS $end
-$var parameter 32 b TEST_PERCENT $end
-$var parameter 3 c WAIT_PEAK $end
-$var reg 32 d angle_count [31:0] $end
-$var reg 32 e check_count [31:0] $end
-$var reg 2 f history_count [1:0] $end
-$var reg 32 g measured_angle_q [31:0] $end
-$var reg 32 h measured_position_q [31:0] $end
-$var reg 12 i older [11:0] $end
-$var reg 32 j origin [31:0] $end
-$var reg 32 k position_count [31:0] $end
-$var reg 1 l positive_first $end
-$var reg 12 m previous [11:0] $end
-$var reg 32 n pulse_count [31:0] $end
-$var reg 4 o request_fault [3:0] $end
-$var reg 3 p state [2:0] $end
-$var reg 32 q swing_count [31:0] $end
-$var reg 32 r target_angle_q [31:0] $end
-$var reg 32 s target_position_q [31:0] $end
+$var wire 32 M angle_out [31:0] $end
+$var parameter 32 N ANGLE_KD $end
+$var parameter 32 O ANGLE_KI $end
+$var parameter 32 P ANGLE_KP $end
+$var parameter 32 Q ANGLE_MS $end
+$var parameter 32 R ARM_DAMPING_KD $end
+$var parameter 32 S ARM_DAMPING_LIMIT_PERCENT $end
+$var parameter 3 T BALANCE $end
+$var parameter 32 U CAPTURE_RANGE $end
+$var parameter 32 V CENTER $end
+$var parameter 32 W CHECK_MS $end
+$var parameter 32 X DAMPING_GAIN $end
+$var parameter 32 Y DAMPING_LIMIT $end
+$var parameter 64 Z DAMPING_LIMIT_Q $end
+$var parameter 3 [ FAULT $end
+$var parameter 3 \ MOTOR_TEST $end
+$var parameter 32 ] MOTOR_TEST_PERCENT $end
+$var parameter 32 ^ MOTOR_TEST_REVERSE $end
+$var parameter 32 _ POSITION_KD $end
+$var parameter 32 ` POSITION_KI $end
+$var parameter 32 a POSITION_KP $end
+$var parameter 32 b POSITION_LIMIT_COUNTS $end
+$var parameter 32 c POSITION_MS $end
+$var parameter 3 d PULL $end
+$var parameter 32 e PULSE_MS $end
+$var parameter 3 f PUSH $end
+$var parameter 32 g START_PERCENT $end
+$var parameter 3 h STOP $end
+$var parameter 32 i SWING_TIMEOUT_MS $end
+$var parameter 32 j TEST_PERCENT $end
+$var parameter 3 k WAIT_PEAK $end
+$var reg 32 l angle_count [31:0] $end
+$var reg 32 m arm_damping_q [31:0] $end
+$var reg 32 n arm_delta [31:0] $end
+$var reg 32 o arm_previous_position [31:0] $end
+$var reg 1 p arm_sample_pending $end
+$var reg 32 q check_count [31:0] $end
+$var reg 2 r history_count [1:0] $end
+$var reg 32 s measured_angle_q [31:0] $end
+$var reg 32 t measured_position_q [31:0] $end
+$var reg 12 u older [11:0] $end
+$var reg 32 v origin [31:0] $end
+$var reg 32 w position_count [31:0] $end
+$var reg 1 x positive_first $end
+$var reg 12 y previous [11:0] $end
+$var reg 32 z pulse_count [31:0] $end
+$var reg 4 { request_fault [3:0] $end
+$var reg 3 | state [2:0] $end
+$var reg 32 } swing_count [31:0] $end
+$var reg 32 ~ target_angle_q [31:0] $end
+$var reg 32 !" target_position_q [31:0] $end
 $scope module angle_pid $end
-$var wire 32 t actual_q [31:0] $end
+$var wire 32 "" actual_q [31:0] $end
 $var wire 1 A clear $end
 $var wire 1 ( clk $end
 $var wire 1 , rst_n $end
-$var wire 32 u target_q [31:0] $end
+$var wire 32 #" target_q [31:0] $end
 $var wire 1 4 tick $end
-$var parameter 32 v I_LIMIT $end
-$var parameter 32 w KD $end
-$var parameter 32 x KI $end
-$var parameter 32 y KP $end
-$var parameter 32 z OUT_LIMIT $end
-$var reg 32 { delta_q [31:0] $end
-$var reg 32 | delta_stage_q [31:0] $end
-$var reg 64 } delta_w [63:0] $end
-$var reg 32 ~ error_q [31:0] $end
-$var reg 32 !" error_stage_q [31:0] $end
-$var reg 64 "" error_w [63:0] $end
-$var reg 32 #" inext_q [31:0] $end
-$var reg 32 $" integral_q [31:0] $end
-$var reg 32 %" integral_stage_q [31:0] $end
-$var reg 64 &" isum_w [63:0] $end
-$var reg 64 '" kd_term [63:0] $end
-$var reg 64 (" ki_term [63:0] $end
-$var reg 64 )" kp_term [63:0] $end
-$var reg 32 *" out_q [31:0] $end
-$var reg 32 +" previous_q [31:0] $end
-$var reg 1 ," sample_pending $end
-$var reg 64 -" scaled_w [63:0] $end
-$var reg 64 ." sum_w [63:0] $end
+$var parameter 32 $" I_LIMIT $end
+$var parameter 32 %" KD $end
+$var parameter 32 &" KI $end
+$var parameter 32 '" KP $end
+$var parameter 32 (" OUT_LIMIT $end
+$var reg 32 )" delta_q [31:0] $end
+$var reg 32 *" delta_stage_q [31:0] $end
+$var reg 64 +" delta_w [63:0] $end
+$var reg 32 ," error_q [31:0] $end
+$var reg 32 -" error_stage_q [31:0] $end
+$var reg 64 ." error_w [63:0] $end
+$var reg 32 /" inext_q [31:0] $end
+$var reg 32 0" integral_q [31:0] $end
+$var reg 32 1" integral_stage_q [31:0] $end
+$var reg 64 2" isum_w [63:0] $end
+$var reg 64 3" kd_term [63:0] $end
+$var reg 64 4" ki_term [63:0] $end
+$var reg 64 5" kp_term [63:0] $end
+$var reg 32 6" out_q [31:0] $end
+$var reg 32 7" previous_q [31:0] $end
+$var reg 1 8" sample_pending $end
+$var reg 64 9" scaled_w [63:0] $end
+$var reg 64 :" sum_w [63:0] $end
 $var reg 1 ' valid $end
 $scope function clamp32 $end
-$var reg 64 /" x [63:0] $end
+$var reg 64 ;" x [63:0] $end
 $upscope $end
 $upscope $end
 $scope module position_pid $end
-$var wire 32 0" actual_q [31:0] $end
+$var wire 32 <" actual_q [31:0] $end
 $var wire 1 A clear $end
 $var wire 1 ( clk $end
 $var wire 1 , rst_n $end
-$var wire 32 1" target_q [31:0] $end
+$var wire 32 =" target_q [31:0] $end
 $var wire 1 : tick $end
-$var parameter 32 2" I_LIMIT $end
-$var parameter 32 3" KD $end
-$var parameter 32 4" KI $end
-$var parameter 32 5" KP $end
-$var parameter 32 6" OUT_LIMIT $end
-$var reg 32 7" delta_q [31:0] $end
-$var reg 32 8" delta_stage_q [31:0] $end
-$var reg 64 9" delta_w [63:0] $end
-$var reg 32 :" error_q [31:0] $end
-$var reg 32 ;" error_stage_q [31:0] $end
-$var reg 64 <" error_w [63:0] $end
-$var reg 32 =" inext_q [31:0] $end
-$var reg 32 >" integral_q [31:0] $end
-$var reg 32 ?" integral_stage_q [31:0] $end
-$var reg 64 @" isum_w [63:0] $end
-$var reg 64 A" kd_term [63:0] $end
-$var reg 64 B" ki_term [63:0] $end
-$var reg 64 C" kp_term [63:0] $end
-$var reg 32 D" out_q [31:0] $end
-$var reg 32 E" previous_q [31:0] $end
-$var reg 1 F" sample_pending $end
-$var reg 64 G" scaled_w [63:0] $end
-$var reg 64 H" sum_w [63:0] $end
+$var parameter 32 >" I_LIMIT $end
+$var parameter 32 ?" KD $end
+$var parameter 32 @" KI $end
+$var parameter 32 A" KP $end
+$var parameter 32 B" OUT_LIMIT $end
+$var reg 32 C" delta_q [31:0] $end
+$var reg 32 D" delta_stage_q [31:0] $end
+$var reg 64 E" delta_w [63:0] $end
+$var reg 32 F" error_q [31:0] $end
+$var reg 32 G" error_stage_q [31:0] $end
+$var reg 64 H" error_w [63:0] $end
+$var reg 32 I" inext_q [31:0] $end
+$var reg 32 J" integral_q [31:0] $end
+$var reg 32 K" integral_stage_q [31:0] $end
+$var reg 64 L" isum_w [63:0] $end
+$var reg 64 M" kd_term [63:0] $end
+$var reg 64 N" ki_term [63:0] $end
+$var reg 64 O" kp_term [63:0] $end
+$var reg 32 P" out_q [31:0] $end
+$var reg 32 Q" previous_q [31:0] $end
+$var reg 1 R" sample_pending $end
+$var reg 64 S" scaled_w [63:0] $end
+$var reg 64 T" sum_w [63:0] $end
 $var reg 1 % valid $end
 $scope function clamp32 $end
-$var reg 64 I" x [63:0] $end
+$var reg 64 U" x [63:0] $end
 $upscope $end
 $upscope $end
 $upscope $end
 $scope task samp $end
-$var reg 12 J" v [11:0] $end
+$var reg 12 V" v [11:0] $end
 $upscope $end
 $upscope $end
 $enddefinitions $end
 $comment Show the parameter values. $end
 $dumpall
-b11001000000000000000000 6"
-b110011001100110 5"
-b0 4"
-b1000000000000000000 3"
-b1000000000000000000000000000000 2"
-b11001000000000000000000 z
-b101110001101101 y
-b0 x
-b101101010101110 w
-b1000000000000000000000000000000 v
-b11 c
-b10100 b
-b10100 a
+b11001000000000000000000 B"
+b110011001100110 A"
+b0 @"
+b1000000000000000000 ?"
+b1000000000000000000000000000000 >"
+b11001000000000000000000 ("
+b111001111011101 '"
+b0 &"
+b1000100110001110 %"
+b1000000000000000000000000000000 $"
+b11 k
+b10100 j
+b10100 i
+b0 h
+b100011 g
+b1 f
+b10 e
+b10 d
+b100 c
+b1100100 b
+b110011001100110 a
 b0 `
-b100011 _
-b1 ^
-b10 ]
-b10 \
-b100 [
-b1100100 Z
-b110011001100110 Y
-b0 X
-b1000000000000000000 W
-b0 V
-b10100 U
-b110 T
-b101 S
-b10 R
-b1111110110 Q
-b111110100 P
-b100 O
-b10 N
-b101110001101101 M
-b0 L
-b101101010101110 K
+b1000000000000000000 _
+b0 ^
+b10100 ]
+b110 \
+b101 [
+b101000000000000000000 Z
+b10100 Y
+b10000000000000000 X
+b10 W
+b1111110110 V
+b111110100 U
+b100 T
+b10100 S
+b10000000000000000 R
+b10 Q
+b111001111011101 P
+b0 O
+b1000100110001110 N
 $end
 #0
 $dumpvars
+bx V"
+bx U"
+bx T"
+bx S"
+xR"
+bx Q"
+bx P"
+bx O"
+bx N"
+bx M"
+bx L"
+bx K"
 bx J"
 bx I"
 bx H"
 bx G"
-xF"
+bx F"
 bx E"
 bx D"
 bx C"
-bx B"
-bx A"
-bx @"
-bx ?"
-bx >"
 bx ="
 bx <"
 bx ;"
 bx :"
 bx 9"
-bx 8"
+x8"
 bx 7"
+bx 6"
+bx 5"
+bx 4"
+bx 3"
+bx 2"
 bx 1"
 bx 0"
 bx /"
 bx ."
 bx -"
-x,"
+bx ,"
 bx +"
 bx *"
 bx )"
-bx ("
-bx '"
-bx &"
-bx %"
-bx $"
 bx #"
 bx ""
 bx !"
 bx ~
 bx }
 bx |
-bx {
+b0 {
+bx z
+bx y
+xx
+bx w
+bx v
 bx u
 bx t
 bx s
 bx r
 bx q
-bx p
-b0 o
+xp
+bx o
 bx n
 bx m
-xl
-bx k
-bx j
-bx i
-bx h
-bx g
-bx f
-bx e
-bx d
+bx l
+bx M
+bx L
+xK
 bx J
-xI
+bx I
 bx H
 b11111101100000000000000000 G
 bx F
@@ -326,83 +350,90 @@ b0 &
 b0 H
 b0 F
 0"
+b0 J
 b0 E
 b0 $
 b0 B
+b0 I
 b0 C
 0;
 0>
-b0 G"
-b0 H"
-b0 A"
-b0 B"
+b0 S"
+b0 T"
+b0 M"
+b0 N"
+b0 O"
 b0 C"
-b0 7"
-b0 9"
-b0 ="
-b0 @"
-b0 :"
-b0 I"
-b0 <"
-b0 -"
-b0 ."
-b0 '"
-b0 ("
-b0 )"
-b11111101100000000000000000 {
-b11111101100000000000000000 }
-b0 #"
-b11111101100000000000000000 &"
-b11111101100000000000000000 ~
-b11111101100000000000000000 /"
-b11111101100000000000000000 ""
-0,"
-b0 |
-b0 %"
-b0 !"
-0'
-b0 $"
-b0 +"
-b0 J
-b0 *"
-0F"
-b0 8"
-b0 ?"
-b0 ;"
-0%
-b0 >"
 b0 E"
+b0 I"
+b0 L"
+b0 F"
+b0 U"
+b0 H"
+b0 9"
+b0 :"
+b0 3"
+b0 4"
+b0 5"
+b11111101100000000000000000 )"
+b11111101100000000000000000 +"
+b0 /"
+b11111101100000000000000000 2"
+b11111101100000000000000000 ,"
+b11111101100000000000000000 ;"
+b11111101100000000000000000 ."
+08"
+b0 *"
+b0 1"
+b0 -"
+0'
+b0 0"
+b0 7"
+b0 M
+b0 6"
+0R"
+b0 D"
+b0 K"
+b0 G"
+0%
+b0 J"
+b0 Q"
 b11111101100000000000000000 @
 b0 D
-b0 D"
-b11111101100000000000000000 r
-b11111101100000000000000000 u
-b0 s
-b0 1"
-b0 h
-b0 0"
-b0 g
+b0 P"
+b11111101100000000000000000 ~
+b11111101100000000000000000 #"
+b0 !"
+b0 ="
 b0 t
-b0 j
-b0 f
-b0 i
+b0 <"
+b0 s
+b0 ""
 b0 m
-1l
-b0 k
-b0 d
-b0 q
-b0 e
+0p
+b0 L
 b0 n
+b0 o
+b0 v
+b0 r
+b0 u
+b0 y
+1x
+b0 w
+b0 l
+b0 }
+b0 q
+b0 z
 1A
-0I
+0K
 b0 !
-b0 p
+b0 |
 1(
 #10000
 0(
 #12000
 1/
-b1111110110 J"
+b1111110110 V"
 10
 1.
 1,
@@ -411,16 +442,16 @@ b1111110110 J"
 1>
 b1000110000000000000000 &
 b1000110000000000000000 H
-b0 {
-b0 }
-b0 &"
-b0 ~
-b0 /"
-b0 ""
+b0 )"
+b0 +"
+b0 2"
+b0 ,"
+b0 ;"
+b0 ."
 b1 !
-b1 p
-b11111101100000000000000000 g
-b11111101100000000000000000 t
+b1 |
+b11111101100000000000000000 s
+b11111101100000000000000000 ""
 1(
 #16000
 00
@@ -428,8 +459,8 @@ b11111101100000000000000000 t
 #20000
 0(
 #25000
-b1 n
-b1 q
+b1 z
+b1 }
 1(
 #26000
 1/
@@ -439,17 +470,17 @@ b1 q
 b11111111110111010000000000000000 &
 b11111111110111010000000000000000 H
 b10 !
-b10 p
-b0 n
-b10 q
+b10 |
+b0 z
+b10 }
 1(
 #36000
 1/
 #40000
 0(
 #45000
-b1 n
-b11 q
+b1 z
+b11 }
 1(
 #46000
 1/
@@ -459,17 +490,17 @@ b11 q
 b0 &
 b0 H
 b11 !
-b11 p
-b0 n
-b100 q
+b11 |
+b0 z
+b100 }
 1(
 #56000
 1/
 #60000
 0(
 #65000
-b1 e
-b101 q
+b1 q
+b101 }
 1(
 #66000
 1/
@@ -477,18 +508,18 @@ b101 q
 0(
 #75000
 1;
-b1 f
-b1111110110 m
-b0 e
-b110 q
+b1 r
+b1111110110 y
+b0 q
+b110 }
 1(
 #76000
 1/
 #80000
 0(
 #85000
-b1 e
-b111 q
+b1 q
+b111 }
 1(
 #86000
 1/
@@ -497,13 +528,13 @@ b111 q
 #95000
 0>
 0A
-1I
+1K
 b100 !
-b100 p
-b10 f
-b1111110110 i
-b0 e
-b1000 q
+b100 |
+b10 r
+b1111110110 u
+b0 q
+b1000 }
 1(
 #96000
 b10100000000000000000 F
@@ -517,17 +548,17 @@ b1010 8
 #100000
 0(
 #105000
-b11111111111101100000000000000000 7"
-b1111111111111111111111111111111111111111111101100000000000000000 9"
-b1111111111111111111111111111111111111111111101100000000000000000 @"
-b11111111111101100000000000000000 :"
-b1111111111111111111111111111111111111111111101100000000000000000 I"
-b1111111111111111111111111111111111111111111101100000000000000000 <"
+b11111111111101100000000000000000 C"
+b1111111111111111111111111111111111111111111101100000000000000000 E"
+b1111111111111111111111111111111111111111111101100000000000000000 L"
+b11111111111101100000000000000000 F"
+b1111111111111111111111111111111111111111111101100000000000000000 U"
+b1111111111111111111111111111111111111111111101100000000000000000 H"
 14
-b10100000000000000000 h
-b10100000000000000000 0"
-b1 k
-b1 d
+b10100000000000000000 t
+b10100000000000000000 <"
+b1 w
+b1 l
 1(
 #106000
 1/
@@ -535,21 +566,31 @@ b1 d
 0(
 #115000
 04
-b10 k
-b0 d
-1,"
+b10 w
+b0 l
+b1010 o
+b10100000000000000000 L
+b1010 n
+1p
+18"
 1(
 #116000
 1/
 #120000
 0(
 #125000
+b11111111111101100000000000000000 &
+b11111111111101100000000000000000 H
+b11111111111101100000000000000000 J
+b111111111111101100000000000000000 I
 1:
 14
 1'
-0,"
-b11 k
-b1 d
+08"
+b10100000000000000000 m
+0p
+b11 w
+b1 l
 1(
 #126000
 1/
@@ -558,20 +599,23 @@ b1 d
 #135000
 0:
 04
-b1111111111111111111111111111111111111111110101000000000000000100 G"
-b1111111111111111111111111101010000000000000001000000000000000000 H"
-b1111111111111111111111111101100000000000000000000000000000000000 A"
-b1111111111111111111111111111110000000000000001000000000000000000 C"
-b0 7"
-b0 I"
-b0 9"
-b0 k
-b0 d
-b11111111111101100000000000000000 8"
-b11111111111101100000000000000000 ;"
-b11111111111101100000000000000000 E"
-1F"
-1,"
+b1111111111111111111111111111111111111111110101000000000000000100 S"
+b1111111111111111111111111101010000000000000001000000000000000000 T"
+b1111111111111111111111111101100000000000000000000000000000000000 M"
+b1111111111111111111111111111110000000000000001000000000000000000 O"
+b0 C"
+b0 U"
+b0 E"
+b0 w
+b0 l
+b0 L
+b0 n
+1p
+b11111111111101100000000000000000 D"
+b11111111111101100000000000000000 G"
+b11111111111101100000000000000000 Q"
+1R"
+18"
 0'
 1(
 #136000
@@ -579,16 +623,22 @@ b11111111111101100000000000000000 E"
 #140000
 0(
 #145000
+b0 &
+b0 H
+b0 J
+b0 I
 14
 1'
-0,"
+08"
 b100001000011111111111111100 @
 b11111111110101000000000000000100 D
-b11111111110101000000000000000100 D"
+b11111111110101000000000000000100 P"
 1%
-0F"
-b1 k
-b1 d
+0R"
+b0 m
+0p
+b1 w
+b1 l
 1(
 #146000
 1/
@@ -596,18 +646,19 @@ b1 d
 0(
 #155000
 04
-b1010111111111111111100 {
-b1010111111111111111100 }
-b1010111111111111111100 &"
-b1010111111111111111100 ~
-b1010111111111111111100 /"
-b1010111111111111111100 ""
-b10 k
-b0 d
-b100001000011111111111111100 r
-b100001000011111111111111100 u
+b1010111111111111111100 )"
+b1010111111111111111100 +"
+b1010111111111111111100 2"
+b1010111111111111111100 ,"
+b1010111111111111111100 ;"
+b1010111111111111111100 ."
+b10 w
+b0 l
+1p
+b100001000011111111111111100 ~
+b100001000011111111111111100 #"
 0%
-1,"
+18"
 0'
 1(
 #156000
@@ -618,9 +669,10 @@ b100001000011111111111111100 u
 1:
 14
 1'
-0,"
-b11 k
-b1 d
+08"
+0p
+b11 w
+b1 l
 1(
 #166000
 1/
@@ -629,25 +681,26 @@ b1 d
 #175000
 0:
 04
-b1111111111111111111111111111111111111111111111000000000000000100 G"
-b1111111111111111111111111111110000000000000001000000000000000000 H"
-b0 A"
-b0 I"
-b111110111100010100001 -"
-b1111101111000101000010010001110010100 ."
-b111110010101111001101001010101001000 '"
-b111111100010101110101000111001001100 )"
-b0 {
-b0 /"
-b0 }
-b0 k
-b0 d
-b0 8"
-1F"
-b1010111111111111111100 |
-b1010111111111111111100 !"
-b1010111111111111111100 +"
-1,"
+b1111111111111111111111111111111111111111111111000000000000000100 S"
+b1111111111111111111111111111110000000000000001000000000000000000 T"
+b0 M"
+b0 U"
+b1010111000111001100000 9"
+b10101110001110011000000000101001010100 :"
+b1011110100100011001011101100111001000 3"
+b1001111101001111110100011000010001100 5"
+b0 )"
+b0 ;"
+b0 +"
+b0 w
+b0 l
+1p
+b0 D"
+1R"
+b1010111111111111111100 *"
+b1010111111111111111100 -"
+b1010111111111111111100 7"
+18"
 0'
 1(
 #176000
@@ -655,20 +708,23 @@ b1010111111111111111100 +"
 #180000
 0(
 #185000
-b111110111100010100001 &
-b111110111100010100001 H
+b1010111000111001100000 &
+b1010111000111001100000 H
+b1010111000111001100000 J
+b1010111000111001100000 I
 14
-b111110111100010100001 J
-b111110111100010100001 *"
+b1010111000111001100000 M
+b1010111000111001100000 6"
 1'
-0,"
+08"
 b11111110011111111111111100 @
 b11111111111111000000000000000100 D
-b11111111111111000000000000000100 D"
+b11111111111111000000000000000100 P"
 1%
-0F"
-b1 k
-b1 d
+0R"
+0p
+b1 w
+b1 l
 1(
 #186000
 1/
@@ -676,22 +732,23 @@ b1 d
 0(
 #195000
 04
-b11111110001010111010 -"
-b111111100010101110101000111001001100 ."
-b0 '"
-b11111111110110000000000000000000 {
-b1111111111111111111111111111111111111111110110000000000000000000 }
-b111111111111111100 &"
-b111111111111111100 ~
-b1111111111111111111111111111111111111111110110000000000000000000 /"
-b111111111111111100 ""
-b10 k
-b0 d
-b11111110011111111111111100 r
-b11111110011111111111111100 u
+b100111110100111111010 9"
+b1001111101001111110100011000010001100 :"
+b0 3"
+b11111111110110000000000000000000 )"
+b1111111111111111111111111111111111111111110110000000000000000000 +"
+b111111111111111100 2"
+b111111111111111100 ,"
+b1111111111111111111111111111111111111111110110000000000000000000 ;"
+b111111111111111100 ."
+b10 w
+b0 l
+1p
+b11111110011111111111111100 ~
+b11111110011111111111111100 #"
 0%
-b0 |
-1,"
+b0 *"
+18"
 0'
 1(
 #196000
@@ -700,7 +757,7 @@ b0 E
 b0 $
 b0 B
 b101 #
-b101 o
+b101 {
 06
 b1011101110000000000000000000 G
 b0 C
@@ -712,32 +769,35 @@ b0 8
 #200000
 0(
 #205000
-b11111110001010111010 &
-b11111110001010111010 H
-b10100000000000000000 7"
-b10100000000000000000 I"
-b10100000000000000000 9"
-b0 @"
-b0 :"
-b0 <"
-b11111000000101100000000000000000 {
-b1111111111111111111111111111111111111000000101100000000000000000 }
-b1111111111111111111111111111111111111000010000011111111111111100 &"
-b11111000010000011111111111111100 ~
-b1111111111111111111111111111111111111000000101100000000000000000 /"
-b1111111111111111111111111111111111111000010000011111111111111100 ""
+b100111110100111111010 &
+b100111110100111111010 H
+b100111110100111111010 J
+b100111110100111111010 I
+b10100000000000000000 C"
+b10100000000000000000 U"
+b10100000000000000000 E"
+b0 L"
+b0 F"
+b0 H"
+b11111000000101100000000000000000 )"
+b1111111111111111111111111111111111111000000101100000000000000000 +"
+b1111111111111111111111111111111111111000010000011111111111111100 2"
+b11111000010000011111111111111100 ,"
+b1111111111111111111111111111111111111000000101100000000000000000 ;"
+b1111111111111111111111111111111111111000010000011111111111111100 ."
 1:
 14
-b11111110001010111010 J
-b11111110001010111010 *"
+b100111110100111111010 M
+b100111110100111111010 6"
 1'
-0,"
-b0 h
-b0 0"
-b1011101110000000000000000000 g
-b1011101110000000000000000000 t
-b11 k
-b1 d
+08"
+b0 t
+b0 <"
+b1011101110000000000000000000 s
+b1011101110000000000000000000 ""
+0p
+b11 w
+b1 l
 1(
 #206000
 b0 &
@@ -745,19 +805,20 @@ b0 H
 04
 0:
 b0 #
-b0 o
+b0 {
 11
 0/
 #210000
 0(
 #215000
 0"
-b0 k
-b0 d
+b0 w
+b0 l
 1A
-0I
+0K
 b0 !
-b0 p
+b0 |
+b0 o
 0'
 1(
 #216000

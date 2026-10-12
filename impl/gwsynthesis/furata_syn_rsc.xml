@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="acg720_top" Register="47" Lut="224" MULTALU27X18="1" T_Register="1852(47)" T_Alu="290(0)" T_Lut="4089(224)" T_MULTALU27X18="2(1)" T_MULT27X36="2(0)">
+<Module name="acg720_top" Register="47" Lut="183" MULTALU27X18="1" T_Register="2068(47)" T_Alu="475(0)" T_Lut="4643(183)" T_MULTALU27X18="2(1)" T_MULT27X36="4(0)">
  <SubModule name="reset_conditioner" Register="19" Lut="31" T_Register="19(19)" T_Lut="31(31)"/>
- <SubModule name="keys" Register="102" Lut="170" T_Register="102(102)" T_Lut="170(170)"/>
+ <SubModule name="keys" Register="102" Lut="174" T_Register="102(102)" T_Lut="174(174)"/>
  <SubModule name="control_reset_conditioner" Register="19" Lut="31" T_Register="19(19)" T_Lut="31(31)"/>
- <SubModule name="uart" Register="104" Lut="346" T_Register="104(104)" T_Lut="346(346)"/>
- <SubModule name="sensor" Register="142" Lut="255" T_Register="209(142)" T_Lut="362(255)">
-  <SubModule name="adc" Register="67" Lut="107" T_Register="67(67)" T_Lut="107(107)"/>
+ <SubModule name="uart" Register="104" Lut="345" T_Register="104(104)" T_Lut="345(345)"/>
+ <SubModule name="sensor" Register="142" Lut="263" T_Register="209(142)" T_Lut="371(263)">
+  <SubModule name="adc" Register="67" Lut="108" T_Register="67(67)" T_Lut="108(108)"/>
  </SubModule>
  <SubModule name="encoder" Register="38" Alu="32" Lut="5" T_Register="38(38)" T_Alu="32(32)" T_Lut="5(5)"/>
- <SubModule name="oled" Register="312" Alu="6" Lut="972" T_Register="402(312)" T_Alu="6(6)" T_Lut="1178(972)">
-  <SubModule name="writer" Register="90" Lut="206" T_Register="90(90)" T_Lut="206(206)"/>
+ <SubModule name="oled" Register="312" Alu="6" Lut="977" T_Register="402(312)" T_Alu="6(6)" T_Lut="1179(977)">
+  <SubModule name="writer" Register="90" Lut="202" T_Register="90(90)" T_Lut="202(202)"/>
  </SubModule>
- <SubModule name="angle_display" Register="173" Alu="16" Lut="341" MULTALU27X18="1" T_Register="304(173)" T_Alu="50(16)" T_Lut="479(341)" T_MULTALU27X18="1(1)">
-  <SubModule name="scale" Register="131" Alu="34" Lut="138" T_Register="131(131)" T_Alu="34(34)" T_Lut="138(138)"/>
+ <SubModule name="angle_display" Register="173" Alu="16" Lut="319" MULTALU27X18="1" T_Register="304(173)" T_Alu="50(16)" T_Lut="459(319)" T_MULTALU27X18="1(1)">
+  <SubModule name="scale" Register="131" Alu="34" Lut="140" T_Register="131(131)" T_Alu="34(34)" T_Lut="140(140)"/>
  </SubModule>
- <SubModule name="segment_driver" Register="103" Lut="133" T_Register="103(103)" T_Lut="133(133)"/>
- <SubModule name="safety" Register="8" Lut="16" T_Register="8(8)" T_Lut="16(16)"/>
- <SubModule name="core" Register="202" Alu="79" Lut="368" T_Register="240(202)" T_Alu="154(79)" T_Lut="494(368)" T_MULT27X36="2(0)">
-  <SubModule name="angle_pid" Register="38" Alu="75" Lut="126" MULT27X36="2" T_Register="38(38)" T_Alu="75(75)" T_Lut="126(126)" T_MULT27X36="2(2)"/>
+ <SubModule name="segment_driver" Register="103" Lut="135" T_Register="103(103)" T_Lut="135(135)"/>
+ <SubModule name="target" Register="31" Alu="30" Lut="147" T_Register="31(31)" T_Alu="30(30)" T_Lut="147(147)"/>
+ <SubModule name="safety" Register="8" Lut="25" T_Register="8(8)" T_Lut="25(25)"/>
+ <SubModule name="core" Register="311" Alu="112" Lut="536" T_Register="425(311)" T_Alu="309(112)" T_Lut="916(536)" T_MULT27X36="4(0)">
+  <SubModule name="angle_pid" Register="57" Alu="100" Lut="199" MULT27X36="2" T_Register="57(57)" T_Alu="100(100)" T_Lut="199(199)" T_MULT27X36="2(2)"/>
+  <SubModule name="position_pid" Register="57" Alu="97" Lut="181" MULT27X36="2" T_Register="57(57)" T_Alu="97(97)" T_Lut="181(181)" T_MULT27X36="2(2)"/>
  </SubModule>
- <SubModule name="motor" Register="49" Alu="48" Lut="233" T_Register="49(49)" T_Alu="48(48)" T_Lut="233(233)"/>
- <SubModule name="telemetry" Register="208" Lut="387" T_Register="208(208)" T_Lut="387(387)"/>
+ <SubModule name="motor" Register="49" Alu="48" Lut="237" T_Register="49(49)" T_Alu="48(48)" T_Lut="237(237)"/>
+ <SubModule name="telemetry" Register="208" Lut="405" T_Register="208(208)" T_Lut="405(405)"/>
 </Module>

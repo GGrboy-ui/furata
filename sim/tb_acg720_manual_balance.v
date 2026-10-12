@@ -2,7 +2,7 @@
 module tb_acg720_manual_balance;
  reg clk=0,rst_n=0; reg [3:0] key_n=4'hf;
  wire stby,pwm,in1,in2;
- acg720_top #(.CLK_HZ(100000),.BAUD(1000),.PWM_HZ(1000),.KEY_DEBOUNCE_MS(1),
+ acg720_top #(.CENTER(1011),.CLK_HZ(100000),.BAUD(1000),.PWM_HZ(1000),.KEY_DEBOUNCE_MS(1),
    .PULSE_MS(2),.CHECK_MS(2),.SWING_TIMEOUT_MS(10)) dut(
    .clk(clk),.rst_n(rst_n),.uart_rx(1'b1),.enc_a(1'b0),.enc_b(1'b0),.board_adc_dout(1'b0),
    .key1_n(key_n[0]),.key2_n(key_n[1]),.key3_n(key_n[2]),.key4_n(key_n[3]),

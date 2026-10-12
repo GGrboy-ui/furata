@@ -3,12 +3,15 @@
 // One sample_valid represents 1 ms. Angle is an ADC code, not degrees.
 module control_core #(
     parameter integer CENTER=1014, CAPTURE_RANGE=500,
-    parameter integer START_PERCENT=45, PULSE_MS=100, CHECK_MS=40,
+    parameter integer START_PERCENT=63, PULSE_MS=100, CHECK_MS=40,
     parameter integer ANGLE_MS=5, POSITION_MS=50, SWING_TIMEOUT_MS=15000,
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
-    parameter signed [31:0] ANGLE_KP=23661, ANGLE_KI=0, ANGLE_KD=23214,
-    parameter signed [31:0] POSITION_KP=0, POSITION_KI=0, POSITION_KD=0
+    parameter signed [31:0] ANGLE_KP=29661, ANGLE_KI=0, ANGLE_KD=35214,
+    parameter signed [31:0] POSITION_KP=2641, POSITION_KI=0, POSITION_KD=6581,
+    // Q16.16 percent per encoder count over ANGLE_MS; zero disables damping.
+    parameter signed [31:0] ARM_DAMPING_KD=65536,
+    parameter integer ARM_DAMPING_LIMIT_PERCENT=20
 ) (
     input wire clk, rst_n, sample_valid, sample_ready,
     input wire [11:0] sample,
@@ -69,6 +72,44 @@ module control_core #(
     pid_fixed #(.KP(POSITION_KP),.KI(POSITION_KI),.KD(POSITION_KD)) position_pid (
         .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(position_tick),
         .target_q(target_position_q),.actual_q(measured_position_q),.out_q(position_out),.valid(position_update));
+    // Independent arm velocity feedback at the angle-loop cadence. Use the
+    // direction-corrected absolute encoder, not origin-relative/clamped position:
+    // capturing an origin must not create a velocity impulse. Modular subtraction
+    // also preserves small movements across the signed encoder counter wrap.
+    localparam integer DAMPING_LIMIT=(ARM_DAMPING_LIMIT_PERCENT<0) ? 0 :
+                                    (ARM_DAMPING_LIMIT_PERCENT>100) ? 100 : ARM_DAMPING_LIMIT_PERCENT;
+    localparam signed [63:0] DAMPING_LIMIT_Q=DAMPING_LIMIT*64'sd65536;
+    localparam signed [31:0] DAMPING_GAIN=(ARM_DAMPING_KD<0) ? 32'sd0 : ARM_DAMPING_KD;
+    reg signed [31:0] arm_previous_position, arm_delta;
+    reg arm_sample_pending;
+    reg signed [31:0] arm_damping_q;
+    wire signed [63:0] arm_damping_product=$signed(arm_delta)*$signed(DAMPING_GAIN);
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            arm_previous_position<=0; arm_delta<=0;
+            arm_sample_pending<=0; arm_damping_q<=0;
+        end else if (!balance || !permit || fault_latched || stop_cmd) begin
+            arm_previous_position<=position; arm_delta<=0;
+            arm_sample_pending<=0; arm_damping_q<=0;
+        end else begin
+            arm_sample_pending<=angle_tick;
+            if (angle_tick) begin
+                arm_delta<=position-arm_previous_position;
+                arm_previous_position<=position;
+            end
+            // Same one-clock arithmetic stage as angle_pid: both terms are
+            // published together, and no combinational multiplier reaches PWM.
+            if (arm_sample_pending) begin
+                if (arm_damping_product>DAMPING_LIMIT_Q) arm_damping_q<=DAMPING_LIMIT_Q[31:0];
+                else if (arm_damping_product< -DAMPING_LIMIT_Q) arm_damping_q<=-DAMPING_LIMIT_Q[31:0];
+                else arm_damping_q<=arm_damping_product[31:0];
+            end
+        end
+    end
+    wire signed [32:0] balance_sum=$signed({angle_out[31],angle_out})-
+                                  $signed({arm_damping_q[31],arm_damping_q});
+    wire signed [31:0] balance_command=(balance_sum>33'sd6553600) ? 32'sd6553600 :
+                                     (balance_sum< -33'sd6553600) ? -32'sd6553600 : balance_sum[31:0];
     wire signed [31:0] pulse_q=START_PERCENT*65536;
     localparam integer TEST_PERCENT=(MOTOR_TEST_PERCENT<0) ? 0 :
                                    (MOTOR_TEST_PERCENT>100) ? 100 : MOTOR_TEST_PERCENT;
@@ -77,7 +118,7 @@ module control_core #(
                      state==PUSH ? (positive_first ? pulse_q : -pulse_q) :
                      state==PULL ? (positive_first ? -pulse_q : pulse_q) :
                      state==MOTOR_TEST ? ((MOTOR_TEST_REVERSE!=0) ? -test_q : test_q) :
-                     balance ? angle_out : 32'sd0;
+                     balance ? balance_command : 32'sd0;
     always @* begin
         request_fault=0;
         if (state>MOTOR_TEST) request_fault=8;

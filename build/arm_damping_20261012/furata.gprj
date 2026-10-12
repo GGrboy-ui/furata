@@ -1,0 +1,30 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW5AT-60B" pn="GW5AT-LV60PG484AC1/I0">gw5at60b-002</Device>
+    <FileList>
+        <File path="src/board/acg720_top.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/adc128s102_reader.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/angle_display_data.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/seg595_scan.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/clock_reset.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/control_core.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/divider_seq.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/encoder_qei.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/oled_i2c_writer.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/oled_encoder_display.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/pid_fixed.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/pwm_motor.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/safety_monitor.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/sensor_if.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/tick_gen.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/uart_commands.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/uart_telemetry.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/key_input.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/position_target.v" type="file.verilog" enable="1"/>
+        <File path="src/constraints/acg720.cst" type="file.cst" enable="1"/>
+        <File path="src/furata.sdc" type="file.sdc" enable="1"/>
+    </FileList>
+</Project>

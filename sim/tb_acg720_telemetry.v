@@ -5,7 +5,7 @@ module tb_acg720_telemetry;
     wire stby, pwm, in1, in2;
     integer snapshots=0, ramp_snapshots=0;
     reg signed [15:0] expected_actual;
-    acg720_top #(.CLK_HZ(1000000),.BAUD(100000),.PWM_HZ(400),.KEY_DEBOUNCE_MS(1)) dut (
+    acg720_top #(.CENTER(1011),.CLK_HZ(1000000),.BAUD(100000),.PWM_HZ(400),.KEY_DEBOUNCE_MS(1)) dut (
         .clk(clk),.rst_n(rst_n),.uart_rx(rx),.enc_a(1'b0),.enc_b(1'b0),.board_adc_dout(1'b0),
         .key1_n(keys[0]),.key2_n(keys[1]),.key3_n(keys[2]),.key4_n(keys[3]),
         .stby_fpga(stby),.pwm_a(pwm),.ain1(in1),.ain2(in2));

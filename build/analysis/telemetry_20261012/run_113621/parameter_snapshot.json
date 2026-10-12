@@ -1,0 +1,36 @@
+{
+  "src/rtl/control_core.v": {
+    "sha256": "67615324b7a76ad384a4d7e4b2b8d943da65b1981050c628999e57a7639a6110",
+    "mtime": "2026-10-12T19:41:10.634031"
+  },
+  "src/board/acg720_top.v": {
+    "sha256": "60e11825f790104efe8bd98dd497639fad10a6d506ad3dd4d32c062c11de01c9",
+    "mtime": "2026-10-12T18:57:47.268842"
+  },
+  "src/rtl/pid_fixed.v": {
+    "sha256": "6aaa5aedad67d4bed8bcf00ac3265120afb74bbdb419c094ece6d10285c40e0d",
+    "mtime": "2026-09-26T18:12:10.535669"
+  },
+  "src/rtl/pwm_motor.v": {
+    "sha256": "dcc599a77f9461ed2d12edcb87f2850191f5e4092b1f610c6ca62e2a53bd891d",
+    "mtime": "2026-10-12T18:57:47.267843"
+  },
+  "effective_parameters": {
+    "ANGLE_KP": 29661,
+    "ANGLE_KI": 0,
+    "ANGLE_KD": 35214,
+    "POSITION_KP": 0,
+    "POSITION_KI": 0,
+    "POSITION_KD": 0,
+    "ANGLE_MS": 5,
+    "START_PERCENT": 63,
+    "CENTER": 1011,
+    "PULSE_MS": 120,
+    "MOTOR_INVERT": 1,
+    "PWM_HZ": 20000
+  },
+  "sample_period_s": 0.005,
+  "kp_percent_per_deg": 5.565645372545397,
+  "kd_continuous_percent_per_deg_s": 0.033038103258287585,
+  "d_over_p_s": 0.0059360776777586735
+}

@@ -15,8 +15,11 @@ module acg720_top #(
     parameter integer MOVE_DEG_PER_SEC=30,
     parameter integer MOTOR_TEST_PERCENT=20,
     parameter integer MOTOR_TEST_REVERSE=0,
+    // Arm speed damping: Q16.16 PWM percent/count in each 5 ms window.
+    parameter signed [31:0] ARM_DAMPING_KD=65536,
+    parameter integer ARM_DAMPING_LIMIT_PERCENT=20,
     // User measured upright (stationary) ADC code on 2026-10-09.
-    parameter integer CENTER=1011,
+    parameter integer CENTER=1005,
     parameter integer ANGLE_ADC_ZERO=CENTER,
     parameter integer ANGLE_ADC_SPAN=4095,
     parameter integer ANGLE_RANGE_TENTHS=3330,
@@ -140,6 +143,7 @@ module acg720_top #(
     control_core #(.CENTER(CENTER),.CAPTURE_RANGE(CAPTURE_RANGE),.PULSE_MS(PULSE_MS),
         .CHECK_MS(CHECK_MS),.SWING_TIMEOUT_MS(SWING_TIMEOUT_MS),
         .MOTOR_TEST_PERCENT(MOTOR_TEST_PERCENT),.MOTOR_TEST_REVERSE(MOTOR_TEST_REVERSE),
+        .ARM_DAMPING_KD(ARM_DAMPING_KD),.ARM_DAMPING_LIMIT_PERCENT(ARM_DAMPING_LIMIT_PERCENT),
         .POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10)) core (
         .clk(clk),.rst_n(control_reset_n),.sample_valid(sample_valid),.sample_ready(sample_ready),
         .sample(sample),.position(position),.position_target_q(position_target_q),
