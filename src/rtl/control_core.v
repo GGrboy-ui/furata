@@ -3,15 +3,16 @@
 // One sample_valid represents 1 ms. Angle is an ADC code, not degrees.
 module control_core #(
     parameter integer CENTER=1014, CAPTURE_RANGE=500,
-    parameter integer START_PERCENT=63, PULSE_MS=100, CHECK_MS=40,
+    parameter integer START_PERCENT=45, PULSE_MS=100, CHECK_MS=40,
     parameter integer ANGLE_MS=5, POSITION_MS=50, SWING_TIMEOUT_MS=15000,
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
     parameter signed [31:0] ANGLE_KP=29661, ANGLE_KI=0, ANGLE_KD=35214,
-    parameter signed [31:0] POSITION_KP=2641, POSITION_KI=0, POSITION_KD=6581,
+    parameter signed [31:0] POSITION_KP=4641, POSITION_KI=0, POSITION_KD=7581,
     // Q16.16 percent per encoder count over ANGLE_MS; zero disables damping.
-    parameter signed [31:0] ARM_DAMPING_KD=65536,
-    parameter integer ARM_DAMPING_LIMIT_PERCENT=20
+    parameter signed [31:0] ARM_DAMPING_KD=35536,
+    parameter integer ARM_DAMPING_LIMIT_PERCENT=20,
+    parameter integer COUNTS_PER_REV=408
 ) (
     input wire clk, rst_n, sample_valid, sample_ready,
     input wire [11:0] sample,
@@ -23,7 +24,8 @@ module control_core #(
     output reg [2:0] state,
     output reg [3:0] request_fault,
     output wire signed [31:0] relative_position,
-    output wire angle_update, position_update
+    output wire angle_update, position_update,
+    output wire signed [31:0] position_error_q, angle_target_offset_q
 );
     localparam [2:0] STOP=0, PUSH=1, PULL=2, WAIT_PEAK=3, BALANCE=4, FAULT=5, MOTOR_TEST=6;
     reg [31:0] pulse_count, check_count, swing_count, angle_count, position_count;
@@ -32,9 +34,19 @@ module control_core #(
     reg [1:0] history_count;
     reg signed [31:0] origin;
     wire signed [32:0] rel_w=$signed({position[31],position})-$signed({origin[31],origin});
-    // Clamp before conversion to Q16.16; never allow a 32-bit position wrap into PID.
-    assign relative_position=rel_w>33'sd16000 ? 32'sd16000 :
-                             rel_w< -33'sd16000 ? -32'sd16000 : rel_w[31:0];
+    // Travel protection continues to use total displacement, independently of
+    // the circular feedback coordinate. A full revolution is zero position error.
+    wire signed [31:0] travel_position=rel_w>33'sd16000 ? 32'sd16000 :
+                                     rel_w< -33'sd16000 ? -32'sd16000 : rel_w[31:0];
+    wire signed [49:0] relative_position_q=$signed({rel_w[32],rel_w,16'd0});
+    wire signed [49:0] position_error_w=$signed({{18{position_target_q[31]}},position_target_q})-relative_position_q;
+    wire signed [31:0] wrapped_position_q;
+    wire position_valid, position_error_valid;
+    position_wrap #(.COUNTS_PER_REV(COUNTS_PER_REV)) wrap_position (
+        .clk(clk),.rst_n(rst_n),.value_q(relative_position_q),.wrapped_q(wrapped_position_q),.valid(position_valid));
+    position_wrap #(.COUNTS_PER_REV(COUNTS_PER_REV)) wrap_error (
+        .clk(clk),.rst_n(rst_n),.value_q(position_error_w),.wrapped_q(position_error_q),.valid(position_error_valid));
+    assign relative_position=wrapped_position_q/32'sd65536;
     wire centered=({20'd0,sample}>CENTER-CAPTURE_RANGE) && ({20'd0,sample}<CENTER+CAPTURE_RANGE);
     wire prev_centered=({20'd0,previous}>CENTER-CAPTURE_RANGE) && ({20'd0,previous}<CENTER+CAPTURE_RANGE);
     wire swinging=(state==PUSH || state==PULL || state==WAIT_PEAK);
@@ -44,12 +56,9 @@ module control_core #(
     wire angle_tick=balance && sample_valid && (angle_count==ANGLE_MS-1);
     wire position_tick=balance && sample_valid && (position_count==POSITION_MS-1);
     wire signed [31:0] angle_out, position_out;
+    assign angle_target_offset_q=-position_out; // ADC-code Q16.16, not PWM percent
     wire signed [31:0] target_angle=(CENTER*65536)-position_out;
     wire signed [31:0] measured_angle=$signed({4'b0,sample,16'b0});
-    wire signed [63:0] measured_position_w=$signed(relative_position)*64'sd65536;
-    wire signed [31:0] measured_position=(measured_position_w>64'sd2147483647) ? 32'sh7fffffff :
-                                          (measured_position_w<-64'sd2147483648) ? 32'sh80000000 :
-                                          measured_position_w[31:0];
     // Both PID loops update in milliseconds. One 50 MHz register of latency
     // separates sensor/encoder inputs and the two control arithmetic chains.
     reg signed [31:0] measured_angle_q, measured_position_q, target_angle_q, target_position_q;
@@ -61,16 +70,17 @@ module control_core #(
             target_angle_q<=CENTER*65536;
         end else begin
             measured_angle_q<=measured_angle;
-            measured_position_q<=measured_position;
-            target_position_q<=position_target_q;
+            measured_position_q<=0;
+            target_position_q<=position_error_q;
             target_angle_q<=target_angle;
         end
     end
     pid_fixed #(.KP(ANGLE_KP),.KI(ANGLE_KI),.KD(ANGLE_KD)) angle_pid (
         .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(angle_tick),
         .target_q(target_angle_q),.actual_q(measured_angle_q),.out_q(angle_out),.valid(angle_update));
-    pid_fixed #(.KP(POSITION_KP),.KI(POSITION_KI),.KD(POSITION_KD)) position_pid (
-        .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(position_tick),
+    pid_fixed #(.KP(POSITION_KP),.KI(POSITION_KI),.KD(POSITION_KD),
+        .DELTA_WRAP_Q(COUNTS_PER_REV*65536)) position_pid (
+        .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(position_tick && position_error_valid),
         .target_q(target_position_q),.actual_q(measured_position_q),.out_q(position_out),.valid(position_update));
     // Independent arm velocity feedback at the angle-loop cadence. Use the
     // direction-corrected absolute encoder, not origin-relative/clamped position:
@@ -83,12 +93,15 @@ module control_core #(
     reg signed [31:0] arm_previous_position, arm_delta;
     reg arm_sample_pending;
     reg signed [31:0] arm_damping_q;
+    wire arm_damping_enable=balance && centered && sample_ready &&
+                            permit && !fault_latched && !stop_cmd;
+    wire signed [31:0] arm_damping_applied_q=arm_damping_enable ? arm_damping_q : 32'sd0;
     wire signed [63:0] arm_damping_product=$signed(arm_delta)*$signed(DAMPING_GAIN);
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             arm_previous_position<=0; arm_delta<=0;
             arm_sample_pending<=0; arm_damping_q<=0;
-        end else if (!balance || !permit || fault_latched || stop_cmd) begin
+        end else if (!arm_damping_enable) begin
             arm_previous_position<=position; arm_delta<=0;
             arm_sample_pending<=0; arm_damping_q<=0;
         end else begin
@@ -107,7 +120,7 @@ module control_core #(
         end
     end
     wire signed [32:0] balance_sum=$signed({angle_out[31],angle_out})-
-                                  $signed({arm_damping_q[31],arm_damping_q});
+                                  $signed({arm_damping_applied_q[31],arm_damping_applied_q});
     wire signed [31:0] balance_command=(balance_sum>33'sd6553600) ? 32'sd6553600 :
                                      (balance_sum< -33'sd6553600) ? -32'sd6553600 : balance_sum[31:0];
     wire signed [31:0] pulse_q=START_PERCENT*65536;
@@ -122,7 +135,7 @@ module control_core #(
     always @* begin
         request_fault=0;
         if (state>MOTOR_TEST) request_fault=8;
-        else if (running && (relative_position>POSITION_LIMIT_COUNTS || relative_position< -POSITION_LIMIT_COUNTS)) request_fault=7;
+        else if (running && (travel_position>POSITION_LIMIT_COUNTS || travel_position< -POSITION_LIMIT_COUNTS)) request_fault=7;
         else if (balance && sample_valid && !centered) request_fault=5;
         else if (swinging && swing_count>=SWING_TIMEOUT_MS) request_fault=6;
     end

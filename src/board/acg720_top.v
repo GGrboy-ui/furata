@@ -7,7 +7,9 @@ module acg720_top #(
     parameter integer BAUD=115200,
     parameter integer ADC_HALF_DIV=2,
     parameter integer PWM_HZ=20000,
-    parameter integer ENCODER_INVERT=1,
+    // Duty counts per PWM period: 16 = 12.8 percentage points/ms at 20 kHz.
+    parameter [15:0] PWM_SLEW_STEP=16'd16,
+    parameter integer ENCODER_INVERT=0,
     parameter integer MOTOR_INVERT=1,
     parameter integer COUNTS_PER_REV=408,
     parameter integer KEY_DEBOUNCE_MS=20,
@@ -16,7 +18,7 @@ module acg720_top #(
     parameter integer MOTOR_TEST_PERCENT=20,
     parameter integer MOTOR_TEST_REVERSE=0,
     // Arm speed damping: Q16.16 PWM percent/count in each 5 ms window.
-    parameter signed [31:0] ARM_DAMPING_KD=65536,
+    parameter signed [31:0] ARM_DAMPING_KD=55536,
     parameter integer ARM_DAMPING_LIMIT_PERCENT=20,
     // User measured upright (stationary) ADC code on 2026-10-09.
     parameter integer CENTER=1005,
@@ -91,12 +93,15 @@ module acg720_top #(
         .sample(sample),.sample_valid(sample_valid),.ready(sample_ready),
         .error_code(sensor_fault));
 
-    wire signed [31:0] raw_position, velocity_unused, delta_unused;
-    encoder_qei #(.CLK_HZ(CLK_HZ)) encoder (
+    wire signed [31:0] raw_position, raw_position_modulo, velocity_unused, delta_unused;
+    encoder_qei #(.CLK_HZ(CLK_HZ),.COUNTS_PER_REV(COUNTS_PER_REV)) encoder (
         .clk(clk),.rst_n(reset_n),.enc_a(enc_a),.enc_b(enc_b),
         .tick_speed(sample_valid),.position(raw_position),
-        .vel(velocity_unused),.delta(delta_unused));
+        .vel(velocity_unused),.delta(delta_unused),.position_modulo(raw_position_modulo));
     wire signed [31:0] position=(ENCODER_INVERT!=0) ? -raw_position : raw_position;
+    wire signed [31:0] inverted_modulo=-raw_position_modulo;
+    wire signed [31:0] position_modulo=(ENCODER_INVERT==0) ? raw_position_modulo :
+        (inverted_modulo*2>=COUNTS_PER_REV) ? inverted_modulo-COUNTS_PER_REV : inverted_modulo;
 
     wire running, permit, fault_latched;
     wire [3:0] core_fault, fault_code;
@@ -107,10 +112,11 @@ module acg720_top #(
     oled_encoder_display #(.CLK_HZ(CLK_HZ),.I2C_HZ(OLED_I2C_HZ),
         .ADDRESS(OLED_ADDRESS),.COLUMN_OFFSET(OLED_COLUMN_OFFSET),
         .POWER_WAIT_MS(OLED_POWER_WAIT_MS),.REFRESH_MS(OLED_REFRESH_MS)) oled (
-        .clk(clk),.rst_n(reset_n),.raw_count(raw_position),.position_count(position),
+        .clk(clk),.rst_n(reset_n),.raw_count(raw_position),.position_count(position_modulo),
         .relative_count(relative_position),.scl(oled_scl),.sda(oled_sda),
         .initialized(oled_initialized),.error(oled_error),.frame_done(oled_frame_done));
     wire angle_update, position_update;
+    wire signed [31:0] position_error_q, angle_target_offset_q;
     wire [3:0] internal_fault=(sensor_fault!=0) ? sensor_fault : core_fault;
     wire [63:0] display_segments;
     wire signed [15:0] displayed_angle;
@@ -144,14 +150,15 @@ module acg720_top #(
         .CHECK_MS(CHECK_MS),.SWING_TIMEOUT_MS(SWING_TIMEOUT_MS),
         .MOTOR_TEST_PERCENT(MOTOR_TEST_PERCENT),.MOTOR_TEST_REVERSE(MOTOR_TEST_REVERSE),
         .ARM_DAMPING_KD(ARM_DAMPING_KD),.ARM_DAMPING_LIMIT_PERCENT(ARM_DAMPING_LIMIT_PERCENT),
-        .POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10)) core (
+        .POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10),.COUNTS_PER_REV(COUNTS_PER_REV)) core (
         .clk(clk),.rst_n(control_reset_n),.sample_valid(sample_valid),.sample_ready(sample_ready),
         .sample(sample),.position(position),.position_target_q(position_target_q),
         .start_cmd(start_cmd),.motor_test_cmd(motor_test_cmd),.balance_cmd(balance_cmd),.stop_cmd(stop_cmd),
         .permit(permit),.fault_latched(fault_latched),.running(running),
         .command_q(command_q),.state(state),.request_fault(core_fault),
         .relative_position(relative_position),.angle_update(angle_update),
-        .position_update(position_update));
+        .position_update(position_update),.position_error_q(position_error_q),
+        .angle_target_offset_q(angle_target_offset_q));
 
     // Assert STBY first, then allow the driver 2 ms to wake before PWM/IN change.
     // Keep the permission path combinational so a fault disables the outputs
@@ -205,17 +212,40 @@ module acg720_top #(
     end
     wire pwm_raw, in1_raw, in2_raw;
     wire signed [15:0] applied_pwm;
-    pwm_motor #(.PWM_MAX(PWM_MAX)) motor (
+    pwm_motor #(.PWM_MAX(PWM_MAX),.SLEW_STEP(PWM_SLEW_STEP)) motor (
         .clk(clk),.rst_n(control_reset_n),.enable(motor_ready),.brake(!motor_ready),
         .cmd(pwm_command),.pwm(pwm_raw),.in1(in1_raw),.in2(in2_raw),
         .applied_cmd(applied_pwm));
     // Undo only the physical wiring inversion: both fields use control sign.
     wire signed [15:0] requested_pwm=(MOTOR_INVERT!=0) ? -pwm_command : pwm_command;
     wire signed [15:0] actual_pwm=(MOTOR_INVERT!=0) ? -applied_pwm : applied_pwm;
-    uart_telemetry #(.CLK_HZ(CLK_HZ)) telemetry (
+    // Registered metadata conversion. Offset units are 0.1 ADC code; the website
+    // converts to degrees using the same calibrated display scale.
+    wire signed [63:0] offset_tenths_w=$signed(angle_target_offset_q)*64'sd10;
+    reg signed [15:0] target_offset_adc_tenths, position_target_counts, position_error_counts;
+    function signed [15:0] telemetry_count16;
+        input signed [63:0] value;
+        begin
+            if (value>64'sd32767) telemetry_count16=16'sh7fff;
+            else if (value< -64'sd32768) telemetry_count16=16'sh8000;
+            else telemetry_count16=value[15:0];
+        end
+    endfunction
+    always @(posedge clk or negedge control_reset_n) begin
+        if (!control_reset_n) begin
+            target_offset_adc_tenths<=0; position_target_counts<=0; position_error_counts<=0;
+        end else begin
+            target_offset_adc_tenths<=telemetry_count16(offset_tenths_w/64'sd65536);
+            position_target_counts<=telemetry_count16($signed(position_target_q)/64'sd65536);
+            position_error_counts<=telemetry_count16($signed(position_error_q)/64'sd65536);
+        end
+    end
+    uart_telemetry #(.CLK_HZ(CLK_HZ),.POSITION_FIELDS(1)) telemetry (
         .clk(clk),.rst_n(reset_n),.received_byte(received_byte),.received_valid(received_valid),
         .angle_tenths(displayed_angle),.angle_valid(display_angle_valid),
         .requested_pwm(requested_pwm),.actual_pwm(actual_pwm),
+        .arm_position(relative_position[15:0]),.position_target(position_target_counts),
+        .position_error(position_error_counts),.target_offset_adc_tenths(target_offset_adc_tenths),
         .tx_data(telemetry_byte),.tx_valid(telemetry_valid),.tx_ready(uart_tx_ready),
         .frame_active(telemetry_active));
     assign pwm_a=motor_ready && pwm_raw;

@@ -76,6 +76,10 @@
         {
             "Path": "G:/furata-git/furata/src/rtl/position_target.v",
             "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/position_wrap.v",
+            "Type": "verilog"
         }
     ],
     "IncludePath": [

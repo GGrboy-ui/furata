@@ -40,7 +40,8 @@
 module encoder_qei #(
     parameter integer CLK_HZ           = 50_000_000,      // system clock; must match tick_gen
     parameter integer VEL_FRAC         = 8,               // fractional bits in vel (Q8.8)
-    parameter integer VEL_TIMEOUT_CLKS = 50_000_000       // 1 s without an edge -> vel = 0
+    parameter integer VEL_TIMEOUT_CLKS = 50_000_000,      // 1 s without an edge -> vel = 0
+    parameter integer COUNTS_PER_REV   = 408
 ) (
     input  wire               clk,
     input  wire               rst_n,
@@ -49,7 +50,8 @@ module encoder_qei #(
     input  wire               tick_speed,   // one-cycle pulse from tick_gen (5 kHz default)
     output wire signed [31:0] position,     // signed 4x-decoded count; wraps on purpose
     output reg  signed [31:0] vel,          // Q(VEL_FRAC) counts/s, + = forward
-    output reg  signed [31:0] delta         // position change over the last tick_speed window
+    output reg  signed [31:0] delta,        // position change over the last tick_speed window
+    output wire signed [31:0] position_modulo // one-turn coordinate; total position stays unwrapped
 );
     // ---------------------------------------------------------------------------
     // 1. Input synchronisation (encoder edges are asynchronous to clk_sys).
@@ -124,14 +126,21 @@ module encoder_qei #(
     // ---------------------------------------------------------------------------
     reg signed [31:0] pos_q;
     reg signed [31:0] pos_at_tick;
+    localparam integer REV_COUNTS=(COUNTS_PER_REV<1) ? 1 : COUNTS_PER_REV;
+    reg [31:0] phase_count;
+    assign position_modulo=(phase_count>=(REV_COUNTS+1)/2) ?
+                           $signed(phase_count)-REV_COUNTS : $signed(phase_count);
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             pos_q       <= 32'sd0;
             pos_at_tick <= 32'sd0;
             delta       <= 32'sd0;
+            phase_count <= 0;
         end else begin
             if (any_edge) pos_q <= pos_q + d_pos;
+            if (any_edge && step==2'd1) phase_count <= (phase_count==REV_COUNTS-1) ? 0 : phase_count+1;
+            else if (any_edge && step==2'd3) phase_count <= (phase_count==0) ? REV_COUNTS-1 : phase_count-1;
             if (tick_speed) begin
                 delta       <= pos_q - pos_at_tick;
                 pos_at_tick <= pos_q;

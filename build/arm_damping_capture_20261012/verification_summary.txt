@@ -1,0 +1,7 @@
+Arm damping capture verification
+Full regression: 27/28 passed (damping_capture_regression.log).
+OLED fixture polarity fixed to ENCODER_INVERT=1; targeted retest: 1/1 passed (damping_capture_oled_retest.log).
+Combined coverage: all 28 testbenches passed. No RTL changes between runs.
+Gowin implementation: PASS. Fmax 68.321 MHz; worst setup slack 5.363 ns; setup/hold violations 0/0.
+Bitstream SHA-256: BB46716C2EAC26017BBE2A04BF8D7D20ED52180150F49495EA8B4C758A4317F7
+Hardware download: not performed.

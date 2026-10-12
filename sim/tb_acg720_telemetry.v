@@ -34,6 +34,11 @@ module tb_acg720_telemetry;
             ramp_snapshots=ramp_snapshots+1;
         if(!dut.motor_ready && dut.actual_pwm!==0)
             $fatal(1,"FAIL: telemetry reports applied duty while inhibited");
+        if(dut.telemetry.arm_binary!==((dut.relative_position<0) ? -dut.relative_position : dut.relative_position) ||
+           dut.telemetry.target_binary!==((dut.position_target_counts<0) ? -dut.position_target_counts : dut.position_target_counts) ||
+           dut.telemetry.error_binary!==((dut.position_error_counts<0) ? -dut.position_error_counts : dut.position_error_counts) ||
+           dut.telemetry.offset_binary!==((dut.target_offset_adc_tenths<0) ? -dut.target_offset_adc_tenths : dut.target_offset_adc_tenths))
+            $fatal(1,"FAIL: board position fields not snapshotted together");
     end
     initial begin
         $dumpfile("tb_acg720_telemetry.vcd"); $dumpvars(0,tb_acg720_telemetry);
@@ -42,7 +47,8 @@ module tb_acg720_telemetry;
         cycles(4); rst_n=1; cycles(20000);
         if(!dut.display_angle_valid || dut.displayed_angle!==0)
             $fatal(1,"FAIL: real display average did not become valid");
-        send_byte("P"); cycles(12000);
+        // At this deliberately low 100 kbaud, 55-byte frames skip busy slots.
+        send_byte("P"); cycles(17000);
         if(dut.state!==0 || stby!==0 || snapshots<2)
             $fatal(1,"FAIL: P started motor or failed to sample stopped display");
         keys[1]=0; cycles(1100); keys[1]=1; cycles(1100);

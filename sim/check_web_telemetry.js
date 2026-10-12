@@ -38,5 +38,22 @@ async function main() {
     assert.equal(imported[0].actualPwm, -17);
   }
   console.log('PASS: website decoded 9 physical UART frames at 5 chunk sizes; PWM and CSV roundtrip verified.');
+  const extendedLog = path.join(__dirname, '../build/oss/tb_uart_telemetry_position/telemetry_position_serial.log');
+  if (fs.existsSync(extendedLog)) {
+    const extendedSerial = fs.readFileSync(extendedLog, 'utf8');
+    for (const width of [1, 2, 7, 19, extendedSerial.length]) {
+      const extendedFrames = [];
+      const decoder = new LineDecoder(frame => extendedFrames.push(frame));
+      for (let offset = 0; offset < extendedSerial.length; offset += width) decoder.feed(extendedSerial.slice(offset, offset + width));
+      assert.equal(decoder.invalid, 0);assert.equal(extendedFrames.length, 3);
+      assert.deepEqual(extendedFrames.map(f => [f.sequence, f.armPosition, f.positionTarget, f.positionError, f.targetAngleOffsetAdc]),
+        [[0,203,0,-203,-12.5],[1,-204,5,-199,100],[2,-204,5,-199,100]]);
+      const recording = new Recording();extendedFrames.forEach(f => recording.add(f));
+      const recovered = importText(recording.csv());
+      assert.equal(recovered[0].targetAngleOffsetAdc, -12.5);
+      assert.equal(recovered[2].positionError, -199);
+    }
+    console.log('PASS: website decoded 55-byte physical UART at 5 chunk sizes; position/offset CSV roundtrip verified.');
+  }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

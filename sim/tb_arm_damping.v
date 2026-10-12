@@ -7,13 +7,13 @@ module tb_arm_damping;
  wire signed [31:0] command_q,disabled_q;
  wire [2:0] state;
  always #5 clk=~clk;
- control_core #(.ANGLE_KP(65536),.ANGLE_KI(0),.ANGLE_KD(0),
+ control_core #(.START_PERCENT(63),.ARM_DAMPING_KD(65536),.ANGLE_KP(65536),.ANGLE_KI(0),.ANGLE_KD(0),
    .POSITION_KP(0),.POSITION_KI(0),.POSITION_KD(0)) dut (
    .clk(clk),.rst_n(rst_n),.sample_valid(sample_valid),.sample_ready(1'b1),
    .sample(sample),.position(position),.position_target_q(32'sd0),
    .start_cmd(start_cmd),.motor_test_cmd(motor_test_cmd),.balance_cmd(balance_cmd),
    .stop_cmd(stop_cmd),.permit(permit),.fault_latched(fault_latched),.command_q(command_q),.state(state));
- control_core #(.ANGLE_KP(65536),.ANGLE_KI(0),.ANGLE_KD(0),.ARM_DAMPING_KD(0),
+ control_core #(.START_PERCENT(63),.ANGLE_KP(65536),.ANGLE_KI(0),.ANGLE_KD(0),.ARM_DAMPING_KD(0),
    .POSITION_KP(0),.POSITION_KI(0),.POSITION_KD(0)) disabled (
    .clk(clk),.rst_n(rst_n),.sample_valid(sample_valid),.sample_ready(1'b1),
    .sample(sample),.position(position),.position_target_q(32'sd0),

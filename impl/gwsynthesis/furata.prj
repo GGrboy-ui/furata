@@ -23,6 +23,7 @@
         <File path="G:\furata-git\furata\src\rtl\uart_telemetry.v" type="verilog"/>
         <File path="G:\furata-git\furata\src\rtl\key_input.v" type="verilog"/>
         <File path="G:\furata-git\furata\src\rtl\position_target.v" type="verilog"/>
+        <File path="G:\furata-git\furata\src\rtl\position_wrap.v" type="verilog"/>
     </FileList>
     <OptionList>
         <Option type="disable_insert_pad" value="0"/>

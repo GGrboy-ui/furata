@@ -5,7 +5,8 @@ module tb_acg720_oled;
     tri1 scl,sda;
     wire stby,pwm,in1,in2,active;
     always #5 clk=~clk;
-    acg720_top #(.CLK_HZ(1_000_000),.BAUD(10000),.PWM_HZ(1000),
+    // This fixture checks the inverted encoder coordinate independently of bench wiring.
+    acg720_top #(.ENCODER_INVERT(1),.CLK_HZ(1_000_000),.BAUD(10000),.PWM_HZ(1000),
         .KEY_DEBOUNCE_MS(1),.OLED_POWER_WAIT_MS(1),.OLED_REFRESH_MS(1)) dut (
         .clk(clk),.rst_n(rst_n),.uart_rx(1'b1),.enc_a(enc_a),.enc_b(enc_b),
         .board_adc_dout(1'b0),.key1_n(key_n[0]),.key2_n(key_n[1]),

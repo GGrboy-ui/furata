@@ -19,6 +19,7 @@ Analyzing Verilog file 'G:\furata-git\furata\src\rtl\uart_commands.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\uart_telemetry.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\key_input.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\position_target.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\position_wrap.v'
 Compiling module 'acg720_top'("G:\furata-git\furata\src\board\acg720_top.v":5)
 Compiling module 'clock_reset'("G:\furata-git\furata\src\rtl\clock_reset.v":20)
 Compiling module 'key_input'("G:\furata-git\furata\src\rtl\key_input.v":4)
@@ -34,11 +35,13 @@ Compiling module 'divider_seq(WIDTH=24)'("G:\furata-git\furata\src\rtl\divider_s
 Compiling module 'seg595_scan'("G:\furata-git\furata\src\rtl\seg595_scan.v":5)
 Compiling module 'position_target'("G:\furata-git\furata\src\rtl\position_target.v":4)
 Compiling module 'safety_monitor'("G:\furata-git\furata\src\rtl\safety_monitor.v":4)
-Compiling module 'control_core(CENTER=1005,PULSE_MS=120)'("G:\furata-git\furata\src\rtl\control_core.v":4)
+Compiling module 'control_core(CENTER=1005,PULSE_MS=120,ARM_DAMPING_KD=55536)'("G:\furata-git\furata\src\rtl\control_core.v":4)
+Compiling module 'position_wrap'("G:\furata-git\furata\src\rtl\position_wrap.v":4)
+Compiling module 'divider_seq(WIDTH=50)'("G:\furata-git\furata\src\rtl\divider_seq.v":30)
 Compiling module 'pid_fixed(KP=29661,KI=0,KD=35214)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
-Compiling module 'pid_fixed(KP=2641,KI=0,KD=6581)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
-Compiling module 'pwm_motor(PWM_MAX=2500)'("G:\furata-git\furata\src\rtl\pwm_motor.v":34)
-Compiling module 'uart_telemetry'("G:\furata-git\furata\src\rtl\uart_telemetry.v":5)
+Compiling module 'pid_fixed(KP=4641,KI=0,KD=7581,DELTA_WRAP_Q=26738688)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
+Compiling module 'pwm_motor(PWM_MAX=2500,SLEW_STEP=16'b0000000000010000)'("G:\furata-git\furata\src\rtl\pwm_motor.v":34)
+Compiling module 'uart_telemetry(POSITION_FIELDS=1)'("G:\furata-git\furata\src\rtl\uart_telemetry.v":7)
 NOTE  (EX0101) : Current top module is "acg720_top"
 [5%] Running netlist conversion ...
 Running device independent optimization ...
@@ -56,7 +59,7 @@ Running technical mapping ...
 [75%] Tech-Mapping Phase 2 completed
 [80%] Tech-Mapping Phase 3 completed
 [90%] Tech-Mapping Phase 4 completed
-WARN  (NL0002) : The module "divider_seq" instantiated to "u_div" is swept in optimizing("G:\furata-git\furata\src\rtl\encoder_qei.v":226)
+WARN  (NL0002) : The module "divider_seq" instantiated to "u_div" is swept in optimizing("G:\furata-git\furata\src\rtl\encoder_qei.v":235)
 [95%] Generate netlist file "G:\furata-git\furata\impl\gwsynthesis\furata.vg" completed
 [100%] Generate report file "G:\furata-git\furata\impl\gwsynthesis\furata_syn.rpt.html" completed
 GowinSynthesis finish

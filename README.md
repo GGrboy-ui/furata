@@ -10,6 +10,7 @@
 - [K2 固定 20% PWM 试转与 K4 复位说明](doc/motor-test.md)
 - [K3 手动扶直后维持平衡](doc/manual-balance.md)
 - [转臂速度阻尼与调参](doc/arm-damping.md)
+- [一圈位置归零、位置目标与倾角偏移回传](doc/circular-position.md)
 - [OLED 编码器 RAW / POS / REL 显示与接线](doc/oled-encoder.md)
 - [网页角度与要求/实际 PWM 串口回传](doc/uart-telemetry.md)
 - [引脚表](doc/pinout.md)

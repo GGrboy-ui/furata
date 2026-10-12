@@ -7,7 +7,9 @@ module pid_fixed #(
     parameter signed [31:0] KI = 32'sd655,         // 0.010 * 2^16
     parameter signed [31:0] KD = 32'sd26214,       // 0.400 * 2^16
     parameter signed [31:0] OUT_LIMIT = 32'sd6553600,
-    parameter signed [31:0] I_LIMIT = 32'sd1073741824
+    parameter signed [31:0] I_LIMIT = 32'sd1073741824,
+    // Enable only for circular position error. Error is already normalized.
+    parameter signed [31:0] DELTA_WRAP_Q = 0
 ) (
     input wire clk, rst_n, clear, tick,
     input wire signed [31:0] target_q, actual_q,
@@ -39,6 +41,10 @@ module pid_fixed #(
         else if (isum_w < -$signed(I_LIMIT)) inext_q=-I_LIMIT;
         else inext_q=isum_w[31:0];
         delta_w={{32{error_q[31]}},error_q}-{{32{previous_q[31]}},previous_q};
+        if (DELTA_WRAP_Q>0) begin
+            if (delta_w >= $signed(DELTA_WRAP_Q)/2) delta_w=delta_w-$signed(DELTA_WRAP_Q);
+            else if (delta_w < -$signed(DELTA_WRAP_Q)/2) delta_w=delta_w+$signed(DELTA_WRAP_Q);
+        end
         delta_q=clamp32(delta_w);
 
         // Sign-extend both factors before multiplication.  Without this explicit

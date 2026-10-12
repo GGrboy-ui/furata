@@ -1,0 +1,8 @@
+
+=== [sim] tb_acg720_oled ===
+  VCD info: dumpfile tb_acg720_oled.vcd opened for output.
+  PASS: AB->RAW/POS/REL, K3 capture, K4 retention, unplugged motor modes and safety
+  G:\furata-git\furata\sim\tb_acg720_oled.v:69: $finish called at 10960951000 (1ps)
+  RESULT: PASS
+
+=== summary: 1 / 1 testbench(es) passed ===

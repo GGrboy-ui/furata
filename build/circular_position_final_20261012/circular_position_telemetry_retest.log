@@ -1,0 +1,8 @@
+
+=== [sim] tb_acg720_telemetry ===
+  VCD info: dumpfile tb_acg720_telemetry.vcd opened for output.
+  TEST PASSED: tb_acg720_telemetry (display average, PWM slew/sign, motor safety, independent P/Q)
+  G:\furata-git\furata\sim\tb_acg720_telemetry.v:94: $finish called at 2121690000 (1ps)
+  RESULT: PASS
+
+=== summary: 1 / 1 testbench(es) passed ===

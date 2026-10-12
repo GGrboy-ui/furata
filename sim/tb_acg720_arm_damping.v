@@ -3,7 +3,7 @@ module tb_acg720_arm_damping;
  reg clk=0,rst_n=0,enc_a=0,enc_b=0;
  wire stby,pwm,in1,in2;
  // Fractional gain and a nondefault limit verify board-to-core parameter wiring.
- acg720_top #(.CLK_HZ(100000),.BAUD(1000),.PWM_HZ(1000),
+ acg720_top #(.CENTER(1005),.ENCODER_INVERT(1),.CLK_HZ(100000),.BAUD(1000),.PWM_HZ(1000),
    .ARM_DAMPING_KD(32768),.ARM_DAMPING_LIMIT_PERCENT(3)) dut (
    .clk(clk),.rst_n(rst_n),.uart_rx(1'b1),.enc_a(enc_a),.enc_b(enc_b),.board_adc_dout(1'b0),
    .key1_n(1'b1),.key2_n(1'b1),.key3_n(1'b1),.key4_n(1'b1),

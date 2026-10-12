@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Furuta · 角度偏差监测</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="telemetry-core.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="brand"><span class="brand-icon">∿</span><div><span class="eyebrow">FURUTA / ACG720</span><h1>角度偏差监测</h1></div></div>
+      <div class="connection"><span id="statusDot" class="dot"></span><span id="status">串口未连接</span></div>
+    </header>
+    <section class="toolbar" aria-label="串口与采集控制">
+      <div class="tool-group"><label class="baud">波特率 <input id="baud" type="number" value="115200" min="1200" max="2000000" step="1"></label><button id="connect" class="primary">连接串口</button><button id="disconnect" disabled>断开</button></div>
+      <div class="tool-group"><button id="start" class="primary" disabled>开始回传 P</button><button id="stop" disabled>停止回传 Q</button></div>
+      <span class="sample-tag">5 ms <span>·</span> 200 Hz</span>
+    </section>
+    <p id="message" class="message" role="status">连接板卡串口后，点击「开始回传 P」。采集不会启动电机。</p>
+    <section class="metrics" aria-label="数据统计">
+      <article><span>当前角度偏差</span><strong id="current">—<small>°</small></strong><div>与数码管角度值一致</div></article>
+      <article><span>均方根偏差 RMS</span><strong id="rms">—<small>°</small></strong><div>保留数据的 RMS</div></article>
+      <article><span>已接收样本</span><strong id="count">0</strong><div id="duration">采集时长 0.000 s</div></article>
+      <article><span>序号缺口</span><strong id="missing">0</strong><div>含无效角度期间未发送的样本</div></article>
+    </section>
+    <p class="pwm-readings">要求 PWM：<strong id="requestedPwm">—</strong><span>实际 PWM：<strong id="actualPwm">—</strong></span></p>
+    <p class="position-readings">转臂位置：<strong id="armPosition">—</strong><span>位置目标：<strong id="positionTarget">—</strong></span><span>位置误差：<strong id="positionError">—</strong></span><span>目标倾角偏移：<strong id="targetAngleOffset">—</strong></span></p>
+    <section class="chart-card">
+      <div class="chart-heading"><div><h2 id="chartTitle">角度偏差曲线</h2><p id="chartLegend"><span class="legend"></span>数码管角度偏差 <span class="muted">/ 单位 °</span></p></div><div class="chart-tools"><label>曲线 <select id="signal"><option value="angle">角度偏差</option><option value="pwm">要求 / 实际 PWM</option><option value="position">转臂位置 / 目标 / 误差</option><option value="offset">角度 / 目标倾角偏移</option></select></label><label>显示范围 <select id="window"><option value="10">最近 10 秒</option><option value="30">最近 30 秒</option><option value="60">最近 60 秒</option><option value="all">全部数据</option></select></label><button id="freeze">暂停绘图</button></div></div>
+      <div class="canvas-wrap"><canvas id="chart" aria-label="角度偏差与时间的曲线图" role="img"></canvas><div id="empty" class="empty"><span>∿</span><strong>等待角度数据</strong><p>连接串口开始采集，或导入已有数据文件</p></div><div id="tooltip" class="tooltip" hidden></div></div>
+      <div class="chart-footer"><span>横轴：FPGA 回传时间（秒）</span><span id="range">—</span></div>
+    </section>
+    <section class="data-actions"><div><button id="export" disabled>导出 CSV</button><button id="import">导入数据</button><input id="file" type="file" accept=".csv,.txt,.log" hidden><button id="clear">清空数据</button></div><p id="retention">保留最近 120,000 个样本，约 10 分钟；可随时导出。</p></section>
+    <footer><div><span class="footer-label">使用说明</span><p>通过板载 USB 串口连接。P 开始回传，Q 仅停止回传；S 起摆、X 停机功能保持原样。转臂位置以进入平衡时为零点，默认每 408 个计数一圈；误差采用最短方向。</p></div><div><span class="footer-label">数据来源</span><p>角度保持显示平均。实际 PWM 表示 FPGA 执行的占空比。目标倾角偏移由位置环产生，以当前 333° / 4095 ADC 标称比例换算。旧固件或旧文件缺少的字段显示为空值。</p></div></footer>
+  </main>
+</body>
+</html>

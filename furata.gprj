@@ -24,6 +24,7 @@
         <File path="src/rtl/uart_telemetry.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/key_input.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/position_target.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/position_wrap.v" type="file.verilog" enable="1"/>
         <File path="src/constraints/acg720.cst" type="file.cst" enable="1"/>
         <File path="src/furata.sdc" type="file.sdc" enable="1"/>
     </FileList>

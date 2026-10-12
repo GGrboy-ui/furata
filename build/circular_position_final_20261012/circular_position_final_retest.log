@@ -1,0 +1,26 @@
+
+=== [sim] tb_acg720_telemetry ===
+  VCD info: dumpfile tb_acg720_telemetry.vcd opened for output.
+  TEST PASSED: tb_acg720_telemetry (display average, PWM slew/sign, motor safety, independent P/Q)
+  G:\furata-git\furata\sim\tb_acg720_telemetry.v:94: $finish called at 2121690000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_acg720_manual_balance ===
+  VCD info: dumpfile tb_acg720_manual_balance.vcd opened for output.
+  TEST PASSED: tb_acg720_manual_balance (K3 direct PID, admission, hold, stop and faults)
+  G:\furata-git\furata\sim\tb_acg720_manual_balance.v:80: $finish called at 164430000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_control_position_wrap ===
+  VCD info: dumpfile tb_control_position_wrap.vcd opened for output.
+  TEST PASSED: tb_control_position_wrap (captured origin, +/-turn, targets, offset, speed and travel)
+  G:\furata-git\furata\sim\tb_control_position_wrap.v:41: $finish called at 267340000 (1ps)
+  RESULT: PASS
+
+=== [sim] tb_uart_telemetry_position ===
+  VCD info: dumpfile tb_uart_telemetry_position.vcd opened for output.
+  TEST PASSED: tb_uart_telemetry_position (55 physical bytes, signed metadata, snapshot, 200 Hz at 115200, Q drain)
+  G:\furata-git\furata\sim\tb_uart_telemetry_position.v:51: $finish called at 24853880000 (1ps)
+  RESULT: PASS
+
+=== summary: 4 / 4 testbench(es) passed ===

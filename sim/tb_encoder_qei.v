@@ -249,8 +249,12 @@ module tb_encoder_qei;
         for (i = 0; i < 500; i = i + 1) begin
             qstep(1);
             #800;                      // 40 clocks per edge
+            if (i==407 && dut.position_modulo!==0) begin
+                $display("FAIL: one encoder revolution did not zero POS"); errors=errors+1;
+            end
         end
         #800;
+        if (dut.position_modulo!==92) begin $display("FAIL: modulo POS after 500 edges");errors=errors+1;end
         if (position !== 32'sd500) begin
             $display("FAIL: forward position=%0d, expected exactly 500 (4x decode broken)", position);
             errors = errors + 1;
@@ -266,6 +270,7 @@ module tb_encoder_qei;
             #800;
         end
         #800;
+        if (dut.position_modulo!==0) begin $display("FAIL: reverse modulo POS");errors=errors+1;end
         if (position !== 32'sd0) begin
             $display("FAIL: reverse position=%0d, expected exactly 0 (direction or decode broken)", position);
             errors = errors + 1;

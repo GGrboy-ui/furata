@@ -1,0 +1,151 @@
+{
+  "feature": "circular position and target-angle offset telemetry",
+  "bitstream": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\impl\\pnr\\furata.fs",
+  "bitstream_sha256": "3CD9DA7503BE540306DAF97399E4D8244824B2A825D722C5AB2BF8D4F702DAD0",
+  "validated_testbenches": 31,
+  "full_regression_passed": 30,
+  "full_regression_total": 31,
+  "low_baud_fixture_retest_passed": 1,
+  "final_affected_retest_passed": 4,
+  "fmax_mhz": 61.413,
+  "worst_setup_slack_ns": 3.717,
+  "setup_violations": 0,
+  "hold_violations": 0,
+  "frame_bytes": 55,
+  "frame_period_ms": 5,
+  "counts_per_rev": 408,
+  "live_website": "G:/furata/furata/web",
+  "hardware_download_performed": false,
+  "source_hashes": [
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\furata.sdc",
+      "sha256": "34D9E960A1AFC81EEF23426BFA75A15C390C5929BE1DBE1D3E87EB91BA0CCD59"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\board\\acg720_top.v",
+      "sha256": "E1429F98115DB53625D992583082D8F3AD578FFE4DA884562CE494A3541BCD97"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\constraints\\acg720.cst",
+      "sha256": "5CFF8043C0B719B67C4C635D4E6A91C0B6C8A0FF0F82C1B2DA672AC5F08565A9"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\constraints\\archive\\acg720_a1_external_adc.cst",
+      "sha256": "11F853C83A0C25B686E33BACE2259064BFFA2A4DA499EE338D59DBC1B6D1EA98"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\adc128s102_reader.v",
+      "sha256": "B3F7D1470DAF9607572405C29EF733B82C931C46A2D4716C1B768D8D0D23D367"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\angle_display_data.v",
+      "sha256": "48202A641A166F58ACDCA4AD4D7B28BE6E11368C601A78F9A288580B1017939D"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\clock_reset.v",
+      "sha256": "FEC25614C9981A737B130A6F1DB059F7C40057403E9FD75623D3EA92A2FEFF74"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\control_core.v",
+      "sha256": "971AA3903430462E8D11266988B47C77132F9A1BCFD755941A3A0F5D1E0A43E1"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\divider_seq.v",
+      "sha256": "1E359ED348C356E63C575E1A58A6A8BF03F09F633125041FB514F59A61DD0CB3"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\encoder_qei.v",
+      "sha256": "66D5D65678F6D6F48322259C4A7F7DD367C5D6BA2FA3CABB510B27BB36AD5D5F"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\key_input.v",
+      "sha256": "DD0F604EC233BE850CD492F32CB579ADB4D07370E5D22094E0B0AB506BDD3D5C"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\oled_encoder_display.v",
+      "sha256": "7B50CF244141F49FE37C1F4883A371C266D5A67A6A4919DE35FD0BC0CFBFBB83"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\oled_i2c_writer.v",
+      "sha256": "563C13995AF7953C3D7A1B15A5E07D791E6523E434E37C90283238C0454DD2E6"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\pid_fixed.v",
+      "sha256": "E68CB3379BFB5DA175485E426AD3F6CB2C390BD074EBBABAD215564A15E1F323"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\position_target.v",
+      "sha256": "A6497565F1A8DFC8239CFBA8620008AF7F000456BA3BA0FD049BDEB9A3190161"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\position_wrap.v",
+      "sha256": "40C352189F3CC7BCE35D8782748D7A07B396C6C43CD93212DB87922A961E2749"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\pwm_motor.v",
+      "sha256": "DCC599A77F9461ED2D12EDCB87F2850191F5E4092B1F610C6CA62E2A53BD891D"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\safety_monitor.v",
+      "sha256": "9052680E01C169D98F076B61CF07CF59F16723E31B4172F91AFA871558B41C4A"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\seg595_scan.v",
+      "sha256": "C357486D50333BAC2235ACE813CCFDEBE6DFEAAA1AC8A859953C6694D756FDCA"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\sensor_if.v",
+      "sha256": "71E75525262BF4DA4BD4FEBA551A1707E28AD4D167D8F3957D73324F8763E5D0"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\tick_gen.v",
+      "sha256": "AFA04FBB43FC4DC5424A7405D7F1E8B12D7CB0C8BD995647E89505B7CC212D6D"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\uart_commands.v",
+      "sha256": "88E1B5364828FB126C1A996D8F47404F62F07F5C2C4CC3E3E05F67DB2D94D7A3"
+    },
+    {
+      "path": "G:\\furata-git\\furata\\build\\circular_position_final_20261012\\src\\rtl\\uart_telemetry.v",
+      "sha256": "FA8035FA2CDEEE21F890B756DCB9CF2BA512D0754E4CB3A97CABB4A6F85390E2"
+    }
+  ],
+  "website_hashes": [
+    {
+      "path": "app.js",
+      "sha256": "B825C747066741892F1A4FD90727143DFBC71FB9CA777E498C86640477A5CD10"
+    },
+    {
+      "path": "index.html",
+      "sha256": "62D8F228C12F3E32AED9F94E2CFACCD8D25CABD0A4FBC5BE09170C68CCA2D30C"
+    },
+    {
+      "path": "README.md",
+      "sha256": "45A1719D57B785B9631C69A73B799CCC8C58C9988822B8488654E0C051BD7504"
+    },
+    {
+      "path": "start.cmd",
+      "sha256": "3FA7964DEDE65BD7D75026272E25F4362A3C540386A640799394123BE32327D9"
+    },
+    {
+      "path": "start.ps1",
+      "sha256": "A6E3314B4CC9B019CF86468F81BDA2332B72283D9041527541DCE27EC15F3C48"
+    },
+    {
+      "path": "style.css",
+      "sha256": "A149B752ABF2EF42CBEF3BA2CF879861C02FFB2DA46BF00719302ACF5AEFD6DE"
+    },
+    {
+      "path": "telemetry-core.js",
+      "sha256": "34E47BCC3F72A4D7BA7870425C772861B436FD7833EC498E7A6FCA46E49C5DD1"
+    },
+    {
+      "path": "test-app.cjs",
+      "sha256": "CD13EABE49C71EE3D11976651C4D231386B096A9A688E0F4E0D781271A8A18C8"
+    },
+    {
+      "path": "test-core.cjs",
+      "sha256": "95CBCA5A4E5FEEAECA38ACDC83EF5A14733B7A6EDD2FF5B32E7D666F0FE9C884"
+    }
+  ]
+}
