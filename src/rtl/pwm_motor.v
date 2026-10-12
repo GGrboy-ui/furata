@@ -47,7 +47,9 @@ module pwm_motor #(
     input  wire signed [15:0] cmd,      // signed demand: + forward, - reverse
     output wire               pwm,
     output wire               in1,
-    output wire               in2
+    output wire               in2,
+    // Applied signed duty counts, including slew, reversal dead time and inhibit.
+    output wire signed [15:0] applied_cmd
 );
     // DUTY_MAX is declared signed so the comparisons against the signed cmd inside mag_of()
     // stay signed. Mixing a signed operand with an unsigned localparam silently turns the
@@ -121,6 +123,8 @@ module pwm_motor #(
     end
 
     wire drive = enable && (!brake) && (duty_q != 16'd0);
+    assign applied_cmd = (!rst_n || inhibit) ? 16'sd0 :
+                         (dir_q ? -$signed(duty_q) : $signed(duty_q));
 
     // Combinational on purpose: a fault must be able to kill the outputs without waiting
     // for a clock edge or a PWM period boundary.

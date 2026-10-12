@@ -1,0 +1,84 @@
+{
+    "Device": "GW5AT-60B",
+    "Files": [
+        {
+            "Path": "G:/furata-git/furata/src/board/acg720_top.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/adc128s102_reader.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/angle_display_data.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/seg595_scan.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/clock_reset.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/control_core.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/divider_seq.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/encoder_qei.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/oled_i2c_writer.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/oled_encoder_display.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/pid_fixed.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/pwm_motor.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/safety_monitor.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/sensor_if.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/tick_gen.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/uart_commands.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/key_input.v",
+            "Type": "verilog"
+        },
+        {
+            "Path": "G:/furata-git/furata/src/rtl/position_target.v",
+            "Type": "verilog"
+        }
+    ],
+    "IncludePath": [
+    ],
+    "LoopLimit": 2000,
+    "ResultFile": "G:/furata-git/furata/impl/temp/rtl_parser.result",
+    "Top": "acg720_top",
+    "VerilogStd": "verilog_2001",
+    "VhdlStd": "vhdl_93"
+}

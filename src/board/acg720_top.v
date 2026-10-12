@@ -48,6 +48,8 @@ module acg720_top #(
     wire start_cmd, uart_start_cmd, stop_cmd, uart_stop_cmd, clear_cmd;
     wire [7:0] received_byte;
     wire received_valid;
+    wire [7:0] telemetry_byte;
+    wire telemetry_valid, telemetry_active, uart_tx_ready;
     reg display_raw;
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) display_raw<=0;
@@ -69,10 +71,12 @@ module acg720_top #(
     wire motor_test_cmd=(key_press==4'b0010);
     wire balance_cmd=(key_press==4'b0100);
     assign stop_cmd=uart_stop_cmd || key_press[3];
-    uart_commands #(.CLK_HZ(CLK_HZ),.BAUD(BAUD)) uart (
+    uart_commands #(.CLK_HZ(CLK_HZ),.BAUD(BAUD),.TELEMETRY(1)) uart (
         .clk(clk),.rst_n(reset_n),.rx(uart_rx),.tx(uart_tx),
         .start_cmd(uart_start_cmd),.stop_cmd(uart_stop_cmd),.clear_cmd(clear_cmd),
-        .received_byte(received_byte),.received_valid(received_valid));
+        .received_byte(received_byte),.received_valid(received_valid),
+        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),
+        .tx_frame_active(telemetry_active),.tx_ready(uart_tx_ready));
 
     wire [11:0] sample;
     wire sample_valid, sample_ready;
@@ -196,9 +200,20 @@ module acg720_top #(
                                                 $signed(duty_magnitude);
     end
     wire pwm_raw, in1_raw, in2_raw;
+    wire signed [15:0] applied_pwm;
     pwm_motor #(.PWM_MAX(PWM_MAX)) motor (
         .clk(clk),.rst_n(control_reset_n),.enable(motor_ready),.brake(!motor_ready),
-        .cmd(pwm_command),.pwm(pwm_raw),.in1(in1_raw),.in2(in2_raw));
+        .cmd(pwm_command),.pwm(pwm_raw),.in1(in1_raw),.in2(in2_raw),
+        .applied_cmd(applied_pwm));
+    // Undo only the physical wiring inversion: both fields use control sign.
+    wire signed [15:0] requested_pwm=(MOTOR_INVERT!=0) ? -pwm_command : pwm_command;
+    wire signed [15:0] actual_pwm=(MOTOR_INVERT!=0) ? -applied_pwm : applied_pwm;
+    uart_telemetry #(.CLK_HZ(CLK_HZ)) telemetry (
+        .clk(clk),.rst_n(reset_n),.received_byte(received_byte),.received_valid(received_valid),
+        .angle_tenths(displayed_angle),.angle_valid(display_angle_valid),
+        .requested_pwm(requested_pwm),.actual_pwm(actual_pwm),
+        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),.tx_ready(uart_tx_ready),
+        .frame_active(telemetry_active));
     assign pwm_a=motor_ready && pwm_raw;
     assign ain1=motor_ready && in1_raw;
     assign ain2=motor_ready && in2_raw;

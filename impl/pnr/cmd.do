@@ -1,9 +1,9 @@
--d G:\furata\furata\impl\gwsynthesis\furata.vg
+-d G:\furata-git\furata\impl\gwsynthesis\furata.vg
 -p GW5AT-60B-PBGA484A-1
 -pn GW5AT-LV60PG484AC1/I0
--cst G:\furata\furata\src\constraints\acg720.cst
--cfg G:\furata\furata\impl\pnr\device.cfg
--sdc G:\furata\furata\src\furata.sdc
+-cst G:\furata-git\furata\src\constraints\acg720.cst
+-cfg G:\furata-git\furata\impl\pnr\device.cfg
+-sdc G:\furata-git\furata\src\furata.sdc
 -bit
 -tr
 -ph

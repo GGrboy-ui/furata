@@ -5,34 +5,34 @@
 1. PnR Messages
 
   <Report Title>: PnR Report
-  <Design File>: G:\furata\furata\impl\gwsynthesis\furata.vg
-  <Physical Constraints File>: G:\furata\furata\src\constraints\acg720.cst
-  <Timing Constraints File>: G:\furata\furata\src\furata.sdc
+  <Design File>: G:\furata-git\furata\impl\gwsynthesis\furata.vg
+  <Physical Constraints File>: G:\furata-git\furata\src\constraints\acg720.cst
+  <Timing Constraints File>: G:\furata-git\furata\src\furata.sdc
   <Tool Version>: V1.9.12.03 (64-bit)
   <Part Number>: GW5AT-LV60PG484AC1/I0
   <Device>: GW5AT-60
   <Device Version>: B
-  <Created Time>:Sat Oct 10 22:05:39 2026
+  <Created Time>:Mon Oct 12 19:24:18 2026
 
 
 2. PnR Details
 
   Running placement:
-    Placement Phase 0: CPU time = 0h 0m 0.46s, Elapsed time = 0h 0m 0.46s
-    Placement Phase 1: CPU time = 0h 0m 0.561s, Elapsed time = 0h 0m 0.561s
+    Placement Phase 0: CPU time = 0h 0m 0.601s, Elapsed time = 0h 0m 0.601s
+    Placement Phase 1: CPU time = 0h 0m 0.549s, Elapsed time = 0h 0m 0.549s
     Placement Phase 2: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
-    Placement Phase 3: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
+    Placement Phase 3: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s
     Total Placement: CPU time = 0h 0m 4s, Elapsed time = 0h 0m 4s
  Running routing:
-    Routing Phase 0: CPU time = 0h 0m 0.002s, Elapsed time = 0h 0m 0.002s
-    Routing Phase 1: CPU time = 0h 0m 9s, Elapsed time = 0h 0m 9s
-    Routing Phase 2: CPU time = 0h 0m 0.092s, Elapsed time = 0h 0m 0.092s
+    Routing Phase 0: CPU time = 0h 0m 0.003s, Elapsed time = 0h 0m 0.003s
+    Routing Phase 1: CPU time = 0h 0m 7s, Elapsed time = 0h 0m 7s
+    Routing Phase 2: CPU time = 0h 0m 0.127s, Elapsed time = 0h 0m 0.127s
     Routing Phase 3: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-    Total Routing: CPU time = 0h 0m 9s, Elapsed time = 0h 0m 9s
+    Total Routing: CPU time = 0h 0m 7s, Elapsed time = 0h 0m 7s
  Generate output files:
     CPU time = 0h 0m 7s, Elapsed time = 0h 0m 7s
 
- Total Time and Memory Usage: CPU time = 0h 0m 20s, Elapsed time = 0h 0m 20s, Peak memory usage = 1873MB
+ Total Time and Memory Usage: CPU time = 0h 0m 18s, Elapsed time = 0h 0m 18s, Peak memory usage = 1877MB
 
 
 3. Resource Usage Summary
@@ -40,15 +40,15 @@
   --------------------------------------------------------------------------------
   Resources                   | Usage                               | Utilization
   --------------------------------------------------------------------------------
-  Logic                       | 3826/59904                          |  7%
-    --LUT,ALU,ROM16           | 3826(3519 LUT, 307 ALU, 0 ROM16)    | -
+  Logic                       | 4387/59904                          |  8%
+    --LUT,ALU,ROM16           | 4387(4082 LUT, 305 ALU, 0 ROM16)    | -
     --SSRAM(RAM16)            | 0                                   | -
-  Register                    | 1630/60780                          |  3%
+  Register                    | 1852/60780                          |  4%
     --Logic Register as Latch | 0/59904                             |  0%
-    --Logic Register as FF    | 1618/59904                          |  3%
+    --Logic Register as FF    | 1840/59904                          |  4%
     --I/O Register as Latch   | 0/876                               |  0%
     --I/O Register as FF      | 12/876                              |  2%
-  CLS                         | 2256/29952                          |  8%
+  CLS                         | 2583/29952                          |  9%
   I/O Port                    | 24/297                              |  9%
   I/O Buf                     | 24                                  | -
     --Input Buf               | 10                                  | -
@@ -87,7 +87,7 @@
   Clock Resource| Usage         | Utilization 
   ------------------------------------------
   PRIMARY       | 1/8           | 13%
-  LW            | 3/8           | 38%
+  LW            | 4/8           | 50%
   GCLK_PIN      | 3/40          | 8%
   ==========================================
 
@@ -101,6 +101,7 @@
   reset_n        | LW             |  -
   control_reset_n| LW             |  -
   oled/n1973_11  | LW             |  -
+  telemetry/convert_left_4_12| LW             |  -
   ===========================================
 
 

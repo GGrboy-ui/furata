@@ -1,0 +1,42 @@
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file 'G:\furata-git\furata\src\board\acg720_top.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\adc128s102_reader.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\angle_display_data.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\seg595_scan.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\clock_reset.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\control_core.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\divider_seq.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\encoder_qei.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\oled_i2c_writer.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\oled_encoder_display.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\pid_fixed.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\pwm_motor.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\safety_monitor.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\sensor_if.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\tick_gen.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\uart_commands.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\key_input.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\position_target.v'
+Compiling module 'acg720_top'("G:\furata-git\furata\src\board\acg720_top.v":5)
+Compiling module 'clock_reset'("G:\furata-git\furata\src\rtl\clock_reset.v":20)
+Compiling module 'key_input'("G:\furata-git\furata\src\rtl\key_input.v":4)
+Compiling module 'uart_commands(TELEMETRY=1)'("G:\furata-git\furata\src\rtl\uart_commands.v":4)
+Compiling module 'sensor_if'("G:\furata-git\furata\src\rtl\sensor_if.v":4)
+Compiling module 'adc128s102_reader'("G:\furata-git\furata\src\rtl\adc128s102_reader.v":7)
+Compiling module 'encoder_qei'("G:\furata-git\furata\src\rtl\encoder_qei.v":40)
+Compiling module 'divider_seq'("G:\furata-git\furata\src\rtl\divider_seq.v":30)
+Compiling module 'oled_encoder_display(ADDRESS=7'b0111100)'("G:\furata-git\furata\src\rtl\oled_encoder_display.v":4)
+Compiling module 'oled_i2c_writer'("G:\furata-git\furata\src\rtl\oled_i2c_writer.v":5)
+Compiling module 'angle_display_data(ADC_ZERO=1011)'("G:\furata-git\furata\src\rtl\angle_display_data.v":5)
+Compiling module 'divider_seq(WIDTH=24)'("G:\furata-git\furata\src\rtl\divider_seq.v":30)
+Compiling module 'seg595_scan'("G:\furata-git\furata\src\rtl\seg595_scan.v":5)
+Compiling module 'position_target'("G:\furata-git\furata\src\rtl\position_target.v":4)
+Compiling module 'safety_monitor'("G:\furata-git\furata\src\rtl\safety_monitor.v":4)
+Compiling module 'control_core(CENTER=1011,PULSE_MS=120)'("G:\furata-git\furata\src\rtl\control_core.v":4)
+Compiling module 'pid_fixed(KP=23661,KI=0,KD=23214)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
+Compiling module 'pid_fixed(KP=0,KI=0,KD=0)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
+Compiling module 'pwm_motor(PWM_MAX=2500)'("G:\furata-git\furata\src\rtl\pwm_motor.v":34)
+ERROR (EX3937) : Instantiating unknown module 'uart_telemetry'("G:\furata-git\furata\src\board\acg720_top.v":216)
+Module 'acg720_top' remains a black box due to errors in its contents("G:\furata-git\furata\src\board\acg720_top.v":5)
+GowinSynthesis finish

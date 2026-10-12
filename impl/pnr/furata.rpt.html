@@ -55,15 +55,15 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td class="label">Design File</td>
-<td>G:\furata\furata\impl\gwsynthesis\furata.vg</td>
+<td>G:\furata-git\furata\impl\gwsynthesis\furata.vg</td>
 </tr>
 <tr>
 <td class="label">Physical Constraints File</td>
-<td>G:\furata\furata\src\constraints\acg720.cst</td>
+<td>G:\furata-git\furata\src\constraints\acg720.cst</td>
 </tr>
 <tr>
 <td class="label">Timing Constraints File</td>
-<td>G:\furata\furata\src\furata.sdc</td>
+<td>G:\furata-git\furata\src\furata.sdc</td>
 </tr>
 <tr>
 <td class="label">Tool Version</td>
@@ -83,7 +83,7 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td class="label">Created Time</td>
-<td>Sat Oct 10 22:05:39 2026
+<td>Mon Oct 12 19:24:18 2026
 </td>
 </tr>
 <tr>
@@ -97,24 +97,24 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <tr>
 <td class="label">Place & Route Process</td>
 <td>Running placement:
-   Placement Phase 0: CPU time = 0h 0m 0.46s, Elapsed time = 0h 0m 0.46s
-   Placement Phase 1: CPU time = 0h 0m 0.561s, Elapsed time = 0h 0m 0.561s
+   Placement Phase 0: CPU time = 0h 0m 0.601s, Elapsed time = 0h 0m 0.601s
+   Placement Phase 1: CPU time = 0h 0m 0.549s, Elapsed time = 0h 0m 0.549s
    Placement Phase 2: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
-   Placement Phase 3: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
+   Placement Phase 3: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s
    Total Placement: CPU time = 0h 0m 4s, Elapsed time = 0h 0m 4s
 Running routing:
-   Routing Phase 0: CPU time = 0h 0m 0.002s, Elapsed time = 0h 0m 0.002s
-   Routing Phase 1: CPU time = 0h 0m 9s, Elapsed time = 0h 0m 9s
-   Routing Phase 2: CPU time = 0h 0m 0.092s, Elapsed time = 0h 0m 0.092s
+   Routing Phase 0: CPU time = 0h 0m 0.003s, Elapsed time = 0h 0m 0.003s
+   Routing Phase 1: CPU time = 0h 0m 7s, Elapsed time = 0h 0m 7s
+   Routing Phase 2: CPU time = 0h 0m 0.127s, Elapsed time = 0h 0m 0.127s
    Routing Phase 3: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-   Total Routing: CPU time = 0h 0m 9s, Elapsed time = 0h 0m 9s
+   Total Routing: CPU time = 0h 0m 7s, Elapsed time = 0h 0m 7s
 Generate output files:
    CPU time = 0h 0m 7s, Elapsed time = 0h 0m 7s
 </td>
 </tr>
 <tr>
 <td class="label">Total Time and Memory Usage</td>
-<td>CPU time = 0h 0m 20s, Elapsed time = 0h 0m 20s, Peak memory usage = 1873MB</td>
+<td>CPU time = 0h 0m 18s, Elapsed time = 0h 0m 18s, Peak memory usage = 1877MB</td>
 </tr>
 </table>
 <br/>
@@ -129,12 +129,12 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">Logic</td>
-<td>3826/59904</td>
-<td>7%</td>
+<td>4387/59904</td>
+<td>8%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --LUT,ALU,ROM16</td>
-<td>3826(3519 LUT, 307 ALU, 0 ROM16)</td>
+<td>4387(4082 LUT, 305 ALU, 0 ROM16)</td>
 <td>-</td>
 </tr>
 <tr>
@@ -144,8 +144,8 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">Register</td>
-<td>1630/60780</td>
-<td>3%</td>
+<td>1852/60780</td>
+<td>4%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --Logic Register as Latch</td>
@@ -154,8 +154,8 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --Logic Register as FF</td>
-<td>1618/59904</td>
-<td>3%</td>
+<td>1840/59904</td>
+<td>4%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --I/O Register as Latch</td>
@@ -169,8 +169,8 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">CLS</td>
-<td>2256/29952</td>
-<td>8%</td>
+<td>2583/29952</td>
+<td>9%</td>
 </tr>
 <tr>
 <td class="label">I/O Port</td>
@@ -272,8 +272,8 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">LW</td>
-<td>3/8</td>
-<td>38%</td>
+<td>4/8</td>
+<td>50%</td>
 </tr>
 <tr>
 <td class="label">GCLK_PIN</td>
@@ -306,6 +306,11 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">oled/n1973_11</td>
+<td>LW</td>
+<td> -</td>
+</tr>
+<tr>
+<td class="label">telemetry/convert_left_4_12</td>
 <td>LW</td>
 <td> -</td>
 </tr>

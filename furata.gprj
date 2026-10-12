@@ -21,6 +21,7 @@
         <File path="src/rtl/sensor_if.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/tick_gen.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/uart_commands.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/uart_telemetry.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/key_input.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/position_target.v" type="file.verilog" enable="1"/>
         <File path="src/constraints/acg720.cst" type="file.cst" enable="1"/>

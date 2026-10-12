@@ -10,6 +10,7 @@
 - [K2 固定 20% PWM 试转与 K4 复位说明](doc/motor-test.md)
 - [K3 手动扶直后维持平衡](doc/manual-balance.md)
 - [OLED 编码器 RAW / POS / REL 显示与接线](doc/oled-encoder.md)
+- [网页角度与要求/实际 PWM 串口回传](doc/uart-telemetry.md)
 - [引脚表](doc/pinout.md)
 - [控制与显示参数](doc/parameters.md)
 - [仿真及高云实现记录](doc/test-record.md)
@@ -32,3 +33,5 @@ K3 版本通过 19/19 项 Icarus 仿真及高云综合、布局布线、下载�
 2026-10-10：新增原套件 I²C OLED 编码器显示。SCL=P7-7/F13，SDA=P7-8/F14，显示有符号 RAW、POS、REL 累计计数，停止时也刷新。已通过 22/22 项仿真；最终 50 MHz 实现 Fmax=67.670 MHz，最差建立余量 5.223 ns，建立/保持违例为零。固定下载版本为 `build/releases/furata_oled_encoder_20261010.fs`，详见 [OLED 说明](doc/oled-encoder.md)。
 
 OLED 构建保留用户当前 `POSITION_KP=0 / POSITION_KI=0 / POSITION_KD=0`，此时没有位置保持修正，但 REL 仍显示真实相对计数。上述旧 K3 版本的非零位置环设置与时序记录属于历史版本，当前文件以最新测试记录和发布清单为准。本次仅完成软件与 FPGA 实现验证，未下载到实物 OLED。
+
+2026-10-12：加入与本机 <http://localhost:8765/> 匹配的串口回传。`P` 开始、`Q` 停止回传，每 5 ms 同时采集数码管平均角度、要求 PWM、实际 PWM；实际值包含缓升、换向死区及故障禁止，两种 PWM 同方向符号。P/Q 不改变电机运行状态。已通过 25/25 仿真和网页解析器验证，高云实现 Fmax=68.727 MHz、建立/保持违例为零。固定下载文件 `build/releases/furata_uart_telemetry_20261012.fs`；需下载新固件后网页才能接收，尚未进行实物串口采集。详见 [回传说明](doc/uart-telemetry.md)。
