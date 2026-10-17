@@ -4,8 +4,7 @@
 module uart_commands #(
     parameter integer CLK_HZ=50_000_000,
     parameter integer BAUD=115200,
-    parameter integer TELEMETRY=0,
-    parameter integer ECHO=1
+    parameter integer TELEMETRY=0
 ) (
     input wire clk, rst_n, rx,
     output wire tx,
@@ -60,7 +59,7 @@ module uart_commands #(
                            start_cmd<=(byte_q==8'h53);
                            stop_cmd<=(byte_q==8'h58);
                            clear_cmd<=(byte_q==8'h43);
-                           if (ECHO!=0 && tx_left==0 && (TELEMETRY==0 || (!tx_frame_active && !tx_valid))) begin
+                           if (tx_left==0 && (TELEMETRY==0 || (!tx_frame_active && !tx_valid))) begin
                                tx_shift<={1'b1,byte_q,1'b0}; tx_left<=4'd10; tx_count<=DIV-1;
                            end
                        end

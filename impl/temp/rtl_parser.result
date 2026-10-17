@@ -20,7 +20,7 @@
                 "InstLine": 94,
                 "InstName": "calibration_rx",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/calibration_commands.v",
-                "ModuleLine": 12,
+                "ModuleLine": 13,
                 "ModuleName": "calibration_commands"
             },
             {
@@ -218,7 +218,7 @@
                 "InstLine": 277,
                 "InstName": "calibration",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/motor_calibration.v",
-                "ModuleLine": 6,
+                "ModuleLine": 7,
                 "ModuleName": "motor_calibration"
             },
             {
@@ -226,7 +226,7 @@
                 "InstLine": 292,
                 "InstName": "calibration_tx",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/calibration_telemetry.v",
-                "ModuleLine": 13,
+                "ModuleLine": 15,
                 "ModuleName": "calibration_telemetry"
             },
             {

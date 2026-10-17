@@ -3,26 +3,22 @@
 // One sample_valid represents 1 ms. Angle is an ADC code, not degrees.
 module control_core #(
     parameter integer CENTER=1014, CAPTURE_RANGE=500,
-    parameter integer START_PERCENT=45, PULSE_MS=100, CHECK_MS=40,
+    parameter integer START_PERCENT=50, PULSE_MS=100, CHECK_MS=40,
     parameter integer ANGLE_MS=5, POSITION_MS=50, SWING_TIMEOUT_MS=15000,
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
-    parameter signed [31:0] ANGLE_KP=35661, ANGLE_KI=0, ANGLE_KD=35214,
-    parameter signed [31:0] POSITION_KP=4641, POSITION_KI=0, POSITION_KD=7581,
+    parameter signed [31:0] ANGLE_KP=32'sd19661, ANGLE_KI=32'sd655, ANGLE_KD=32'sd26214,
+    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd0, POSITION_KD=32'sd262144,
     // Linear PWM addition about fixed CENTER; zero width/maximum disables it.
     parameter integer BALANCE_BOOST_RANGE_CODES=24,
     parameter integer BALANCE_BOOST_MAX_PERCENT=5,
-    parameter integer COUNTS_PER_REV=408,
-    parameter integer CALIBRATION_ENABLE=0
+    parameter integer COUNTS_PER_REV=408
 ) (
     input wire clk, rst_n, sample_valid, sample_ready,
     input wire [11:0] sample,
     input wire signed [31:0] position,
     input wire signed [31:0] position_target_q,
     input wire start_cmd, motor_test_cmd, balance_cmd, stop_cmd, permit, fault_latched,
-    input wire calibration_session, calibration_active,
-    input wire signed [31:0] calibration_command_q,
-    output wire calibration_test,
     output wire running,
     output wire signed [31:0] command_q,
     output reg [2:0] state,
@@ -34,10 +30,6 @@ module control_core #(
     localparam [2:0] STOP=0, PUSH=1, PULL=2, WAIT_PEAK=3, BALANCE=4, FAULT=5, MOTOR_TEST=6;
     reg [31:0] pulse_count, check_count, swing_count, angle_count, position_count;
     reg positive_first;
-    reg calibration_latched;
-    wire cal_session=(CALIBRATION_ENABLE!=0) && calibration_session;
-    wire cal_active=(CALIBRATION_ENABLE!=0) && calibration_active;
-    assign calibration_test=(CALIBRATION_ENABLE!=0) && calibration_latched;
     reg [11:0] previous, older;
     reg [1:0] history_count;
     reg signed [31:0] origin;
@@ -139,8 +131,7 @@ module control_core #(
     assign command_q=(!permit || fault_latched || stop_cmd) ? 32'sd0 :
                      state==PUSH ? (positive_first ? pulse_q : -pulse_q) :
                      state==PULL ? (positive_first ? -pulse_q : pulse_q) :
-                     state==MOTOR_TEST ? (calibration_test ? (cal_active ? calibration_command_q : 32'sd0) :
-                                         ((MOTOR_TEST_REVERSE!=0) ? -test_q : test_q)) :
+                     state==MOTOR_TEST ? ((MOTOR_TEST_REVERSE!=0) ? -test_q : test_q) :
                      balance ? balance_command : 32'sd0;
     always @* begin
         request_fault=0;
@@ -153,22 +144,16 @@ module control_core #(
         if (!rst_n) begin
             state<=STOP; pulse_count<=0; check_count<=0; swing_count<=0;
             angle_count<=0; position_count<=0; positive_first<=1;
-            previous<=0; older<=0; history_count<=0; origin<=0; calibration_latched<=0;
+            previous<=0; older<=0; history_count<=0; origin<=0;
         end else if (fault_latched) state<=FAULT;
-        else if (stop_cmd || state==FAULT || (calibration_test && !cal_active)) begin
-            state<=STOP; angle_count<=0; position_count<=0; calibration_latched<=0;
+        else if (stop_cmd || state==FAULT) begin
+            state<=STOP; angle_count<=0; position_count<=0;
         end else if (state==STOP) begin
             // Manual balance accepts only a fresh command inside the upright
             // window. Rejected requests are not queued; running modes ignore it.
-            if (cal_session && cal_active && permit && sample_ready) begin
-                state<=MOTOR_TEST; calibration_latched<=1; origin<=position;
-                pulse_count<=0; check_count<=0; swing_count<=0;
-                angle_count<=0; position_count<=0; history_count<=0;
-                previous<=0; older<=0;
-            end else if (!cal_session && (start_cmd || motor_test_cmd || (balance_cmd && centered)) &&
+            if ((start_cmd || motor_test_cmd || (balance_cmd && centered)) &&
                 permit && sample_ready) begin
                 state<=start_cmd ? PUSH : motor_test_cmd ? MOTOR_TEST : BALANCE;
-                calibration_latched<=0;
                 pulse_count<=0; check_count<=0; swing_count<=0;
                 angle_count<=0; position_count<=0; positive_first<=1;
                 history_count<=0; previous<=0; older<=0; origin<=position;

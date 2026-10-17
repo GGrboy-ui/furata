@@ -1,26 +1,31 @@
 {
-  "schemaVersion": 1,
-  "protocol": "DZCAL1",
-  "buildId": "389C7A15",
-  "sourceSha256": "389c7a152bbdcfedc2e60d2455c4795337d7407f2d5279b40adb7fe0d873fe56",
-  "bitstreamSha256": null,
-  "createdAt": "2026-10-14T14:57:51.1125310+08:00",
+  "schemaVersion": 2,
+  "protocol": "DZCAL2",
+  "buildId": "1E53EECA",
+  "sourceSha256": "1e53eeca4b21053006c665ea19d2301f8e660988ea4a1cdac0570075dfa3fe73",
+  "bitstreamSha256": "7ba5d6ac8ee4c45e88ec1ece4d7232092638725d22150cd125bf40275f948846",
+  "createdAt": "2026-10-14T16:23:08.8403659+08:00",
   "parameters": {
+    "BALANCE_BOOST_MAX_PERCENT": 0,
+    "ANGLE_KP": 25661,
     "PWM_MAX": 2500,
-    "ANGLE_KP": 35661,
-    "POSITION_KP": 4641,
-    "BALANCE_BOOST_MAX_PERCENT": 2,
-    "CLK_HZ": 50000000,
-    "BALANCE_BOOST_RANGE_TENTHS": 20,
-    "POSITION_KD": 7581,
-    "CENTER": 999,
     "ANGLE_KI": 0,
-    "ANGLE_KD": 35214,
+    "CLK_HZ": 50000000,
     "POSITION_KI": 0,
     "COUNTS_PER_REV": 408,
-    "PWM_HZ": 20000
+    "CENTER": 999,
+    "BALANCE_BOOST_RANGE_TENTHS": 20,
+    "POSITION_KP": 4641,
+    "PWM_HZ": 20000,
+    "POSITION_KD": 7581,
+    "ANGLE_KD": 29214
   },
-  "bitstreamPath": "G:\\FPGA_furata\\outputs\\motor_calibration_20261014_r2\\furata.calibration.fs",
-  "validation": "pending",
-  "hardwareMeasured": false
+  "bitstreamPath": "G:\\FPGA_furata\\outputs\\upright_pulse_20261014\\release\\furata.calibration.fs",
+  "validation": "software checks and Gowin implementation completed; hardware unmeasured",
+  "hardwareMeasured": false,
+  "timing": {
+    "setupViolations": 0,
+    "fmaxMHz": 50.182,
+    "holdViolations": 0
+  }
 }

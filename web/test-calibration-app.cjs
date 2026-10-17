@@ -22,6 +22,9 @@ async function startSuccess(){await element('cal-pulse').handlers.click();assert
   // Command echoes cannot authorize motion.
   app.feed('!i\n!c,1,408,150,1,00\n');assert.equal(element('cal-open').disabled,true);
   app.onFrame(cap);assert.equal(element('cal-open').disabled,false);
+  element('cal-cpr').value='800';element('cal-cpr').handlers.input();app.onFrame(cap);
+  assert.equal(element('cal-cpr').value,'800','capability rereads must preserve measured CPR');
+  element('cal-cpr').value='408';
   await element('cal-open').handlers.click();const sid=app.status.session.id;
   assert.deepEqual(writes.slice(1,4),['X','Q','!i\n']);assert.equal(writes.at(-1),Calibration.command('c',sid,408,150,1));
   assert.equal(element('cal-precheck').disabled,true);assert.equal(element('cal-cpr').disabled,true);
@@ -45,6 +48,57 @@ async function startSuccess(){await element('cal-pulse').handlers.click();assert
   // A new session always has a new origin and ID, with no inherited precheck.
   await element('cal-open').handlers.click();const nextSid=app.status.session.id;assert.notEqual(nextSid,sid);sample();advance(1000);assert.equal(app.model.prechecked(nextSid,-25),false);
   await element('cal-precheck').handlers.click();result(13);element('cal-current').value='.81';element('cal-vmMin').value='12';element('cal-reviewSave').handlers.click();await new Promise(resolve=>setImmediate(resolve));assert.equal(app.status.session,null);assert.equal(element('cal-pulse').disabled,true);
+  // Rejected/lost commands can leave M reporting a previous trial. They must
+  // time out as invalid and stop, without fabricating a final board result.
+  await element('cal-open').handlers.click();sample();advance(1000);
+  await element('cal-precheck').handlers.click();const unaccepted=app.status.pendingTrial;
+  for(let i=0;i<210;i++){time+=10;sample({trial:0,result:12});}
+  await app.tick();assert.equal(app.status.pendingTrial,null);assert.equal(app.status.session,null);
+  assert.equal(unaccepted.result,null);assert.equal(app.model.classify(unaccepted),'invalid');
+  assert.match(unaccepted.invalidReason,/未接受/);assert.deepEqual(writes.slice(-3),['X',Calibration.command('e',unaccepted.session),'Q']);
+  await element('cal-open').handlers.click();sample();advance(1000);await precheck(1);
+  await element('cal-pulse').handlers.click();const overCurrent=result(1);
+  element('cal-motion').value='yes';element('cal-current').value='.9';element('cal-vmMin').value='12';
+  element('cal-reviewSave').handlers.click();await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(app.status.session,null);assert.equal(app.model.classify(overCurrent),'invalid');
+  assert.match(overCurrent.invalidReason,/长测试电流/);
   connected=false;app.disconnected();assert.equal(element('cal-open').disabled,true);assert.equal(element('cal-emergency').disabled,true);
-  console.log('PASS: capability-only authorization, fresh session/origin, heartbeat, signed per-PWM electrical gate, manual one-shot scan, 5-repeat threshold, zero-hold kick, physical confirmation, data-loss stop, cache query, export and abnormal-current stop');
+  // Upright mode directly measures pendulum movement with additive amplitude
+  // and a user-selected output time. Old precheck fields must not gate it.
+  connected=true;await app.connected();
+  const cap2=Calibration.parseLine((body=>body+','+Calibration.crc8(body).toString(16).padStart(2,'0'))('I,DZCAL2,89ABCDEF,09C4,0198,000A,0064,0078,1388,00C8,0096'));
+  app.onFrame(cap2);assert.equal(element('cal-profile').value,'3');
+  for(const id of ['cal-vm','cal-ratedVm','cal-motorAllowed','cal-encoderAxis','cal-directionNote','cal-instrument','cal-location'])element(id).value='';
+  element('cal-ready').checked=false;element('cal-duration').value='5000';element('cal-angleThreshold').value='.5';element('cal-duty').value='1';element('cal-direction').value='1';
+  await element('cal-open').handlers.click();const uprightSid=app.status.session.id;
+  assert.deepEqual(writes.slice(-3),['Q','!i\n',Calibration.command('c',uprightSid,408,150,1)]);assert.equal(element('cal-legacyControls').hidden,true);
+  sample({coreState:0,actual:300});app.update();assert.equal(app.canPulse(3),false,'STOP is not BALANCE');
+  sample({coreState:4,actual:300});app.update();assert.equal(app.canPulse(3),true,'nonzero PID output must not block pulse');
+  assert.equal(element('cal-pulse').disabled,false);assert.equal(app.model.prechecked(uprightSid,25),false);
+  await element('cal-pulse').handlers.click();const longPulse=app.status.pendingTrial;
+  assert.equal(longPulse.profile,3);assert.equal(longPulse.durationMs,5000);assert.equal(longPulse.thresholdAdc,7);assert.equal(writes.at(-1),Calibration.command('p',uprightSid,longPulse.id,25,5000,7));
+  assert.equal(element('cal-duration').disabled,true);assert.equal(element('cal-angleThreshold').disabled,true);
+  const startMs=boardMs;
+  for(let i=0;i<250;i++){time+=10;sample({coreState:4,actual:325,requested:325,active:true,phase:8,trial:longPulse.id});}
+  await app.tick();assert.equal(app.status.pendingTrial,longPulse,'5000 ms pulse must not expire at 2000 ms');assert.equal(app.status.session.id,uprightSid);
+  for(let i=0;i<250;i++){time+=10;sample({coreState:4,actual:325,requested:325,active:true,phase:8,trial:longPulse.id});}
+  sample({coreState:4,actual:300,requested:300,active:false,phase:7,result:14,trial:longPulse.id});
+  app.onFrame({type:'N',session:uprightSid,trial:longPulse.id,result:14,tCommand:startMs,tPwm:null,tEdge:startMs+20,tAdc:startMs+40,tEnd:startMs+5000,startPosition:0,endPosition:2,startAdc:999,endAdc:1005,maxDeltaAdc:7,added:25,durationMs:5000,thresholdAdc:7,baseline:300});
+  assert.equal(app.status.pendingTrial,null);assert.equal(app.model.classify(longPulse),'success');assert.equal(longPulse.confirmed,null);assert.equal(longPulse.delayMs,40);assert.match(element('cal-message').textContent,/指令后 40 ms/);
+  assert.equal(app.canPulse(3),true,'no quiet period or minimum rest after an upright pulse');
+  element('cal-duty').value='0';element('cal-duration').value='250';element('cal-angleThreshold').value='1';app.update();await element('cal-pulse').handlers.click();const zeroPulse=app.status.pendingTrial;
+  assert.equal(writes.at(-1),Calibration.command('p',uprightSid,zeroPulse.id,0,250,13));
+  sample({coreState:4,actual:300,requested:300,trial:zeroPulse.id});
+  app.onFrame({type:'N',session:uprightSid,trial:zeroPulse.id,result:15,tCommand:boardMs,tPwm:null,tEdge:null,tAdc:null,tEnd:boardMs+250,startPosition:0,endPosition:0,startAdc:999,endAdc:1000,maxDeltaAdc:1,added:0,durationMs:250,thresholdAdc:13,baseline:300});
+  assert.equal(app.model.classify(zeroPulse),'failure');assert.equal(app.model.groups().filter(g=>g.profile===3).length,2);
+  element('cal-duty').value='1.2';element('cal-direction').value='-1';element('cal-duration').value='5001';app.update();assert.equal(app.canPulse(3),false);
+  element('cal-duration').value='1';element('cal-angleThreshold').value='0';app.update();assert.equal(app.canPulse(3),false);
+  element('cal-angleThreshold').value='.5';sample({coreState:4,fault:1});app.update();assert.equal(app.canPulse(3),false);
+  sample({coreState:4,fault:0});app.update();assert.equal(app.canPulse(3),true);await element('cal-pulse').handlers.click();const negative=app.status.pendingTrial;
+  assert.equal(writes.at(-1),Calibration.command('p',uprightSid,negative.id,-30,1,7));
+  // Lost/rejected requests are bounded by selected duration + 1000 ms.
+  for(let i=0;i<110;i++){time+=10;sample({coreState:4,trial:zeroPulse.id,active:false});}
+  await app.tick();assert.equal(app.status.pendingTrial,null);assert.equal(app.model.classify(negative),'invalid');
+  assert.deepEqual(writes.slice(-3),['X',Calibration.command('e',uprightSid),'Q']);
+  console.log('PASS: legacy calibration plus DZCAL2 PID-preserving session, direct adjustable amplitude/time, no old preconditions, BALANCE/fault gate, automatic pendulum criterion, 5000 ms deadline, immediate repeat, zero baseline and bounded lost request');
 })().catch(error=>{console.error(error);process.exitCode=1;});

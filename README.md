@@ -1,7 +1,5 @@
 # ACG720 Furuta 控制与角度显示
 
-2026-10-14：新增网页半自动电机死区实测模式，分别测正反起动和短时维持门槛，支持电流预检、板端限时/行程/失联截止以及 CSV/HTML 报告。仅用于测量，不自动更改平衡补偿。[完整操作说明](doc/motor-deadzone-calibration.md)。运行 `./build_calibration.ps1` 在独立发布目录构建；请下载发布的 `furata.calibration.fs`，保留原位流回退。校准构建 ID 与参数以发布清单为准。
-
 打开 `furata.gprj`，顶层为 `acg720_top`，器件为 GW5AT-LV60PG484AC1/I0。
 
 当前源码（2026-10-13）：控制中心为 **ADC=999**；平衡状态在中心两侧各 **24 个 ADC 码（标称约 ±1.95°）** 内增加线性 PWM 补偿，中心为零，边界为 **5 个百分点**，区间外为零。顶层 `BALANCE_BOOST_RANGE_TENTHS=20` 表示 2° 半宽，`BALANCE_BOOST_MAX_PERCENT=5` 表示最大增量；修改后重新编译生效。补偿跟随角度 PID 输出方向，零输出不添加，合成后限制在 ±100%。已删除独立 `ARM_DAMPING` 速度阻尼，角度与位置 PID 的 D 项保留。

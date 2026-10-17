@@ -1,4 +1,5 @@
 :root { color-scheme: dark; --bg:#10141c; --panel:#181e29; --line:#2b3444; --text:#e9eff8; --muted:#96a5bc; --accent:#62dfc5; }
+[hidden] { display:none !important; }
 * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif; font-size:14px; }
 main { max-width:1280px; margin:auto; padding:36px 36px 28px; } header { display:flex; align-items:center; justify-content:space-between; margin-bottom:30px; }
 .brand { display:flex; align-items:center; gap:15px; } .brand-icon { display:grid; place-items:center; width:48px; height:48px; border:1px solid #357366; border-radius:14px; color:var(--accent); font-size:37px; }
@@ -34,5 +35,7 @@ button.danger { background:#6b2933; border-color:#b45661; color:#ffe1e4; font-we
 .cal-chart-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--muted); margin-top:20px; }.cal-chart { height:260px; margin-top:12px; }
 .cal-table-wrap { overflow-x:auto; margin:17px 0; }.cal-table-wrap table { border-collapse:collapse; width:100%; min-width:640px; font-size:12px; }.cal-table-wrap th,.cal-table-wrap td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }.cal-table-wrap th { color:var(--muted); font-weight:500; }.cal-table-wrap td { color:#c9d5e7; font-variant-numeric:tabular-nums; }
 .calibration-card h3 { font-size:14px; margin-top:25px; }
+.cal-pulse-settings { grid-template-columns:repeat(2,minmax(0,1fr)); padding:16px; background:#111723; border:1px solid var(--line); border-radius:8px; }
+.cal-pulse-settings label { font-size:14px; color:#dae7f7; }.cal-pulse-settings input { font-size:18px; font-variant-numeric:tabular-nums; }
 @media(max-width:900px) { .cal-fields,.cal-test-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-card { padding:20px 16px; } }
 @media(max-width:520px) { .cal-fields,.cal-test-fields { grid-template-columns:1fr; } .cal-heading { align-items:flex-start; }.cal-heading h2 { font-size:19px; }.cal-heading button { padding:10px; font-size:12px; }.cal-actions button { font-size:12px; }.cal-actions strong { margin:6px 0; width:100%; } }
