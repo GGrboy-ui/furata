@@ -9,7 +9,7 @@
         "SubInsts": [
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 51,
+                "InstLine": 57,
                 "InstName": "reset_conditioner",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/clock_reset.v",
                 "ModuleLine": 20,
@@ -17,7 +17,15 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 67,
+                "InstLine": 94,
+                "InstName": "calibration_rx",
+                "ModuleFile": "G:/furata-git/furata/src/rtl/calibration_commands.v",
+                "ModuleLine": 12,
+                "ModuleName": "calibration_commands"
+            },
+            {
+                "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
+                "InstLine": 113,
                 "InstName": "keys",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/key_input.v",
                 "ModuleLine": 4,
@@ -25,7 +33,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 73,
+                "InstLine": 119,
                 "InstName": "control_reset_conditioner",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/clock_reset.v",
                 "ModuleLine": 20,
@@ -33,7 +41,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 79,
+                "InstLine": 125,
                 "InstName": "uart",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/uart_commands.v",
                 "ModuleLine": 4,
@@ -41,7 +49,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 90,
+                "InstLine": 136,
                 "InstName": "sensor",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/sensor_if.v",
                 "ModuleLine": 4,
@@ -59,7 +67,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 97,
+                "InstLine": 143,
                 "InstName": "encoder",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/encoder_qei.v",
                 "ModuleLine": 40,
@@ -77,7 +85,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 114,
+                "InstLine": 160,
                 "InstName": "oled",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/oled_encoder_display.v",
                 "ModuleLine": 4,
@@ -95,7 +103,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 126,
+                "InstLine": 172,
                 "InstName": "angle_display",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/angle_display_data.v",
                 "ModuleLine": 5,
@@ -113,7 +121,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 132,
+                "InstLine": 178,
                 "InstName": "segment_driver",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/seg595_scan.v",
                 "ModuleLine": 5,
@@ -121,7 +129,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 138,
+                "InstLine": 184,
                 "InstName": "target",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/position_target.v",
                 "ModuleLine": 4,
@@ -129,7 +137,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 144,
+                "InstLine": 190,
                 "InstName": "safety",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/safety_monitor.v",
                 "ModuleLine": 4,
@@ -137,7 +145,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 153,
+                "InstLine": 200,
                 "InstName": "core",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/control_core.v",
                 "ModuleLine": 4,
@@ -145,7 +153,7 @@
                 "SubInsts": [
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 45,
+                        "InstLine": 53,
                         "InstName": "wrap_position",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/position_wrap.v",
                         "ModuleLine": 4,
@@ -163,7 +171,7 @@
                     },
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 47,
+                        "InstLine": 55,
                         "InstName": "wrap_error",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/position_wrap.v",
                         "ModuleLine": 4,
@@ -181,7 +189,7 @@
                     },
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 78,
+                        "InstLine": 86,
                         "InstName": "angle_pid",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/pid_fixed.v",
                         "ModuleLine": 5,
@@ -189,7 +197,7 @@
                     },
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 82,
+                        "InstLine": 90,
                         "InstName": "position_pid",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/pid_fixed.v",
                         "ModuleLine": 5,
@@ -199,7 +207,7 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 215,
+                "InstLine": 266,
                 "InstName": "motor",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/pwm_motor.v",
                 "ModuleLine": 34,
@@ -207,7 +215,23 @@
             },
             {
                 "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
-                "InstLine": 243,
+                "InstLine": 277,
+                "InstName": "calibration",
+                "ModuleFile": "G:/furata-git/furata/src/rtl/motor_calibration.v",
+                "ModuleLine": 6,
+                "ModuleName": "motor_calibration"
+            },
+            {
+                "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
+                "InstLine": 292,
+                "InstName": "calibration_tx",
+                "ModuleFile": "G:/furata-git/furata/src/rtl/calibration_telemetry.v",
+                "ModuleLine": 13,
+                "ModuleName": "calibration_telemetry"
+            },
+            {
+                "InstFile": "G:/furata-git/furata/src/board/acg720_top.v",
+                "InstLine": 324,
                 "InstName": "telemetry",
                 "ModuleFile": "G:/furata-git/furata/src/rtl/uart_telemetry.v",
                 "ModuleLine": 7,

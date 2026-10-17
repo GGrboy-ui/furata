@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "protocol": "DZCAL1",
+  "buildId": "389C7A15",
+  "sourceSha256": "389c7a152bbdcfedc2e60d2455c4795337d7407f2d5279b40adb7fe0d873fe56",
+  "bitstreamSha256": null,
+  "createdAt": "2026-10-14T14:57:51.1125310+08:00",
+  "parameters": {
+    "PWM_MAX": 2500,
+    "ANGLE_KP": 35661,
+    "POSITION_KP": 4641,
+    "BALANCE_BOOST_MAX_PERCENT": 2,
+    "CLK_HZ": 50000000,
+    "BALANCE_BOOST_RANGE_TENTHS": 20,
+    "POSITION_KD": 7581,
+    "CENTER": 999,
+    "ANGLE_KI": 0,
+    "ANGLE_KD": 35214,
+    "POSITION_KI": 0,
+    "COUNTS_PER_REV": 408,
+    "PWM_HZ": 20000
+  },
+  "bitstreamPath": "G:\\FPGA_furata\\outputs\\motor_calibration_20261014_r2\\furata.calibration.fs",
+  "validation": "pending",
+  "hardwareMeasured": false
+}

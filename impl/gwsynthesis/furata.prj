@@ -20,6 +20,9 @@
         <File path="G:\furata-git\furata\src\rtl\sensor_if.v" type="verilog"/>
         <File path="G:\furata-git\furata\src\rtl\tick_gen.v" type="verilog"/>
         <File path="G:\furata-git\furata\src\rtl\uart_commands.v" type="verilog"/>
+        <File path="G:\furata-git\furata\src\rtl\calibration_commands.v" type="verilog"/>
+        <File path="G:\furata-git\furata\src\rtl\motor_calibration.v" type="verilog"/>
+        <File path="G:\furata-git\furata\src\rtl\calibration_telemetry.v" type="verilog"/>
         <File path="G:\furata-git\furata\src\rtl\uart_telemetry.v" type="verilog"/>
         <File path="G:\furata-git\furata\src\rtl\key_input.v" type="verilog"/>
         <File path="G:\furata-git\furata\src\rtl\position_target.v" type="verilog"/>

@@ -17,11 +17,12 @@ module acg720_top #(
     parameter integer MOVE_DEG_PER_SEC=30,
     parameter integer MOTOR_TEST_PERCENT=20,
     parameter integer MOTOR_TEST_REVERSE=0,
-    // Arm speed damping: Q16.16 PWM percent/count in each 5 ms window.
-    parameter signed [31:0] ARM_DAMPING_KD=55536,
-    parameter integer ARM_DAMPING_LIMIT_PERCENT=20,
+    // Linear duty addition around CENTER; tenths of a degree / percentage points.
+    // Zero width or zero maximum disables the addition; rebuild after tuning.
+    parameter integer BALANCE_BOOST_RANGE_TENTHS=20,
+    parameter integer BALANCE_BOOST_MAX_PERCENT=1,
     // User measured upright (stationary) ADC code on 2026-10-09.
-    parameter integer CENTER=1005,
+    parameter integer CENTER=999,
     parameter integer ANGLE_ADC_ZERO=CENTER,
     parameter integer ANGLE_ADC_SPAN=4095,
     parameter integer ANGLE_RANGE_TENTHS=3330,
@@ -35,7 +36,8 @@ module acg720_top #(
     parameter [6:0] OLED_ADDRESS=7'h3c,
     parameter integer OLED_COLUMN_OFFSET=0,
     parameter integer OLED_POWER_WAIT_MS=100,
-    parameter integer OLED_REFRESH_MS=100
+    parameter integer OLED_REFRESH_MS=100,
+    parameter [31:0] CALIBRATION_BUILD_ID=32'h389C7A15
 ) (
     input wire clk, rst_n, uart_rx, enc_a, enc_b,
     input wire board_adc_dout,
@@ -47,6 +49,10 @@ module acg720_top #(
 );
     localparam integer PWM_MAX=CLK_HZ/PWM_HZ;
     localparam integer WAKE_CYCLES=(CLK_HZ/1000)*2;
+    // Round inward to raw ADC codes: default +/-24 codes is about +/-1.95 deg.
+    localparam integer BALANCE_BOOST_RANGE_CODES=
+        (BALANCE_BOOST_RANGE_TENTHS>0 && ANGLE_ADC_SPAN>0 && ANGLE_RANGE_TENTHS>0) ?
+        (BALANCE_BOOST_RANGE_TENTHS*64'sd1*ANGLE_ADC_SPAN)/ANGLE_RANGE_TENTHS : 0;
     wire reset_n;
     clock_reset reset_conditioner(.clk(clk),.arst_n(rst_n),.locked(1'b1),.rst_n(reset_n));
 
@@ -55,12 +61,52 @@ module acg720_top #(
     wire received_valid;
     wire [7:0] telemetry_byte;
     wire telemetry_valid, telemetry_active, uart_tx_ready;
+    wire [7:0] legacy_byte, calibration_byte;
+    wire legacy_valid, calibration_valid, calibration_frame_active, calibration_stream;
+    wire emergency_stop, calibration_info, calibration_request, calibration_parse_error;
+    wire [2:0] calibration_kind;
+    wire [31:0] calibration_request_session;
+    wire [15:0] calibration_request_trial;
+    wire signed [31:0] calibration_a, calibration_b, calibration_c;
+    wire calibration_session, calibration_active, calibration_drive, core_calibration_test;
+    wire signed [15:0] calibration_counts, calibration_raw_counts, requested_pwm, actual_pwm;
+    wire signed [31:0] calibration_command_q;
+    wire [31:0] calibration_session_id, calibration_ms;
+    wire [15:0] calibration_trial_id;
+    wire [3:0] calibration_phase, calibration_result;
+    wire calibration_event;
+    wire [31:0] calibration_t_command, calibration_t_pwm, calibration_t_edge, calibration_t_end;
+    wire signed [31:0] calibration_start_position, calibration_end_position;
+    wire [15:0] calibration_window1, calibration_window2, calibration_window3;
+    wire telemetry_ready, calibration_ready;
+    reg calibration_tx_owner;
+    always @(posedge clk or negedge reset_n) begin
+        if (!reset_n) calibration_tx_owner<=0;
+        else if (calibration_tx_owner) begin
+            if (!calibration_frame_active) calibration_tx_owner<=0;
+        end else if (!telemetry_active && calibration_frame_active) calibration_tx_owner<=1;
+    end
+    assign telemetry_ready=uart_tx_ready && !calibration_tx_owner;
+    assign calibration_ready=uart_tx_ready && calibration_tx_owner;
+    wire [7:0] uart_output_byte=calibration_tx_owner ? calibration_byte : telemetry_byte;
+    wire uart_output_valid=calibration_tx_owner ? calibration_valid : telemetry_valid;
+    wire uart_output_active=calibration_tx_owner ? calibration_frame_active : telemetry_active;
+    calibration_commands #(.CLK_HZ(CLK_HZ)) calibration_rx (
+        .clk(clk),.rst_n(reset_n),.received_byte(received_byte),.received_valid(received_valid),
+        .legacy_byte(legacy_byte),.legacy_valid(legacy_valid),.emergency_stop(emergency_stop),
+        .info_request(calibration_info),.request_valid(calibration_request),.request_kind(calibration_kind),
+        .request_session(calibration_request_session),.request_trial(calibration_request_trial),
+        .request_a(calibration_a),.request_b(calibration_b),.request_c(calibration_c),
+        .parse_error(calibration_parse_error));
+    assign uart_start_cmd=legacy_valid && legacy_byte==8'h53;
+    assign uart_stop_cmd=emergency_stop;
+    assign clear_cmd=legacy_valid && legacy_byte==8'h43;
     reg display_raw;
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) display_raw<=0;
-        else if (received_valid) begin
-            if (received_byte==8'h44) display_raw<=1; // D: raw ADC (decimal)
-            else if (received_byte==8'h41) display_raw<=0; // A: signed angle
+        else if (legacy_valid) begin
+            if (legacy_byte==8'h44) display_raw<=1; // D: raw ADC (decimal)
+            else if (legacy_byte==8'h41) display_raw<=0; // A: signed angle
         end
     end
     wire [3:0] key_press;
@@ -72,16 +118,16 @@ module acg720_top #(
     wire control_reset_n;
     clock_reset control_reset_conditioner (
         .clk(clk),.arst_n(reset_n && !key_press[3]),.locked(1'b1),.rst_n(control_reset_n));
-    assign start_cmd=!key_press[3] && (uart_start_cmd || (key_press==4'b0001));
-    wire motor_test_cmd=(key_press==4'b0010);
-    wire balance_cmd=(key_press==4'b0100);
+    assign start_cmd=!calibration_session && !key_press[3] && (uart_start_cmd || (key_press==4'b0001));
+    wire motor_test_cmd=!calibration_session && (key_press==4'b0010);
+    wire balance_cmd=!calibration_session && (key_press==4'b0100);
     assign stop_cmd=uart_stop_cmd || key_press[3];
-    uart_commands #(.CLK_HZ(CLK_HZ),.BAUD(BAUD),.TELEMETRY(1)) uart (
+    uart_commands #(.CLK_HZ(CLK_HZ),.BAUD(BAUD),.TELEMETRY(1),.ECHO(0)) uart (
         .clk(clk),.rst_n(reset_n),.rx(uart_rx),.tx(uart_tx),
-        .start_cmd(uart_start_cmd),.stop_cmd(uart_stop_cmd),.clear_cmd(clear_cmd),
+        .start_cmd(),.stop_cmd(),.clear_cmd(),
         .received_byte(received_byte),.received_valid(received_valid),
-        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),
-        .tx_frame_active(telemetry_active),.tx_ready(uart_tx_ready));
+        .tx_data(uart_output_byte),.tx_valid(uart_output_valid),
+        .tx_frame_active(uart_output_active),.tx_ready(uart_tx_ready));
 
     wire [11:0] sample;
     wire sample_valid, sample_ready;
@@ -149,11 +195,14 @@ module acg720_top #(
     control_core #(.CENTER(CENTER),.CAPTURE_RANGE(CAPTURE_RANGE),.PULSE_MS(PULSE_MS),
         .CHECK_MS(CHECK_MS),.SWING_TIMEOUT_MS(SWING_TIMEOUT_MS),
         .MOTOR_TEST_PERCENT(MOTOR_TEST_PERCENT),.MOTOR_TEST_REVERSE(MOTOR_TEST_REVERSE),
-        .ARM_DAMPING_KD(ARM_DAMPING_KD),.ARM_DAMPING_LIMIT_PERCENT(ARM_DAMPING_LIMIT_PERCENT),
-        .POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10),.COUNTS_PER_REV(COUNTS_PER_REV)) core (
+        .BALANCE_BOOST_RANGE_CODES(BALANCE_BOOST_RANGE_CODES),
+        .BALANCE_BOOST_MAX_PERCENT(BALANCE_BOOST_MAX_PERCENT),
+        .POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10),.COUNTS_PER_REV(COUNTS_PER_REV),.CALIBRATION_ENABLE(1)) core (
         .clk(clk),.rst_n(control_reset_n),.sample_valid(sample_valid),.sample_ready(sample_ready),
         .sample(sample),.position(position),.position_target_q(position_target_q),
         .start_cmd(start_cmd),.motor_test_cmd(motor_test_cmd),.balance_cmd(balance_cmd),.stop_cmd(stop_cmd),
+        .calibration_session(calibration_session),.calibration_active(calibration_active),
+        .calibration_command_q(calibration_command_q),.calibration_test(core_calibration_test),
         .permit(permit),.fault_latched(fault_latched),.running(running),
         .command_q(command_q),.state(state),.request_fault(core_fault),
         .relative_position(relative_position),.angle_update(angle_update),
@@ -163,8 +212,8 @@ module acg720_top #(
     // Assert STBY first, then allow the driver 2 ms to wake before PWM/IN change.
     // Keep the permission path combinational so a fault disables the outputs
     // without waiting for the clock or for the command pipeline below.
-    wire run_allowed=control_reset_n && permit && running && 
-                     !stop_cmd && (internal_fault==0);
+    wire run_allowed=control_reset_n && permit && running &&
+                     !stop_cmd && (internal_fault==0) && (!core_calibration_test || calibration_drive);
     assign stby_fpga=run_allowed;
     reg [31:0] wake_count;
     wire wake_done=(wake_count>=WAKE_CYCLES);
@@ -207,6 +256,8 @@ module acg720_top #(
     reg signed [15:0] pwm_command;
     always @(posedge clk or negedge control_reset_n) begin
         if (!control_reset_n) pwm_command<=0;
+        else if (core_calibration_test)
+            pwm_command<=(MOTOR_INVERT!=0) ? -calibration_raw_counts : calibration_raw_counts;
         else pwm_command<=command_negative_q ? -$signed(duty_magnitude) :
                                                 $signed(duty_magnitude);
     end
@@ -217,8 +268,38 @@ module acg720_top #(
         .cmd(pwm_command),.pwm(pwm_raw),.in1(in1_raw),.in2(in2_raw),
         .applied_cmd(applied_pwm));
     // Undo only the physical wiring inversion: both fields use control sign.
-    wire signed [15:0] requested_pwm=(MOTOR_INVERT!=0) ? -pwm_command : pwm_command;
-    wire signed [15:0] actual_pwm=(MOTOR_INVERT!=0) ? -applied_pwm : applied_pwm;
+    assign requested_pwm=(MOTOR_INVERT!=0) ? -pwm_command : pwm_command;
+    assign actual_pwm=(MOTOR_INVERT!=0) ? -applied_pwm : applied_pwm;
+    // Calibration already specifies exact PWM counts: bypass percent arithmetic
+    // and select the registered demand above. Core supplies only mode/state;
+    // drive_allowed gates STBY/PWM independently and immediately on every fault.
+    assign calibration_command_q=32'sd0;
+    motor_calibration #(.CLK_HZ(CLK_HZ),.PWM_MAX(PWM_MAX)) calibration (
+        .clk(clk),.rst_n(reset_n),.abort(stop_cmd || !control_reset_n),
+        .core_stopped(state==3'd0 || core_calibration_test),.permit(permit),.sample_ready(sample_ready),
+        .fault(fault_latched ? fault_code : internal_fault),.position(position),.actual_pwm(actual_pwm),
+        .request_valid(calibration_request),.request_kind(calibration_kind),
+        .request_session(calibration_request_session),.request_trial(calibration_request_trial),
+        .request_a(calibration_a),.request_b(calibration_b),.request_c(calibration_c),
+        .session_active(calibration_session),.active(calibration_active),.drive_allowed(calibration_drive),
+        .cmd_counts(calibration_counts),.session_id(calibration_session_id),.trial_id(calibration_trial_id),
+        .raw_cmd_counts(calibration_raw_counts),
+        .phase(calibration_phase),.result(calibration_result),.ms_now(calibration_ms),.event_valid(calibration_event),
+        .t_command(calibration_t_command),.t_pwm(calibration_t_pwm),.t_edge(calibration_t_edge),.t_end(calibration_t_end),
+        .start_position(calibration_start_position),.end_position(calibration_end_position),
+        .window1(calibration_window1),.window2(calibration_window2),.window3(calibration_window3));
+    calibration_telemetry #(.CLK_HZ(CLK_HZ),.BUILD_ID(CALIBRATION_BUILD_ID),
+        .PWM_MAX(PWM_MAX),.COUNTS_PER_REV(COUNTS_PER_REV)) calibration_tx (
+        .clk(clk),.rst_n(reset_n),.info_request(calibration_info),.event_valid(calibration_event),
+        .legacy_byte(legacy_byte),.legacy_valid(legacy_valid),.session_active(calibration_session),
+        .active(calibration_active),.session_id(calibration_session_id),.trial_id(calibration_trial_id),
+        .phase(calibration_phase),.result(calibration_result),.fault(fault_latched ? fault_code : internal_fault),
+        .ms_now(calibration_ms),.position(position),.requested_pwm(requested_pwm),.actual_pwm(actual_pwm),
+        .sample(sample),.sample_ready(sample_ready),.t_command(calibration_t_command),.t_pwm(calibration_t_pwm),
+        .t_edge(calibration_t_edge),.t_end(calibration_t_end),.start_position(calibration_start_position),
+        .end_position(calibration_end_position),.window1(calibration_window1),.window2(calibration_window2),
+        .window3(calibration_window3),.tx_ready(calibration_ready),.tx_data(calibration_byte),
+        .tx_valid(calibration_valid),.frame_active(calibration_frame_active),.stream_mode(calibration_stream));
     // Registered metadata conversion. Offset units are 0.1 ADC code; the website
     // converts to degrees using the same calibrated display scale.
     wire signed [63:0] offset_tenths_w=$signed(angle_target_offset_q)*64'sd10;
@@ -241,12 +322,13 @@ module acg720_top #(
         end
     end
     uart_telemetry #(.CLK_HZ(CLK_HZ),.POSITION_FIELDS(1)) telemetry (
-        .clk(clk),.rst_n(reset_n),.received_byte(received_byte),.received_valid(received_valid),
+        .clk(clk),.rst_n(reset_n),.received_byte(calibration_info ? 8'h51 : legacy_byte),
+        .received_valid(calibration_info || legacy_valid),
         .angle_tenths(displayed_angle),.angle_valid(display_angle_valid),
         .requested_pwm(requested_pwm),.actual_pwm(actual_pwm),
         .arm_position(relative_position[15:0]),.position_target(position_target_counts),
         .position_error(position_error_counts),.target_offset_adc_tenths(target_offset_adc_tenths),
-        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),.tx_ready(uart_tx_ready),
+        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),.tx_ready(telemetry_ready),
         .frame_active(telemetry_active));
     assign pwm_a=motor_ready && pwm_raw;
     assign ain1=motor_ready && in1_raw;

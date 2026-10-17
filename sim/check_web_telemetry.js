@@ -1,5 +1,5 @@
 // Validate simulated physical UART bytes using the actual local website decoder.
-// Usage: node sim/check_web_telemetry.js [website URL] [serial log path]
+// Usage: node sim/check_web_telemetry.js [website URL | --local] [serial log path]
 'use strict';
 const fs = require('node:fs');
 const vm = require('node:vm');
@@ -8,10 +8,16 @@ const assert = require('node:assert/strict');
 async function main() {
   const base = process.argv[2] || 'http://localhost:8765/';
   const log = process.argv[3] || path.join(__dirname, '../build/oss/tb_uart_telemetry/telemetry_serial.log');
-  const response = await fetch(new URL('telemetry-core.js', base));
-  if (!response.ok) throw new Error(`Website decoder HTTP ${response.status}`);
+  let decoderSource;
+  if (base === '--local') {
+    decoderSource = fs.readFileSync(path.join(__dirname, '../web/telemetry-core.js'), 'utf8');
+  } else {
+    const response = await fetch(new URL('telemetry-core.js', base));
+    if (!response.ok) throw new Error(`Website decoder HTTP ${response.status}`);
+    decoderSource = await response.text();
+  }
   const context = { module: { exports: {} } };
-  vm.runInNewContext(await response.text(), context, { timeout: 1000 });
+  vm.runInNewContext(decoderSource, context, { timeout: 1000 });
   const { LineDecoder, Recording, importText } = context.module.exports;
   const serial = fs.readFileSync(log, 'utf8');
   for (const width of [1, 2, 7, 19, serial.length]) {

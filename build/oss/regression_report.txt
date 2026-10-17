@@ -1,6 +1,6 @@
-ACG720 FPGA regression 2026-10-12T21:45:19
-requested=tb_acg720_telemetry,tb_acg720_manual_balance,tb_control_position_wrap,tb_uart_telemetry_position
-passed=4
+ACG720 FPGA regression 2026-10-14T14:31:11
+requested=tb_calibration_commands,tb_calibration_telemetry
+passed=2
 failed=
 missing=
 waveforms=G:\furata-git\furata\build\oss

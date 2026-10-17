@@ -173,3 +173,17 @@ All 31 testbenches are validated. Full regression initially passed 30/31; tb_acg
 Gowin V1.9.12.03 final synthesis, placement/routing and bitstream completed 2026-10-12 21:46:21 Asia/Shanghai. Fmax=61.413 MHz, worst setup slack=3.717 ns at 50 MHz, zero setup/hold violated endpoints. Only the existing unused encoder divider optimization warning remains. All changed RTL and active constraints match compiled snapshot hashes.
 
 Bitstream: build/circular_position_final_20261012/impl/pnr/furata.fs; SHA-256 3CD9DA7503BE540306DAF97399E4D8244824B2A825D722C5AB2BF8D4F702DAD0. Original impl outputs were not replaced. No board download or mechanical verification was performed. See doc/circular-position.md for wrapping semantics, units, the default 408-count calibration and the new download path.
+
+## 2026-10-13 ±2° 线性 PWM 补偿与独立速度阻尼移除
+
+实际工程为 `G:/furata-git/furata`。顶层新增 `BALANCE_BOOST_RANGE_TENTHS=20` 和 `BALANCE_BOOST_MAX_PERCENT=5`，按标定向下取整为中心两侧各 24 个 ADC 码（约 1.95°）。保留当前 `CENTER=999`、角度 KP/KI/KD=35661/0/35214、位置 KP/KI/KD=4641/0/7581、PWM_SLEW_STEP=16 及现有方向和行程保护。独立 ARM_DAMPING 参数、位移窗口、历史状态、乘法和输出修正已完整删除；PID 的 D 项仍保留。
+
+区间内以固定中心距离 `d` 计算 `5*65536*d/24` 的 Q16.16 PWM 增量，包含边界；区间外增量为零。方向跟随原角度 PID 输出，零输出不增加，最终限幅 ±100%。补偿与 PID 在同一 angle_tick 捕获 measured_angle_q，并在下一时钟同步发布。半宽或最大增量为零时关闭。捕获距离先判断范围再缩至 12 位，乘积/除法采用足够容纳最大合法乘积的 35 位，保留小于一个百分点的精度。
+
+删除三个旧阻尼测试，新增 `tb_balance_boost`、`tb_balance_boost_capture`、`tb_acg720_balance_boost`，并更新环形位置测试。验证包括中心、正负 1/12/24/25 码、分数补偿、实际 D 项反向制动、零 PID、两种关闭参数、双向饱和、固定中心与位置环目标偏移、编码器无独立速度反馈、同次采样发布、等待中取消、运行模式、许可/采样就绪、故障、系统及 K4 复位，以及顶层非默认参数、PWM 换向和回传符号。
+
+最终源码快照的 Icarus 全量回归 **31/31 通过**，完成于 2026-10-13 20:07:25 Asia/Shanghai。命令：`./build/balance_pwm_boost_20261013/sim/run_oss.ps1 -OssCadSuite G:/iverilog -SkipLint`。结果及波形位于快照的 `build/oss/`，完整日志为 `regression_console.log`。未运行 Verilator lint。
+
+Gowin V1.9.12.03 综合、布局布线与下载文件生成完成于 2026-10-13 20:07:23 Asia/Shanghai。50 MHz 约束下 **Fmax=53.833 MHz，最差建立余量=1.424 ns，建立/保持违例均为零**。日志仅包含既有未使用编码器测速除法器的优化警告，无错误。23 份实际 RTL/约束文件与编译快照 SHA-256 一致，清单见 `source_manifest.json`。
+
+新下载文件：`build/balance_pwm_boost_20261013/impl/pnr/furata.fs`，17,311,931 字节，SHA-256：`29EE892EAEBCD99C05847CC93FB36D0A97935EC0996D1BD1ACFDD75BD9CC89CE`。原 `impl/pnr/furata.fs` 保持原有 SHA-256 `C5EA02E9A42E0265D8DB450C6711405C4E3259F40FC558CAD5CDD69ECD9A8598`。未进行上板烧录或机械平衡验证；调参和默认边界跳变说明见 [线性补偿说明](balance-pwm-boost.md)。

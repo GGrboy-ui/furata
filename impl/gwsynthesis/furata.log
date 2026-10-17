@@ -16,31 +16,42 @@ Analyzing Verilog file 'G:\furata-git\furata\src\rtl\safety_monitor.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\sensor_if.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\tick_gen.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\uart_commands.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\calibration_commands.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\motor_calibration.v'
+Analyzing Verilog file 'G:\furata-git\furata\src\rtl\calibration_telemetry.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\uart_telemetry.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\key_input.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\position_target.v'
 Analyzing Verilog file 'G:\furata-git\furata\src\rtl\position_wrap.v'
 Compiling module 'acg720_top'("G:\furata-git\furata\src\board\acg720_top.v":5)
 Compiling module 'clock_reset'("G:\furata-git\furata\src\rtl\clock_reset.v":20)
+Compiling module 'calibration_commands'("G:\furata-git\furata\src\rtl\calibration_commands.v":12)
+WARN  (EX3791) : Expression size 8 truncated to fit in target size 5("G:\furata-git\furata\src\rtl\calibration_commands.v":62)
+WARN  (EX3791) : Expression size 8 truncated to fit in target size 5("G:\furata-git\furata\src\rtl\calibration_commands.v":63)
 Compiling module 'key_input'("G:\furata-git\furata\src\rtl\key_input.v":4)
-Compiling module 'uart_commands(TELEMETRY=1)'("G:\furata-git\furata\src\rtl\uart_commands.v":4)
+Compiling module 'uart_commands(TELEMETRY=1,ECHO=0)'("G:\furata-git\furata\src\rtl\uart_commands.v":4)
 Compiling module 'sensor_if'("G:\furata-git\furata\src\rtl\sensor_if.v":4)
 Compiling module 'adc128s102_reader'("G:\furata-git\furata\src\rtl\adc128s102_reader.v":7)
 Compiling module 'encoder_qei'("G:\furata-git\furata\src\rtl\encoder_qei.v":40)
 Compiling module 'divider_seq'("G:\furata-git\furata\src\rtl\divider_seq.v":30)
 Compiling module 'oled_encoder_display(ADDRESS=7'b0111100)'("G:\furata-git\furata\src\rtl\oled_encoder_display.v":4)
 Compiling module 'oled_i2c_writer'("G:\furata-git\furata\src\rtl\oled_i2c_writer.v":5)
-Compiling module 'angle_display_data(ADC_ZERO=1005)'("G:\furata-git\furata\src\rtl\angle_display_data.v":5)
+Compiling module 'angle_display_data(ADC_ZERO=999)'("G:\furata-git\furata\src\rtl\angle_display_data.v":5)
 Compiling module 'divider_seq(WIDTH=24)'("G:\furata-git\furata\src\rtl\divider_seq.v":30)
 Compiling module 'seg595_scan'("G:\furata-git\furata\src\rtl\seg595_scan.v":5)
 Compiling module 'position_target'("G:\furata-git\furata\src\rtl\position_target.v":4)
 Compiling module 'safety_monitor'("G:\furata-git\furata\src\rtl\safety_monitor.v":4)
-Compiling module 'control_core(CENTER=1005,PULSE_MS=120,ARM_DAMPING_KD=55536)'("G:\furata-git\furata\src\rtl\control_core.v":4)
+Compiling module 'control_core(CENTER=999,PULSE_MS=120,BALANCE_BOOST_MAX_PERCENT=1,CALIBRATION_ENABLE=1)'("G:\furata-git\furata\src\rtl\control_core.v":4)
 Compiling module 'position_wrap'("G:\furata-git\furata\src\rtl\position_wrap.v":4)
 Compiling module 'divider_seq(WIDTH=50)'("G:\furata-git\furata\src\rtl\divider_seq.v":30)
-Compiling module 'pid_fixed(KP=29661,KI=0,KD=35214)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
+Compiling module 'pid_fixed(KP=35661,KI=0,KD=35214)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
 Compiling module 'pid_fixed(KP=4641,KI=0,KD=7581,DELTA_WRAP_Q=26738688)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
 Compiling module 'pwm_motor(PWM_MAX=2500,SLEW_STEP=16'b0000000000010000)'("G:\furata-git\furata\src\rtl\pwm_motor.v":34)
+Compiling module 'motor_calibration'("G:\furata-git\furata\src\rtl\motor_calibration.v":6)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("G:\furata-git\furata\src\rtl\motor_calibration.v":88)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("G:\furata-git\furata\src\rtl\motor_calibration.v":93)
+Compiling module 'calibration_telemetry(BUILD_ID=32'b00111000100111000111101000010101,PWM_MAX=2500,COUNTS_PER_REV=408)'("G:\furata-git\furata\src\rtl\calibration_telemetry.v":13)
+Extracting RAM for identifier 'event_fifo'("G:\furata-git\furata\src\rtl\calibration_telemetry.v":56)
 Compiling module 'uart_telemetry(POSITION_FIELDS=1)'("G:\furata-git\furata\src\rtl\uart_telemetry.v":7)
 NOTE  (EX0101) : Current top module is "acg720_top"
 [5%] Running netlist conversion ...

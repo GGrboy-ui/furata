@@ -7,18 +7,22 @@ module control_core #(
     parameter integer ANGLE_MS=5, POSITION_MS=50, SWING_TIMEOUT_MS=15000,
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
-    parameter signed [31:0] ANGLE_KP=29661, ANGLE_KI=0, ANGLE_KD=35214,
+    parameter signed [31:0] ANGLE_KP=35661, ANGLE_KI=0, ANGLE_KD=35214,
     parameter signed [31:0] POSITION_KP=4641, POSITION_KI=0, POSITION_KD=7581,
-    // Q16.16 percent per encoder count over ANGLE_MS; zero disables damping.
-    parameter signed [31:0] ARM_DAMPING_KD=35536,
-    parameter integer ARM_DAMPING_LIMIT_PERCENT=20,
-    parameter integer COUNTS_PER_REV=408
+    // Linear PWM addition about fixed CENTER; zero width/maximum disables it.
+    parameter integer BALANCE_BOOST_RANGE_CODES=24,
+    parameter integer BALANCE_BOOST_MAX_PERCENT=5,
+    parameter integer COUNTS_PER_REV=408,
+    parameter integer CALIBRATION_ENABLE=0
 ) (
     input wire clk, rst_n, sample_valid, sample_ready,
     input wire [11:0] sample,
     input wire signed [31:0] position,
     input wire signed [31:0] position_target_q,
     input wire start_cmd, motor_test_cmd, balance_cmd, stop_cmd, permit, fault_latched,
+    input wire calibration_session, calibration_active,
+    input wire signed [31:0] calibration_command_q,
+    output wire calibration_test,
     output wire running,
     output wire signed [31:0] command_q,
     output reg [2:0] state,
@@ -30,6 +34,10 @@ module control_core #(
     localparam [2:0] STOP=0, PUSH=1, PULL=2, WAIT_PEAK=3, BALANCE=4, FAULT=5, MOTOR_TEST=6;
     reg [31:0] pulse_count, check_count, swing_count, angle_count, position_count;
     reg positive_first;
+    reg calibration_latched;
+    wire cal_session=(CALIBRATION_ENABLE!=0) && calibration_session;
+    wire cal_active=(CALIBRATION_ENABLE!=0) && calibration_active;
+    assign calibration_test=(CALIBRATION_ENABLE!=0) && calibration_latched;
     reg [11:0] previous, older;
     reg [1:0] history_count;
     reg signed [31:0] origin;
@@ -82,45 +90,46 @@ module control_core #(
         .DELTA_WRAP_Q(COUNTS_PER_REV*65536)) position_pid (
         .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(position_tick && position_error_valid),
         .target_q(target_position_q),.actual_q(measured_position_q),.out_q(position_out),.valid(position_update));
-    // Independent arm velocity feedback at the angle-loop cadence. Use the
-    // direction-corrected absolute encoder, not origin-relative/clamped position:
-    // capturing an origin must not create a velocity impulse. Modular subtraction
-    // also preserves small movements across the signed encoder counter wrap.
-    localparam integer DAMPING_LIMIT=(ARM_DAMPING_LIMIT_PERCENT<0) ? 0 :
-                                    (ARM_DAMPING_LIMIT_PERCENT>100) ? 100 : ARM_DAMPING_LIMIT_PERCENT;
-    localparam signed [63:0] DAMPING_LIMIT_Q=DAMPING_LIMIT*64'sd65536;
-    localparam signed [31:0] DAMPING_GAIN=(ARM_DAMPING_KD<0) ? 32'sd0 : ARM_DAMPING_KD;
-    reg signed [31:0] arm_previous_position, arm_delta;
-    reg arm_sample_pending;
-    reg signed [31:0] arm_damping_q;
-    wire arm_damping_enable=balance && centered && sample_ready &&
-                            permit && !fault_latched && !stop_cmd;
-    wire signed [31:0] arm_damping_applied_q=arm_damping_enable ? arm_damping_q : 32'sd0;
-    wire signed [63:0] arm_damping_product=$signed(arm_delta)*$signed(DAMPING_GAIN);
+    // Capture the same registered measurement as angle_pid. The next clock
+    // publishes both results together; later sensor changes cannot mix samples.
+    // Distance is from fixed CENTER, independently of the outer-loop target.
+    localparam integer BOOST_RANGE=(BALANCE_BOOST_RANGE_CODES<0) ? 0 :
+                                   (BALANCE_BOOST_RANGE_CODES>4095) ? 4095 : BALANCE_BOOST_RANGE_CODES;
+    localparam integer BOOST_MAX=(BALANCE_BOOST_MAX_PERCENT<0) ? 0 :
+                                 (BALANCE_BOOST_MAX_PERCENT>100) ? 100 : BALANCE_BOOST_MAX_PERCENT;
+    localparam [22:0] BOOST_MAX_Q=BOOST_MAX*23'd65536;
+    wire signed [31:0] boost_offset=(measured_angle_q >>> 16)-CENTER;
+    wire [31:0] boost_distance=boost_offset[31] ? -boost_offset : boost_offset;
+    reg [11:0] boost_distance_q;
+    reg boost_sample_pending;
+    reg [31:0] boost_magnitude_q;
+    wire boost_enable=balance && sample_ready && permit && !fault_latched && !stop_cmd;
+    // A bounded 12-bit distance times at most 100% Q16.16 fits in 35 bits.
+    // Keep the constant divider this wide instead of inferring 64-bit hardware.
+    wire [34:0] boost_product=boost_distance_q*BOOST_MAX_Q;
+    wire [34:0] boost_scaled;
+    generate if (BOOST_RANGE>0 && BOOST_MAX>0) begin: enabled_boost
+        // Divide after scaling to retain sub-percentage-point additions.
+        assign boost_scaled=boost_product/BOOST_RANGE;
+    end else begin: disabled_boost
+        assign boost_scaled=35'd0;
+    end endgenerate
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            arm_previous_position<=0; arm_delta<=0;
-            arm_sample_pending<=0; arm_damping_q<=0;
-        end else if (!arm_damping_enable) begin
-            arm_previous_position<=position; arm_delta<=0;
-            arm_sample_pending<=0; arm_damping_q<=0;
+            boost_distance_q<=0; boost_sample_pending<=0; boost_magnitude_q<=0;
+        end else if (!boost_enable) begin
+            boost_distance_q<=0; boost_sample_pending<=0; boost_magnitude_q<=0;
         end else begin
-            arm_sample_pending<=angle_tick;
-            if (angle_tick) begin
-                arm_delta<=position-arm_previous_position;
-                arm_previous_position<=position;
-            end
-            // Same one-clock arithmetic stage as angle_pid: both terms are
-            // published together, and no combinational multiplier reaches PWM.
-            if (arm_sample_pending) begin
-                if (arm_damping_product>DAMPING_LIMIT_Q) arm_damping_q<=DAMPING_LIMIT_Q[31:0];
-                else if (arm_damping_product< -DAMPING_LIMIT_Q) arm_damping_q<=-DAMPING_LIMIT_Q[31:0];
-                else arm_damping_q<=arm_damping_product[31:0];
-            end
+            boost_sample_pending<=angle_tick;
+            // Outside the compensation interval, capture zero before narrowing.
+            if (angle_tick) boost_distance_q<=(boost_distance<=BOOST_RANGE) ? boost_distance[11:0] : 12'd0;
+            if (boost_sample_pending) boost_magnitude_q<=boost_scaled[31:0];
         end
     end
-    wire signed [32:0] balance_sum=$signed({angle_out[31],angle_out})-
-                                  $signed({arm_damping_applied_q[31],arm_damping_applied_q});
+    // Follow PID direction, including reverse braking; a zero PID stays zero.
+    wire signed [32:0] boost_applied_q=(!boost_enable || angle_out==0) ? 33'sd0 :
+        angle_out[31] ? -$signed({1'b0,boost_magnitude_q}) : $signed({1'b0,boost_magnitude_q});
+    wire signed [32:0] balance_sum=$signed({angle_out[31],angle_out})+boost_applied_q;
     wire signed [31:0] balance_command=(balance_sum>33'sd6553600) ? 32'sd6553600 :
                                      (balance_sum< -33'sd6553600) ? -32'sd6553600 : balance_sum[31:0];
     wire signed [31:0] pulse_q=START_PERCENT*65536;
@@ -130,7 +139,8 @@ module control_core #(
     assign command_q=(!permit || fault_latched || stop_cmd) ? 32'sd0 :
                      state==PUSH ? (positive_first ? pulse_q : -pulse_q) :
                      state==PULL ? (positive_first ? -pulse_q : pulse_q) :
-                     state==MOTOR_TEST ? ((MOTOR_TEST_REVERSE!=0) ? -test_q : test_q) :
+                     state==MOTOR_TEST ? (calibration_test ? (cal_active ? calibration_command_q : 32'sd0) :
+                                         ((MOTOR_TEST_REVERSE!=0) ? -test_q : test_q)) :
                      balance ? balance_command : 32'sd0;
     always @* begin
         request_fault=0;
@@ -143,16 +153,22 @@ module control_core #(
         if (!rst_n) begin
             state<=STOP; pulse_count<=0; check_count<=0; swing_count<=0;
             angle_count<=0; position_count<=0; positive_first<=1;
-            previous<=0; older<=0; history_count<=0; origin<=0;
+            previous<=0; older<=0; history_count<=0; origin<=0; calibration_latched<=0;
         end else if (fault_latched) state<=FAULT;
-        else if (stop_cmd || state==FAULT) begin
-            state<=STOP; angle_count<=0; position_count<=0;
+        else if (stop_cmd || state==FAULT || (calibration_test && !cal_active)) begin
+            state<=STOP; angle_count<=0; position_count<=0; calibration_latched<=0;
         end else if (state==STOP) begin
             // Manual balance accepts only a fresh command inside the upright
             // window. Rejected requests are not queued; running modes ignore it.
-            if ((start_cmd || motor_test_cmd || (balance_cmd && centered)) &&
+            if (cal_session && cal_active && permit && sample_ready) begin
+                state<=MOTOR_TEST; calibration_latched<=1; origin<=position;
+                pulse_count<=0; check_count<=0; swing_count<=0;
+                angle_count<=0; position_count<=0; history_count<=0;
+                previous<=0; older<=0;
+            end else if (!cal_session && (start_cmd || motor_test_cmd || (balance_cmd && centered)) &&
                 permit && sample_ready) begin
                 state<=start_cmd ? PUSH : motor_test_cmd ? MOTOR_TEST : BALANCE;
+                calibration_latched<=0;
                 pulse_count<=0; check_count<=0; swing_count<=0;
                 angle_count<=0; position_count<=0; positive_first<=1;
                 history_count<=0; previous<=0; older<=0; origin<=position;

@@ -1,0 +1,107 @@
+# OLED 编码器计数显示
+
+本功能已加入当前实际使用的工程 `G:\furata\furata\furata.gprj`，顶层为 `acg720_top`。使用用户确认的原套件四针 I²C OLED，按 SSD1306、128×64、7 位地址 `0x3C` 配置。打开旧工作区参考工程不会包含本次新增代码。
+
+## 接线
+
+| OLED 引脚 | 连接位置 | FPGA 球位 / 顶层端口 |
+| --- | --- | --- |
+| GND | 套件公共地，与 ACG720 P7-12 共地 | — |
+| VCC | 江协板原有 3V3 电源 | — |
+| SCL | ACG720 P7-7，GPIO0_6 | F13 / `oled_scl` |
+| SDA | ACG720 P7-8，GPIO0_7 | F14 / `oled_sda` |
+
+保留 OLED 原有供电，避免把江协板与 FPGA 板的两路 3V3 输出直接并联。SCL、SDA 采用开漏输出，均需上拉到 **3.3V**；按已有接线表使用 4.7 kΩ 上拉，若模块或转接板已有上拉则先核对。FPGA 约束已加入 F13/F14；GPIO0 的 VCCIO 使用 3.3V。
+
+## 屏幕内容
+
+```text
+ENCODER COUNTS
+
+RAW:+0000000408
+
+POS:+0000000000
+
+REL:+0000000000
+```
+
+三个数均带正负号和十位十进制数字；补零用于保持数字位置固定。支持完整有符号 32 位范围 `-2147483648..+2147483647`，数字不会只截取低几位。
+
+| 项目 | 数据含义 | 调试用途 |
+| --- | --- | --- |
+| RAW | `encoder_qei` 的原始 A/B 四倍频累计计数 | 检查转动时是否计数、正反向是否相反 |
+| POS | 经 `ENCODER_INVERT` 修正后相对上电零点的一圈坐标，默认 -204～203 | 检查位置反馈符号及每圈归零 |
+| REL | 相对平衡捕获原点的一圈坐标，默认 -204～203 | 观察位置环实际使用的相对方位 |
+
+2026-10-12 的环形位置修订：POS/REL 每圈回到同一值，RAW 仍累计。`ENCODER_INVERT` 以当前顶层为准；当前默认为 0，不能再用 `POS=-RAW` 判断新版计数。详见 [一圈位置归零](circular-position.md)。
+
+这些都是**电机/转臂编码器计数**，不是摆杆角度，也不是转速。当前 `COUNTS_PER_REV=408` 表示预期的转臂一圈四倍频计数，实际需手动转一圈测量；原始计数已经四倍频，转换为转数时不要再乘或除以 4。数码管继续显示摆杆角度与状态/故障码。
+
+## 按键与清零关系
+
+- 上电、重新下载或按板上系统复位 `rst_n`，RAW 与 POS 从零重新计数。复位时让编码器保持静止。
+- 停机时把摆杆扶到直立窗口内，再按 K3：捕获当前累计位置为控制原点，REL 归零；RAW 保留累计值，POS 保留上电原点的一圈坐标。
+- K1 起摆时捕获原点，成功进入平衡时再次捕获原点。原点切换后 REL 可能跳变到零。
+- K4 停止并复位控制，**不会清零原始编码器**。控制原点复位为零，REL 重新等于 POS。下一次 K1/K3 会重新捕获原点。
+- 停机时仍持续更新 OLED。运行中重复按 K3不会重设原点。
+
+每一帧先同时锁存 RAW、POS、REL，再转换和发送，所以同一帧三行对应同一次取样。刷新是逐页写入；滚动更新期间可能短暂看到新旧页交替。默认一帧约 0.12～0.14 秒，适合观察累计位移，不能用它替代波形采样分析 5 ms 角度环。
+
+## 初次检查与定位问题
+
+1. 下载新文件，先保持停机，手动缓慢转动转臂。RAW 应累计变化；反向转动应朝相反方向变化，回到原位置应接近原计数。
+2. 核对 POS 的方向与顶层 `ENCODER_INVERT` 一致。若 RAW/POS 都不动，先核对编码器 A/B 与供电、共地、下载文件；完整一圈后 RAW 应净变化约 408，而 POS 回到同一值。
+3. 手动转动一整圈，记录 RAW 前后差值的绝对值，核对是否约为 408。不要把电机轴圈数与减速后的转臂圈数混用。
+4. 按 K3 后，REL 应归零，原始累计数保留。出现转臂持续加速时，记录 RAW/POS/REL 的变化方向，并结合数码管角度及状态 40 判断：REL 持续离零说明位置偏移在增加，但单凭这项显示不能确定是增益、反馈方向还是机械影响。
+5. 检查电机方向可使用已有 K2 固定占空比试转，观察 RAW/POS 的方向后按 K4 停止。依据实际方向核对反馈符号；不能仅因看到负数就改 `ENCODER_INVERT`，电机输出符号与机械响应也必须一起核对。
+
+OLED 未接、未应答或总线被拉低时，显示通信会超时/报告错误并每约 500 ms 重试初始化。总线问题解除后自动重新显示。显示错误独立于现有电机故障链路，K1/K2/K3/K4 和原有电机保护继续工作；本功能没有修改 PID、起摆力度或捕获范围。
+
+本次最终构建保留当前调试设置：`POSITION_KP=0`、`POSITION_KI=0`、`POSITION_KD=0`，因此位置环不会产生返回原点的修正。REL 仍显示真实相对位置，K3 仍运行角度平衡流程；“REL 已显示”不代表位置保持已启用。需要恢复位置保持时，再按调参指南逐步恢复位置环增益并重新编译。
+
+## 源码与配置
+
+- [板级接入与配置](G:/furata/furata/src/board/acg720_top.v)。
+- [SSD1306 初始化、十进制转换和显示](G:/furata/furata/src/rtl/oled_encoder_display.v)。
+- [I²C 开漏写入、ACK、时钟拉伸与超时](G:/furata/furata/src/rtl/oled_i2c_writer.v)。
+- [引脚约束](G:/furata/furata/src/constraints/acg720.cst)。
+
+| 顶层参数 | 默认值 | 作用 |
+| --- | --- | --- |
+| `OLED_ADDRESS` | `7'h3c` | 7 位地址；线上写地址字节自动组成 `8'h78`，不要把参数填为 `78` |
+| `OLED_I2C_HZ` | `100_000` | 时序基准；为 START/STOP 与时钟拉伸保留余量，默认正常数据位实际约 80 kHz |
+| `OLED_COLUMN_OFFSET` | `0` | 每页起始列偏移，原套件 SSD1306 使用 0 |
+| `OLED_POWER_WAIT_MS` | `100` | 系统复位释放后等待 OLED 上电稳定 |
+| `OLED_REFRESH_MS` | `100` | 两次取样的最小间隔；发送一帧较慢时以实际发送时间为准 |
+
+配置对应的是已确认的原套件 SSD1306。换成 SH1106、128×32 或 SPI 屏时，需要重新核对驱动，不能仅靠列偏移参数认定兼容。
+
+## 编译与验证
+
+### 报 EX3937：unknown module oled_encoder_display
+
+如果顶层已更新，但高云界面仍使用新增 OLED 前的工程文件列表，就会出现这个错误。2026-10-10 的一次 GUI 编译日志确实未读取两个 OLED 文件；磁盘 `furata.gprj` 已包含两者，重新从磁盘加载工程的命令行综合通过。
+
+关闭当前工程，再打开 `G:\furata\furata\furata.gprj`，核对 Design 文件列表中有以下两个文件且已启用，然后重新运行综合：
+
+```text
+src/rtl/oled_encoder_display.v
+src/rtl/oled_i2c_writer.v
+```
+
+若界面列表仍缺少它们，手动添加上述两个文件并保存工程。只打开 `.v` 编辑窗口不会自动将文件加入综合。可用下面命令直接从磁盘加载工程验证综合；成功日志应包含两个 OLED 文件的 `Analyzing Verilog file` 与两个模块的 `Compiling module`。
+
+```powershell
+& G:/furata/furata/run_gowin.ps1 -ProcessName syn
+```
+
+```powershell
+& G:/furata/furata/sim/run_oss.ps1 -OssCadSuite G:/iverilog -SkipLint
+& G:/furata/furata/run_gowin.ps1 -ProcessName all
+```
+
+下载文件位于 `G:\furata\furata\impl\pnr\furata.fs`；本次固定版本为 `G:\furata\furata\build\releases\furata_oled_encoder_20261010.fs`。请在当前实际工程中重新加载已更新的顶层和新增 RTL 后再调参，避免旧编辑器缓冲覆盖最新文件。
+
+新增三个测试分别检查：I²C 字节顺序、应答、时钟拉伸、超时与 Standard-mode 数字时序；初始化、全部页面、32 位正负极限、帧快照、刷新和断开重连；真实 A/B 输入到 RAW/POS/REL、K3 原点、K4 保留计数、OLED 缺失时电机模式与故障关断。最终回归、时序和文件哈希见工程 `doc/test-record.md` 与发布清单。尚未在实物 OLED 上验证。
+
+协议依据为 [Solomon Systech SSD1306 数据手册](https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf) 的 I²C 写入、控制字节与页寻址命令，以及 [NXP UM10204 I²C 规范](https://www.nxp.com/docs/en/user-guide/UM10204.pdf) 的 Standard-mode 时序要求。模拟上拉电阻、布线电容和实际上升时间仍需实物核对。

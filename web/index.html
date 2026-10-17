@@ -6,6 +6,8 @@
   <title>Furuta · 角度偏差监测</title>
   <link rel="stylesheet" href="style.css">
   <script defer src="telemetry-core.js"></script>
+  <script defer src="calibration-core.js"></script>
+  <script defer src="calibration-app.js"></script>
   <script defer src="app.js"></script>
 </head>
 <body>
@@ -34,7 +36,62 @@
       <div class="chart-footer"><span>横轴：FPGA 回传时间（秒）</span><span id="range">—</span></div>
     </section>
     <section class="data-actions"><div><button id="export" disabled>导出 CSV</button><button id="import">导入数据</button><input id="file" type="file" accept=".csv,.txt,.log" hidden><button id="clear">清空数据</button></div><p id="retention">保留最近 120,000 个样本，约 10 分钟；可随时导出。</p></section>
-    <footer><div><span class="footer-label">使用说明</span><p>通过板载 USB 串口连接。P 开始回传，Q 仅停止回传；S 起摆、X 停机功能保持原样。转臂位置以进入平衡时为零点，默认每 408 个计数一圈；误差采用最短方向。</p></div><div><span class="footer-label">数据来源</span><p>角度保持显示平均。实际 PWM 表示 FPGA 执行的占空比。目标倾角偏移由位置环产生，以当前 333° / 4095 ADC 标称比例换算。旧固件或旧文件缺少的字段显示为空值。</p></div></footer>
+    <section class="calibration-card" aria-labelledby="cal-title">
+      <div class="cal-heading"><div><span class="eyebrow">MOTOR / DEADZONE MEASUREMENT</span><h2 id="cal-title">电机死区实测</h2><p id="cal-capability">未识别兼容校准固件</p></div><button id="cal-emergency" class="danger" disabled>立即停机 X</button></div>
+      <p id="cal-message" class="message" role="status">连接后读取固件能力；旧固件不能执行校准。</p>
+      <details open><summary>1 · 实验条件与会话</summary>
+        <p class="cal-help">摆杆自然下垂，保持原装负载；先测 CPR 与指令正负对应的物理转向。会话开始时固定行程原点；元信息在会话期间冻结。测试输出绕过平衡环，只用于测量。</p>
+        <div class="cal-fields">
+          <label>实测每圈计数 CPR<input id="cal-cpr" type="number" value="408" min="64" max="65535" step="1"></label>
+          <label>原点两侧行程（°）<input id="cal-travel" type="number" value="15" min="0.5" max="15" step="0.1"></label>
+          <label>逻辑正指令的计数方向<select id="cal-encoderSign"><option value="1">增加 +1</option><option value="-1">减少 −1</option></select></label>
+          <label>编码器所在轴<select id="cal-encoderAxis"><option value="">请选择</option><option value="arm">输出转臂轴</option><option value="motor">电机轴（需确认背隙）</option></select></label>
+          <label>实际 VM（V）<input id="cal-vm" type="number" min="0.1" max="13.5" step="0.1" placeholder="实测"></label>
+          <label>电机额定电压（V）<input id="cal-ratedVm" type="number" min="0.1" step="0.1" placeholder="铭牌值"></label>
+          <label>电机允许电流（A）<input id="cal-motorAllowed" type="number" min="0.01" step="0.01" placeholder="按电机规格"></label>
+          <label>逻辑正指令的物理转向<input id="cal-directionNote" type="text" placeholder="如：俯视顺时针"></label>
+          <label>本次转臂位置标识<input id="cal-location" type="text" value="主位置" placeholder="主位置 / 左侧 / 右侧"></label>
+          <label>电流/电压仪器与采样位置<input id="cal-instrument" type="text" placeholder="示波器、电流探头型号；单根电机线"></label>
+          <label>负载与环境记录<input id="cal-environment" type="text" placeholder="摆杆下垂、供电、温度等"></label>
+        </div>
+        <label class="cal-check"><input id="cal-ready" type="checkbox">已确认实体安全行程、编码器方向及 K4 停止，摆杆下垂，测试期间不触碰转臂</label>
+        <div class="cal-actions"><button id="cal-queryCap" disabled>重读固件能力</button><button id="cal-open" class="primary" disabled>建立校准会话</button><button id="cal-end" disabled>停机并退出会话</button><strong id="cal-state">校准会话已关闭</strong></div>
+        <label class="cal-manifest-label">构建清单 JSON <input id="cal-manifest" type="file" accept=".json"></label><p id="cal-manifestStatus" class="cal-help">构建清单未加载；可手动载入。</p>
+      </details>
+      <details open><summary>2 · 每次只执行一个短试验</summary>
+        <p class="cal-help">每个新方向及 PWM 先做短电流预检，再登记峰值和 VM 最低值。长测试开放条件：电机引线峰值 ≤ min(0.8 A, 电机允许值)，VM 最低值 ≥ 95% 静态 VM。外部波形记录不能作为实时过流保护。到 20% 仍不可靠起动就停止排查，不继续提高 PWM。</p>
+        <div class="cal-fields cal-test-fields">
+          <label>控制指令方向<select id="cal-direction"><option value="1">正指令 +</option><option value="-1">负指令 −</option></select></label>
+          <label>候选 PWM（%）<input id="cal-duty" type="number" value="1" min="0" max="20" step="0.2"></label>
+          <label>调整候选档<select id="cal-step"><option value="1">粗扫 +1%</option><option value="0.2">细扫 +0.2%</option><option value="-0.2">细扫 −0.2%</option><option value="-1">粗扫 −1%</option></select></label>
+          <label>长测试类型<select id="cal-profile"><option value="1">静止起动（≤120 ms）</option><option value="2">维持运动（≤600 ms）</option></select></label>
+        </div>
+        <div class="cal-actions"><button id="cal-next">只更新候选档</button><button id="cal-precheck" disabled>短电流预检（≤20 ms）</button><button id="cal-pulse" class="primary" disabled>执行一次长测试</button><button id="cal-queryResult" disabled>查询缓存结果</button></div>
+        <p id="cal-gate" class="cal-help">校准会话确认后可进行单次测试。</p>
+        <p id="cal-live" class="cal-live">等待 100 Hz 校准数据</p>
+        <p id="cal-dataStatus" class="cal-help">M 样本 0 · 缺口 0 · 无效帧 0</p>
+        <div class="cal-chart-header"><label>校准曲线<select id="cal-signal"><option value="pwm">要求 / 实际 PWM (%)</option><option value="position">未回绕转臂位置 (counts)</option><option value="velocity">速度估算 (counts/s)</option></select></label><span>独立 10 ms 板端时间 · 黄：要求 / 蓝：实际 · 缺口断线</span></div>
+        <canvas id="cal-chart" class="cal-chart" aria-label="校准试验 PWM、位置及速度曲线" role="img"></canvas>
+      </details>
+      <details open><summary>3 · 登记实测波形与实际转臂运动</summary>
+        <div class="cal-fields">
+          <label>待登记试次<select id="cal-reviewTrial"></select></label>
+          <label>单根电机线峰值电流（A）<input id="cal-current" type="number" min="0" step="0.01" placeholder="示波器实测"></label>
+          <label>测试期间 VM 最低值（V）<input id="cal-vmMin" type="number" min="0" step="0.01" placeholder="示波器实测"></label>
+          <label><span id="cal-motionTitle">转臂出现实际动作？</span><select id="cal-motion"><option value="unknown">尚未确认</option><option value="yes">是（以转臂而非电机轴为准）</option><option value="no">否</option></select></label>
+          <label>异常说明（填写后作无效）<input id="cal-comment" type="text" placeholder="触碰、背隙、供电异常等"></label>
+        </div>
+        <button id="cal-reviewSave" disabled>保存该试次记录</button>
+        <p class="cal-help">起动成功需同向移动至少 2 码，并确认转臂动作。维持成功需过渡后连续三个 100 ms 窗口都有进展，且末窗不显著下降。无效、通信缺口及未确认试次不计入成功率。每个边界档位收集 5 次有效试验，再于另外两处安全位置复核。</p>
+        <div class="cal-table-wrap"><table><thead><tr><th>会话/试次</th><th>位置</th><th>类型</th><th>PWM</th><th>板端结果</th><th>归类</th><th>起动延迟 ms</th></tr></thead><tbody id="cal-trials"><tr><td colspan="7">尚无试次</td></tr></tbody></table></div>
+        <p class="muted">起动延迟 = 首次运动时刻 − PWM 到位时刻；负值表示 PWM 爬升期间已经运动，空值表示缺少相应事件。</p>
+        <h3>档位统计与门槛</h3><div class="cal-table-wrap"><table><thead><tr><th>位置</th><th>类型</th><th>PWM</th><th>成功/有效</th><th>无效</th><th>待确认</th></tr></thead><tbody id="cal-groups"></tbody></table></div>
+        <p id="cal-thresholds" class="cal-help">未完成实物试验，不生成推测门槛。</p>
+      </details>
+      <div class="cal-actions"><button id="cal-raw" disabled>原始校准 CSV</button><button id="cal-summary" disabled>试次汇总 CSV</button><button id="cal-report" disabled>离线 HTML 报告</button><button id="cal-clear">清空校准数据</button></div>
+      <p class="cal-help">补偿量仅作测量参考：D_start 用于短时起动，D_run 用于运行量级。本页不自动改变补偿或 PID。原始数据最多保留 120,000 帧，建议每个会话完成后导出；普通角度 CSV 与绘图仍独立保留。</p>
+    </section>
+    <footer><div><span class="footer-label">使用说明</span><p>通过板载 USB 串口连接。P 开始回传，Q 仅停止回传；S 起摆、X 停机功能保持原样。转臂位置以进入平衡时为零点，默认每 408 个计数一圈；误差采用最短方向。校准会话期间普通 P/Q 采集入口暂停，断开先停机。</p></div><div><span class="footer-label">数据来源</span><p>角度保持显示平均。实际 PWM 表示 FPGA 执行的占空比。目标倾角偏移由位置环产生，以当前 333° / 4095 ADC 标称比例换算。旧固件或旧文件缺少的字段显示为空值。校准使用未回绕位置与原始 ADC，100 Hz M/R 帧带 CRC。</p></div></footer>
   </main>
 </body>
 </html>

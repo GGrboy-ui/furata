@@ -20,3 +20,19 @@ footer { display:grid; grid-template-columns:1fr 1fr; gap:45px; padding:20px 0 0
 .position-readings { color:var(--muted); display:flex; gap:12px 28px; flex-wrap:wrap; line-height:1.7; }
 .position-readings strong { font-family:Consolas,monospace; color:#c4b5fd; }
 .legend.target { background:#fbbf24; } .legend.error { background:#c4b5fd; }
+
+.calibration-card { margin:22px 0 30px; padding:24px; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
+.cal-heading { display:flex; align-items:center; justify-content:space-between; gap:18px; } .cal-heading h2 { margin:8px 0; font-size:21px; } .cal-heading p { color:var(--muted); font:12px Consolas,monospace; }
+button.danger { background:#6b2933; border-color:#b45661; color:#ffe1e4; font-weight:600; }
+.calibration-card details { border-top:1px solid var(--line); padding:18px 0; } .calibration-card summary { font-weight:600; cursor:pointer; color:#c9d5e7; }
+.cal-fields { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px 20px; margin:17px 0; } .cal-fields label { display:flex; flex-direction:column; gap:8px; font-size:12px; } .cal-fields input,.cal-fields select { width:100%; margin:0; min-width:0; }
+.cal-test-fields { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.cal-help { color:var(--muted); font-size:12px; line-height:1.85; } .cal-check { display:flex; align-items:flex-start; gap:9px; font-size:12px; line-height:1.8; margin:16px 0; } .cal-check input { width:auto; margin:4px 0 0; }
+.cal-actions { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin:14px 0; } .cal-actions strong { margin-left:8px; color:var(--accent); font-size:12px; font-weight:500; }
+.cal-manifest-label { display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-size:12px; }.cal-manifest-label input { width:auto; max-width:100%; margin:0; }
+.cal-live { color:var(--accent); font:12px Consolas,"Microsoft YaHei",monospace; line-height:1.8; word-break:break-word; padding:12px 14px; border-radius:6px; background:#111723; }
+.cal-chart-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--muted); margin-top:20px; }.cal-chart { height:260px; margin-top:12px; }
+.cal-table-wrap { overflow-x:auto; margin:17px 0; }.cal-table-wrap table { border-collapse:collapse; width:100%; min-width:640px; font-size:12px; }.cal-table-wrap th,.cal-table-wrap td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }.cal-table-wrap th { color:var(--muted); font-weight:500; }.cal-table-wrap td { color:#c9d5e7; font-variant-numeric:tabular-nums; }
+.calibration-card h3 { font-size:14px; margin-top:25px; }
+@media(max-width:900px) { .cal-fields,.cal-test-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-card { padding:20px 16px; } }
+@media(max-width:520px) { .cal-fields,.cal-test-fields { grid-template-columns:1fr; } .cal-heading { align-items:flex-start; }.cal-heading h2 { font-size:19px; }.cal-heading button { padding:10px; font-size:12px; }.cal-actions button { font-size:12px; }.cal-actions strong { margin:6px 0; width:100%; } }

@@ -7,6 +7,7 @@ let decoder = new Telemetry.LineDecoder(frame => {
 let port = null, reader = null, readTask = null, keepReading = false;
 let connecting = false, disconnecting = false, sending = false, streaming = false;
 let dirty = true, frozen = false, lastReceived = 0, lastPaint = 0, chartView = null;
+let writeQueue = Promise.resolve(), calibration = null;
 const canvas = $('chart'), ctx = canvas.getContext('2d');
 
 function message(text, error = false) { $('message').textContent = text; $('message').classList.toggle('error', error); }
@@ -14,8 +15,8 @@ function updateControls() {
   const connected = !!port;
   $('connect').disabled = connected || connecting || disconnecting || !('serial' in navigator);
   $('disconnect').disabled = !connected || disconnecting || sending;
-  $('start').disabled = !connected || disconnecting || sending;
-  $('stop').disabled = !connected || disconnecting || sending;
+  $('start').disabled = !connected || disconnecting || sending || !!calibration?.locked;
+  $('stop').disabled = !connected || disconnecting || sending || !!calibration?.locked;
   $('baud').disabled = connected || connecting;
   $('import').disabled = connected;
   $('export').disabled = !recording.length;
@@ -23,14 +24,19 @@ function updateControls() {
     connected ? streaming ? '正在接收角度' : '串口已连接' : '串口未连接';
   $('statusDot').className = `dot${connected ? streaming ? ' streaming' : ' connected' : ''}`;
 }
-async function writeCommand(command) {
-  if (!port?.writable) throw new Error('串口尚未连接');
-  const writer = port.writable.getWriter();
-  try { await writer.write(new TextEncoder().encode(command)); }
-  finally { writer.releaseLock(); }
+function writeCommand(command) {
+  const currentPort = port;
+  const operation = writeQueue.catch(() => {}).then(async () => {
+    if (!currentPort?.writable || currentPort !== port) throw new Error('串口尚未连接');
+    const writer = currentPort.writable.getWriter();
+    try { await writer.write(new TextEncoder().encode(command)); }
+    finally { writer.releaseLock(); }
+  });
+  writeQueue = operation.catch(() => {});
+  return operation;
 }
 async function command(value) {
-  if (sending || disconnecting) return;
+  if (sending || disconnecting || calibration?.locked) return;
   sending = true; updateControls();
   try {
     await writeCommand(value);
@@ -48,7 +54,8 @@ async function readLoop(currentPort) {
         while (keepReading) {
           const { value, done } = await reader.read();
           if (done) break;
-          decoder.feed(textDecoder.decode(value, { stream: true }));
+          const text = textDecoder.decode(value, { stream: true });
+          decoder.feed(text); calibration?.feed(text);
         }
       } finally { reader.releaseLock(); reader = null; }
     }
@@ -58,7 +65,7 @@ async function readLoop(currentPort) {
     if (!disconnecting && port === currentPort) {
       keepReading = false;
       try { await currentPort.close(); } catch (_) { /* Disconnected devices may already be closed. */ }
-      port = null; streaming = false; updateControls();
+      port = null; streaming = false; calibration?.disconnected(); updateControls();
     }
   }
 }
@@ -78,6 +85,7 @@ $('connect').addEventListener('click', async () => {
     // A new connection is a separate acquisition session, even when firmware was not reset.
     if (recording.length) { recording.session++; recording.lastSequence = null; recording.time += 5; }
     readTask = readLoop(selected);
+    await calibration?.connected();
     message('串口已连接。点击「开始回传 P」接收角度、PWM、位置和目标偏移。');
   } catch (error) {
     if (selected && selected !== port) { try { await selected.close(); } catch (_) {} }
@@ -92,6 +100,7 @@ $('disconnect').addEventListener('click', async () => {
   const currentPort = port;
   let stopped = false;
   try {
+    try { await calibration?.beforeDisconnect(); } catch (_) { /* The hardware watchdog still expires after heartbeats stop. */ }
     try { await writeCommand('Q'); stopped = true; } catch (_) {}
     keepReading = false;
     if (reader) await reader.cancel();
@@ -99,7 +108,7 @@ $('disconnect').addEventListener('click', async () => {
     await currentPort.close();
     message(stopped ? '已停止回传并断开串口；数据可继续查看或导出。' : '串口已断开，Q 未成功发送；数据可继续导出。', !stopped);
   } catch (error) { message(`断开串口：${error.message}。数据已保留。`, true); }
-  finally { port = null; streaming = false; disconnecting = false; updateControls(); }
+  finally { port = null; streaming = false; disconnecting = false; calibration?.disconnected(); updateControls(); }
 });
 $('clear').addEventListener('click', () => {
   recording.clear(); decoder.pending = ''; decoder.invalid = 0; dirty = true;
@@ -156,7 +165,7 @@ function refreshMetrics() {
   $('retention').textContent = recording.total > recording.capacity ?
     `已覆盖 ${recording.total - recording.capacity} 个早期样本；当前保留最近 ${recording.length.toLocaleString()} 个，导出为保留部分。` :
     '保留最近 120,000 个样本，约 10 分钟；可随时导出。';
-  if (streaming && performance.now() - lastReceived > 1500) {
+  if (streaming && !calibration?.locked && performance.now() - lastReceived > 1500) {
     streaming = false;
     message('暂未收到新角度值；请检查回传是否停止，或数码管是否正在显示无效角度。');
   }
@@ -269,6 +278,7 @@ function animate(now) {
   if (dirty && !frozen && now - lastPaint > 33) { draw(); dirty = false; lastPaint = now; }
   requestAnimationFrame(animate);
 }
+if (typeof CalibrationApp !== 'undefined') calibration = CalibrationApp.create({ getElement: $, send: writeCommand, isConnected: () => !!port && !disconnecting, onStateChange: () => { if (calibration?.locked) streaming = false; updateControls(); } });
 if (!('serial' in navigator)) message('当前浏览器无法访问串口。请在桌面 Chrome / Edge 中打开本地网页；此处仍可导入数据查看曲线。', true);
 else if (!window.isSecureContext) message('串口需要安全上下文，请通过启动脚本提供的 http://localhost:8765 打开网页。', true);
 updateControls(); refreshMetrics(); draw(); requestAnimationFrame(animate); setInterval(refreshMetrics, 250);

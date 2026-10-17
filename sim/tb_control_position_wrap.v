@@ -5,13 +5,14 @@ module tb_control_position_wrap;
  wire signed [31:0] relative_position,error_q,offset_q;
  wire [3:0] fault;
  wire [2:0] state;
+ wire signed [31:0] command_q;
  control_core #(.COUNTS_PER_REV(408),.POSITION_KP(65536),.POSITION_KI(0),.POSITION_KD(0),
-   .ANGLE_KP(0),.ANGLE_KI(0),.ANGLE_KD(0),.ARM_DAMPING_KD(65536)) dut(
+   .ANGLE_KP(0),.ANGLE_KI(0),.ANGLE_KD(0)) dut(
    .clk(clk),.rst_n(rst_n),.sample_valid(sample_valid),.sample_ready(1'b1),.sample(12'd1014),
    .position(position),.position_target_q(target),.start_cmd(1'b0),.balance_cmd(balance_cmd),
    .motor_test_cmd(1'b0),.stop_cmd(1'b0),.permit(1'b1),.fault_latched(1'b0),
    .relative_position(relative_position),.position_error_q(error_q),.angle_target_offset_q(offset_q),
-   .request_fault(fault),.state(state));
+   .request_fault(fault),.state(state),.command_q(command_q));
  always #5 clk=~clk;
  task cycles;input integer n;begin repeat(n) @(negedge clk);end endtask
  task sample_tick;begin sample_valid=1;cycles(1);sample_valid=0;cycles(120);end endtask
@@ -35,10 +36,10 @@ module tb_control_position_wrap;
    if(error_q!==32768) $fatal(1,"FAIL: fractional multi-turn target");
    target=0;position=1234+407;cycles(120);repeat(5) sample_tick;
    position=1234+408;cycles(120);repeat(5) sample_tick;
-   if(dut.arm_damping_q!==65536) $fatal(1,"FAIL: position wrap injected speed damping kick");
+   if(command_q!==0) $fatal(1,"FAIL: encoder movement injected an independent motor correction");
    position=1234+408*11;cycles(120);
    if(relative_position!==0 || fault!==7) $fatal(1,"FAIL: circular coordinate hid travel protection");
-   $display("TEST PASSED: tb_control_position_wrap (captured origin, +/-turn, targets, offset, speed and travel)");$finish;
+   $display("TEST PASSED: tb_control_position_wrap (captured origin, +/-turn, targets, offset and travel)");$finish;
  end
  initial begin #2000000;$fatal(1,"FAIL: circular control timeout");end
 endmodule
