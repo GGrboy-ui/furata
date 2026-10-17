@@ -191,7 +191,7 @@ function draw() {
   const views = {
     angle: { title: '角度偏差曲线', unit: '°', names: ['数码管角度偏差'], colors: ['#62dfc5'], reads: [p => p.angle] },
     pwm: { title: '要求与实际 PWM', unit: '%', names: ['要求 PWM', '实际 PWM'], colors: ['#fbbf24', '#60a5fa'], reads: [p => Telemetry.pwmPercent(p.requestedPwm), p => Telemetry.pwmPercent(p.actualPwm)] },
-    position: { title: '转臂位置、目标与最短误差', unit: 'counts', names: ['转臂位置', '位置目标', '位置误差'], colors: ['#62dfc5', '#fbbf24', '#c4b5fd'], reads: [p => p.armPosition ?? null, p => p.positionTarget ?? null, p => p.positionError ?? null] },
+    position: { title: '转臂累计位置、目标与位置误差', unit: 'counts', names: ['转臂位置', '位置目标', '位置误差'], colors: ['#62dfc5', '#fbbf24', '#c4b5fd'], reads: [p => p.armPosition ?? null, p => p.positionTarget ?? null, p => p.positionError ?? null] },
     offset: { title: '角度与位置环目标倾角偏移', unit: '°', names: ['角度偏差', '目标倾角偏移'], colors: ['#62dfc5', '#fbbf24'], reads: [p => p.angle, p => Telemetry.offsetDegrees(p.targetAngleOffsetAdc)] }
   };
   const view = views[$('signal').value] || views.angle;
@@ -234,8 +234,7 @@ function draw() {
       if (!bucket) return;
       const points = [bucket.first, bucket.min, bucket.max, bucket.last].sort((a, b) => a.time - b.time);
       for (const point of points) {
-        const circularJump = $('signal').value === 'position' && trace !== series[1] && previous && Math.abs(trace.read(point) - trace.read(previous)) > Telemetry.COUNTS_PER_REV / 2;
-        if (!previous || circularJump || point.gap && point !== previous || point.session !== previous.session) ctx.moveTo(x(point.time / 1000), y(trace.read(point)));
+        if (!previous || point.gap && point !== previous || point.session !== previous.session) ctx.moveTo(x(point.time / 1000), y(trace.read(point)));
         else ctx.lineTo(x(point.time / 1000), y(trace.read(point)));
         previous = point;
       }

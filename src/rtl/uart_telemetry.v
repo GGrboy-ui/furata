@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 // Legacy 31 bytes; POSITION_FIELDS adds four signed fields (55 bytes total).
-// Extra fields: relative arm counts, target counts, shortest error counts,
+// Extra fields: relative arm counts, target counts, accumulated error counts,
 // position-loop target-angle offset in 0.1 ADC-code units.
 // Sequence advances every 5 ms while enabled, even for invalid/busy slots.
 // Each frame snapshots all fields together. Q completes a frame already begun.

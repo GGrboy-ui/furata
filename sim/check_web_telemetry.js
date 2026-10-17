@@ -53,11 +53,11 @@ async function main() {
       for (let offset = 0; offset < extendedSerial.length; offset += width) decoder.feed(extendedSerial.slice(offset, offset + width));
       assert.equal(decoder.invalid, 0);assert.equal(extendedFrames.length, 3);
       assert.deepEqual(extendedFrames.map(f => [f.sequence, f.armPosition, f.positionTarget, f.positionError, f.targetAngleOffsetAdc]),
-        [[0,203,0,-203,-12.5],[1,-204,5,-199,100],[2,-204,5,-199,100]]);
+        [[0,408,0,-408,-12.5],[1,-816,5,821,100],[2,-816,5,821,100]]);
       const recording = new Recording();extendedFrames.forEach(f => recording.add(f));
       const recovered = importText(recording.csv());
       assert.equal(recovered[0].targetAngleOffsetAdc, -12.5);
-      assert.equal(recovered[2].positionError, -199);
+      assert.equal(recovered[2].positionError, 821);
     }
     console.log('PASS: website decoded 55-byte physical UART at 5 chunk sizes; position/offset CSV roundtrip verified.');
   }

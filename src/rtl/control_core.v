@@ -7,8 +7,8 @@ module control_core #(
     parameter integer ANGLE_MS=5, POSITION_MS=50, SWING_TIMEOUT_MS=15000,
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
-    parameter signed [31:0] ANGLE_KP=32'sd19661, ANGLE_KI=32'sd655, ANGLE_KD=32'sd26214,
-    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd0, POSITION_KD=32'sd262144,
+    parameter signed [31:0] ANGLE_KP=32'sd20661, ANGLE_KI=32'sd600, ANGLE_KD=32'sd31214,
+    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd0, POSITION_KD=32'sd322144,
     // Linear PWM addition about fixed CENTER; zero width/maximum disables it.
     parameter integer BALANCE_BOOST_RANGE_CODES=24,
     parameter integer BALANCE_BOOST_MAX_PERCENT=5,

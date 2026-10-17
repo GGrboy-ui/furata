@@ -2,11 +2,11 @@
 
 打开 `furata.gprj`，顶层为 `acg720_top`，器件为 GW5AT-LV60PG484AC1/I0。
 
-当前源码（2026-10-13）：控制中心为 **ADC=999**；平衡状态在中心两侧各 **24 个 ADC 码（标称约 ±1.95°）** 内增加线性 PWM 补偿，中心为零，边界为 **5 个百分点**，区间外为零。顶层 `BALANCE_BOOST_RANGE_TENTHS=20` 表示 2° 半宽，`BALANCE_BOOST_MAX_PERCENT=5` 表示最大增量；修改后重新编译生效。补偿跟随角度 PID 输出方向，零输出不添加，合成后限制在 ±100%。已删除独立 `ARM_DAMPING` 速度阻尼，角度与位置 PID 的 D 项保留。
+当前源码（2026-10-17）：位置环采用相对捕获原点的连续累计计数，取消每圈误差归零，D 项也使用连续差值。默认一圈 408 counts，正向一圈的位置/误差为 +408/-408；超过捕获原点 **±10 圈净位移**仍触发故障 7。OLED 和网页同步显示累计位置，详见 [连续位置说明](doc/continuous-position.md)。
 
-当前调参为：角度 PID Q16.16 系数 `35661/0/35214`，位置 PID 系数 `4641/0/7581`；`ENCODER_INVERT=0`、`MOTOR_INVERT=1`、`PWM_SLEW_STEP=16`，起摆为 45% / 120 ms。当前行为与参数以 [线性 PWM 补偿说明](doc/balance-pwm-boost.md)、[参数表](doc/parameters.md) 及源码为准。
+本次保留已有调参：顶层 `CENTER=1007`；角度 PID Q16.16 系数 `19661/655/26214`，位置 PID 系数 `26214/0/261072`；`ENCODER_INVERT=0`、`MOTOR_INVERT=1`、`PWM_SLEW_STEP=16`，起摆为 50% / 100 ms。顶层 `BALANCE_BOOST_MAX_PERCENT=0`，当前关闭线性 PWM 补偿。已删除独立 `ARM_DAMPING` 速度阻尼，两个 PID 的 D 项保留。实际参数以 [参数表](doc/parameters.md) 及源码为准。
 
-本次独立构建输出为 `build/balance_pwm_boost_20261013/impl/pnr/furata.fs`；仿真与 50 MHz 实现结果见 [验证记录](doc/test-record.md)。本次不进行上板烧录，机械平衡效果需实物验证。
+本次独立固件为 `build/linear_position_20261017/impl/pnr/furata.fs`；31/31 项仿真、网页测试及 50 MHz 时序检查通过，详见 [验证记录](doc/test-record.md)。机械平衡与回位效果需实物验证。
 
 以下日期段落保留历史版本的标定、功能与实现记录，其中的参数和下载文件不代表当前源码。
 
@@ -19,7 +19,8 @@
 - [K3 手动扶直后维持平衡](doc/manual-balance.md)
 - [±2° 线性 PWM 补偿与调参](doc/balance-pwm-boost.md)
 - [转臂速度阻尼历史记录（当前已删除）](doc/arm-damping.md)
-- [一圈位置归零、位置目标与倾角偏移回传](doc/circular-position.md)
+- [连续累计位置、位置误差与 ±10 圈保护](doc/continuous-position.md)
+- [一圈位置归零历史记录](doc/circular-position.md)
 - [OLED 编码器 RAW / POS / REL 显示与接线](doc/oled-encoder.md)
 - [网页角度与要求/实际 PWM 串口回传](doc/uart-telemetry.md)
 - [引脚表](doc/pinout.md)

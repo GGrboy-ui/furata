@@ -1,0 +1,94 @@
+*** GOWIN Tcl Command Line Console  *** 
+Open project G:/furata-git/furata/build/linear_position_20261017/furata.gprj finished
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\board\acg720_top.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\adc128s102_reader.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\angle_display_data.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\seg595_scan.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\clock_reset.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\control_core.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\divider_seq.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\encoder_qei.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\oled_i2c_writer.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\oled_encoder_display.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\pid_fixed.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\pwm_motor.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\safety_monitor.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\sensor_if.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\tick_gen.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\uart_commands.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\uart_telemetry.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\key_input.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\position_target.v'
+Analyzing Verilog file 'G:\furata-git\furata\build\linear_position_20261017\src\rtl\position_wrap.v'
+Compiling module 'acg720_top'("G:\furata-git\furata\build\linear_position_20261017\src\board\acg720_top.v":5)
+Compiling module 'clock_reset'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\clock_reset.v":20)
+Compiling module 'key_input'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\key_input.v":4)
+Compiling module 'uart_commands(TELEMETRY=1)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\uart_commands.v":4)
+Compiling module 'sensor_if'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\sensor_if.v":4)
+Compiling module 'adc128s102_reader'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\adc128s102_reader.v":7)
+Compiling module 'encoder_qei'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\encoder_qei.v":40)
+Compiling module 'divider_seq'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\divider_seq.v":30)
+Compiling module 'oled_encoder_display(ADDRESS=7'b0111100)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\oled_encoder_display.v":4)
+Compiling module 'oled_i2c_writer'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\oled_i2c_writer.v":5)
+Compiling module 'angle_display_data(ADC_ZERO=1007)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\angle_display_data.v":5)
+Compiling module 'divider_seq(WIDTH=24)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\divider_seq.v":30)
+Compiling module 'seg595_scan'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\seg595_scan.v":5)
+Compiling module 'position_target'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\position_target.v":4)
+Compiling module 'safety_monitor'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\safety_monitor.v":4)
+Compiling module 'control_core(CENTER=1007,BALANCE_BOOST_MAX_PERCENT=0)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\control_core.v":4)
+Compiling module 'pid_fixed(KP=32'sb00000000000000000100110011001101)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\pid_fixed.v":5)
+Compiling module 'pid_fixed(KP=32'sb00000000000000000110011001100110,KI=32'sb00000000000000000000000000000000,KD=32'sb00000000000000111111101111010000)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\pid_fixed.v":5)
+Compiling module 'pwm_motor(PWM_MAX=2500,SLEW_STEP=16'b0000000000010000)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\pwm_motor.v":34)
+Compiling module 'uart_telemetry(POSITION_FIELDS=1)'("G:\furata-git\furata\build\linear_position_20261017\src\rtl\uart_telemetry.v":7)
+NOTE  (EX0101) : Current top module is "acg720_top"
+[5%] Running netlist conversion ...
+Running device independent optimization ...
+[10%] Optimizing Phase 0 completed
+[15%] Optimizing Phase 1 completed
+[25%] Optimizing Phase 2 completed
+Running inference ...
+[30%] Inferring Phase 0 completed
+[40%] Inferring Phase 1 completed
+[50%] Inferring Phase 2 completed
+[55%] Inferring Phase 3 completed
+Running technical mapping ...
+[60%] Tech-Mapping Phase 0 completed
+[65%] Tech-Mapping Phase 1 completed
+[75%] Tech-Mapping Phase 2 completed
+[80%] Tech-Mapping Phase 3 completed
+[90%] Tech-Mapping Phase 4 completed
+WARN  (NL0002) : The module "divider_seq" instantiated to "u_div" is swept in optimizing("G:\furata-git\furata\build\linear_position_20261017\src\rtl\encoder_qei.v":235)
+[95%] Generate netlist file "G:\furata-git\furata\build\linear_position_20261017\impl\gwsynthesis\furata.vg" completed
+[100%] Generate report file "G:\furata-git\furata\build\linear_position_20261017\impl\gwsynthesis\furata_syn.rpt.html" completed
+GowinSynthesis finish
+Reading netlist file: "G:\furata-git\furata\build\linear_position_20261017\impl\gwsynthesis\furata.vg"
+Parsing netlist file "G:\furata-git\furata\build\linear_position_20261017\impl\gwsynthesis\furata.vg" completed
+Processing netlist completed
+Reading constraint file: "G:\furata-git\furata\build\linear_position_20261017\src\constraints\acg720.cst"
+Physical Constraint parsed completed
+Running placement......
+[10%] Placement Phase 0 completed
+[20%] Placement Phase 1 completed
+[30%] Placement Phase 2 completed
+[50%] Placement Phase 3 completed
+Running routing......
+[60%] Routing Phase 0 completed
+[70%] Routing Phase 1 completed
+[80%] Routing Phase 2 completed
+[90%] Routing Phase 3 completed
+Running timing analysis......
+[95%] Timing analysis completed
+Placement and routing completed
+Bitstream generation in progress......
+Bitstream generation completed
+Running power analysis......
+[100%] Power analysis completed
+Generate file "G:\furata-git\furata\build\linear_position_20261017\impl\pnr\furata.power.html" completed
+Generate file "G:\furata-git\furata\build\linear_position_20261017\impl\pnr\furata.pin.html" completed
+Generate file "G:\furata-git\furata\build\linear_position_20261017\impl\pnr\furata.rpt.html" completed
+Generate file "G:\furata-git\furata\build\linear_position_20261017\impl\pnr\furata.rpt.txt" completed
+Generate file "G:\furata-git\furata\build\linear_position_20261017\impl\pnr\furata.tr.html" completed
+Sat Oct 17 15:18:07 2026
+

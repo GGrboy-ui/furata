@@ -97,7 +97,7 @@
       <div class="cal-actions"><button id="cal-raw" disabled>原始校准 CSV</button><button id="cal-summary" disabled>试次汇总 CSV</button><button id="cal-report" disabled>离线 HTML 报告</button><button id="cal-clear">清空校准数据</button></div>
       <p class="cal-help">测量的是平衡 PID 工作时的摆杆响应，脉冲与 PID 会共同作用；这些结果不能直接认定为电机静摩擦常数。本页保存原始 ADC、实际 PWM、转臂计数与事件时间，不自动写入补偿。原始数据最多保留 120,000 帧，可按会话导出。</p>
     </section>
-    <footer><div><span class="footer-label">使用说明</span><p>通过板载 USB 串口连接。P 开始回传，Q 仅停止回传；S 起摆、X 停机功能保持原样。转臂位置以进入平衡时为零点，默认每 408 个计数一圈。平衡测量会话期间普通 P/Q 采集入口暂停，实体 K3 可进入平衡；退出或断开先停机。</p></div><div><span class="footer-label">数据来源</span><p>普通角度保持显示平均。平衡死区测量使用原始 ADC，ADC 码对应 333° / 4095。实际 PWM 表示 FPGA 执行的总占空比。DZCAL2 使用 100 Hz M 帧及 N 结果帧，均带 CRC；旧 DZCAL1 的 M/R 与普通 T 数据仍兼容。</p></div></footer>
+    <footer><div><span class="footer-label">使用说明</span><p>通过板载 USB 串口连接。P 开始回传，Q 仅停止回传；S 起摆、X 停机功能保持原样。转臂位置以进入平衡时为零点，跨圈继续累计；默认每 408 个计数一圈。平衡测量会话期间普通 P/Q 采集入口暂停，实体 K3 可进入平衡；退出或断开先停机。</p></div><div><span class="footer-label">数据来源</span><p>普通角度保持显示平均。平衡死区测量使用原始 ADC，ADC 码对应 333° / 4095。实际 PWM 表示 FPGA 执行的总占空比。DZCAL2 使用 100 Hz M 帧及 N 结果帧，均带 CRC；旧 DZCAL1 的 M/R 与普通 T 数据仍兼容。</p></div></footer>
   </main>
 </body>
 </html>

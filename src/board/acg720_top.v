@@ -22,7 +22,7 @@ module acg720_top #(
     parameter integer BALANCE_BOOST_RANGE_TENTHS=20,
     parameter integer BALANCE_BOOST_MAX_PERCENT=0,
     // User measured upright (stationary) ADC code on 2026-10-09.
-    parameter integer CENTER=999,
+    parameter integer CENTER=1007,
     parameter integer ANGLE_ADC_ZERO=CENTER,
     parameter integer ANGLE_ADC_SPAN=4095,
     parameter integer ANGLE_RANGE_TENTHS=3330,

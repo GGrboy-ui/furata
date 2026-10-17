@@ -51,11 +51,12 @@ module tb_acg720_oled;
         if(dut.state!==4 || dut.core.origin!==-12 || dut.relative_position!==0)
             $fatal(1,"FAIL: K3 position origin");
         next_frame;assert_counts(40'h12,40'h12,0,0,1,0);
-        forward;next_frame;assert_counts(40'h16,40'h16,40'h4,0,1,1);
+        repeat(102) forward;next_frame;assert_counts(40'h420,40'h420,40'h408,0,1,1);
+        forward;next_frame;assert_counts(40'h424,40'h424,40'h412,0,1,1);
         press(3);
-        if(dut.state!==0 || stby!==0 || dut.raw_position!==16 || dut.relative_position!==-16)
+        if(dut.state!==0 || stby!==0 || dut.raw_position!==424 || dut.relative_position!==-424)
             $fatal(1,"FAIL: K4 motor reset/count retention");
-        next_frame;assert_counts(40'h16,40'h16,40'h16,0,1,1);
+        next_frame;assert_counts(40'h424,40'h424,40'h424,0,1,1);
         ack_enable=0;wait(dut.oled_error);press(1);cycles(20000);
         if(dut.state!==6 || stby!==1 || dut.motor_ready!==1 || dut.motor.duty_q==0 || dut.fault_latched)
             $fatal(1,"FAIL: missing OLED blocked motor test");

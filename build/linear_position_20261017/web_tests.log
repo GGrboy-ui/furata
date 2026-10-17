@@ -1,0 +1,6 @@
+PASS: mocked serial PWM reception, chart selector, old/new CSV import, missing vs zero, P/Q and lock cleanup
+PASS: legacy calibration plus DZCAL2 PID-preserving session, direct adjustable amplitude/time, no old preconditions, BALANCE/fault gate, automatic pendulum criterion, 5000 ms deadline, immediate repeat, zero baseline and bounded lost request
+PASS: legacy I/M/R, DZCAL2 adjustable !p, extended M/N, pendulum ADC threshold timing, 0% baseline, signed wrap, automatic results, amplitude-duration-criterion groups and offline report
+PASS: shared WebSerial old/new capabilities, retained legacy T, PID-preserving upright session, direct !p without precheck, fragmented N ADC events, serialized heartbeat and X/e/Q disconnect
+PASS: legacy and extended UART, fragmented PWM, signed range, missing vs zero, CSV roundtrip/validation
+PASS: position UART fragmentation, signed offsets, units, 10-column CSV and malformed metadata

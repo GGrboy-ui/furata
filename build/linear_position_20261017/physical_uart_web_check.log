@@ -1,0 +1,2 @@
+PASS: website decoded 9 physical UART frames at 5 chunk sizes; PWM and CSV roundtrip verified.
+PASS: website decoded 55-byte physical UART at 5 chunk sizes; position/offset CSV roundtrip verified.

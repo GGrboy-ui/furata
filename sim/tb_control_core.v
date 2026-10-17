@@ -26,7 +26,7 @@ module tb_control_core;
    if(state!==3'd4) begin $display("FAIL: centered samples did not capture balance state=%0d",state); errors=errors+1; end
    if(command_q!==0) begin $display("FAIL: centered command=%0d",command_q); errors=errors+1; end
    position=32'sd10;
-   // Circular remainder settles in about 53 clocks, below the real 1 ms sample.
+   // Allow the registered position input to settle before the next sample.
    repeat(120) @(negedge clk);
    samp(1014); samp(1014); samp(1014); samp(1014); samp(1014); samp(1014); samp(1014); samp(1014);
    // The position and angle PID stages each add one clock of latency.

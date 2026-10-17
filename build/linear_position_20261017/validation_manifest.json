@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-17",
+  "project": "G:/furata-git/furata",
+  "bitstream": "impl/pnr/furata.fs",
+  "sha256": "904870D4463D2462B6958CBBE5C3840BDF7F6D5E500248838D50A4900E94BB5E",
+  "fpga_tests_passed": 31,
+  "fpga_tests_failed": 0,
+  "web_suites_passed": 5,
+  "physical_uart_and_csv": "PASS at 5 chunk widths",
+  "clock_constraint_mhz": 50,
+  "fmax_mhz": 62.253,
+  "worst_setup_slack_ns": 3.937,
+  "worst_hold_slack_ns": 0.247,
+  "setup_violations": 0,
+  "hold_violations": 0,
+  "programmed_to_hardware": false
+}

@@ -66,18 +66,6 @@
             "Type": "verilog"
         },
         {
-            "Path": "G:/furata-git/furata/src/rtl/calibration_commands.v",
-            "Type": "verilog"
-        },
-        {
-            "Path": "G:/furata-git/furata/src/rtl/motor_calibration.v",
-            "Type": "verilog"
-        },
-        {
-            "Path": "G:/furata-git/furata/src/rtl/calibration_telemetry.v",
-            "Type": "verilog"
-        },
-        {
             "Path": "G:/furata-git/furata/src/rtl/uart_telemetry.v",
             "Type": "verilog"
         },

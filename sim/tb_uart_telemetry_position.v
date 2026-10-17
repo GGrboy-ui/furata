@@ -2,7 +2,7 @@
 module tb_uart_telemetry_position;
  localparam integer DIV=50000000/115200, BIT_NS=DIV*20;
  reg clk=0,rst_n=0,rx=1;
- reg signed [15:0] arm=203,target=0,error=-203,offset=-125;
+ reg signed [15:0] arm=408,target=0,error=-408,offset=-125;
  wire tx;
  wire [7:0] received_byte,tx_data;
  wire received_valid,tx_valid,tx_ready,active;
@@ -34,9 +34,9 @@ module tb_uart_telemetry_position;
    if(collecting && decoded==10) begin
      if(bytes!=55) $fatal(1,"FAIL: extended frame length=%0d",bytes);
      case(count)
-       0:if(frame!=={"T,00000000,-012.3,-2500,-0017,+0203,+0000,-0203,-0125",8'h0d,8'h0a}) $fatal(1,"FAIL: extended initial snapshot [%s]",frame);
-       1:if(frame!=={"T,00000001,-012.3,-2500,-0017,-0204,+0005,-0199,+1000",8'h0d,8'h0a}) $fatal(1,"FAIL: extended changed snapshot [%s]",frame);
-       2:if(frame!=={"T,00000002,-012.3,-2500,-0017,-0204,+0005,-0199,+1000",8'h0d,8'h0a}) $fatal(1,"FAIL: missing default-baud sequence [%s]",frame);
+       0:if(frame!=={"T,00000000,-012.3,-2500,-0017,+0408,+0000,-0408,-0125",8'h0d,8'h0a}) $fatal(1,"FAIL: extended initial snapshot [%s]",frame);
+       1:if(frame!=={"T,00000001,-012.3,-2500,-0017,-0816,+0005,+0821,+1000",8'h0d,8'h0a}) $fatal(1,"FAIL: extended changed snapshot [%s]",frame);
+       2:if(frame!=={"T,00000002,-012.3,-2500,-0017,-0816,+0005,+0821,+1000",8'h0d,8'h0a}) $fatal(1,"FAIL: missing default-baud sequence [%s]",frame);
      endcase
      count=count+1;bytes=0;frame=0;collecting=0;
    end
@@ -45,7 +45,7 @@ module tb_uart_telemetry_position;
    $dumpfile("tb_uart_telemetry_position.vcd");$dumpvars(0,clk,rst_n,rx,tx,count);
    serial_file=$fopen("telemetry_position_serial.log","wb");
    cycles(4);rst_n=1;cycles(10);command("P");
-   wait(active);cycles(100);arm=-204;target=5;error=-199;offset=1000;
+   wait(active);cycles(100);arm=-816;target=5;error=821;offset=1000;
    wait(count==2);wait(!active);wait(active);command("Q");wait(count==3);cycles(250000);
    if(count!=3 || dut.enabled) $fatal(1,"FAIL: Q drain");
    $fclose(serial_file);$display("TEST PASSED: tb_uart_telemetry_position (55 physical bytes, signed metadata, snapshot, 200 Hz at 115200, Q drain)");$finish;

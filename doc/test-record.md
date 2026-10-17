@@ -1,5 +1,18 @@
 # FPGA regression record
 
+## 2026-10-17 连续累计位置反馈
+
+项目：`G:/furata-git/furata`。取消控制核心中相对位置与位置误差的一圈取模，位置 PID 采用连续 D 项。OLED POS/REL 与串口/网页同步采用累计计数；行程保护直接比较宽位移 `position-origin`，默认严格超出 ±4080 counts 时请求故障 7。保留修改前已有的 `CENTER=1007` 与 `POSITION_KD=261072`，未修改其他增益和控制周期。行为详见 [连续位置说明](continuous-position.md)。
+
+- Icarus 完整回归 **31/31 通过**，无失败或缺失；记录为 `build/linear_position_20261017/regression_report.txt` 与 `regression.log`。`tb_control_position_linear` 替代旧的环形控制专项测试，覆盖正反一圈/多圈、返回原点、连续 P/D、小数整圈目标、±4080/4081 边界、目标不移动保护原点、数值饱和和重新捕获原点。原环形工具的独立单元测试仍保留，该工具不再接入位置环。
+- 板级 OLED 测试以真实 A/B 边沿验证整圈后 RAW/POS/REL 仍累计、反向显示符号及 K3/K4 语义；已有板级平衡与电机测试继续验证保护立即禁止输出、故障锁存和复位。
+- 网页 **5 套测试全部通过**，包括累计位置曲线跨整圈连接、串口分块解析、旧/新 CSV、校准页面及共享串口；记录为 `web_tests.log`。物理 UART 模拟字节经实际网页解码器按五种分块宽度验证，+408/-816 counts 和误差字段及十列 CSV 往返通过；记录为 `physical_uart_web_check.log`。
+- Gowin V1.9.12.03 完成独立综合、布局布线与新固件生成。约束 50 MHz，**Fmax=62.253 MHz**，最差建立余量 **3.937 ns**，最差保持余量 **0.247 ns**；建立/保持 TNS 均为 0，违例端点均为 0。未运行 Verilator lint（现有 Icarus 工具目录不含 Verilator）。
+
+固件：`build/linear_position_20261017/impl/pnr/furata.fs`。SHA256：`904870D4463D2462B6958CBBE5C3840BDF7F6D5E500248838D50A4900E94BB5E`。构建目录保留 `src/`、工程文件、源码 SHA256 清单及实现报告，已确认全部 23 个源文件与当前源码一致。原项目 `impl/` 保留原状。未进行板卡下载或机械闭环验证。
+
+## Regression command
+
 The one-command regression is:
 
 ```powershell

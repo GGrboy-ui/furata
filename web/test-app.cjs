@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
 const Telemetry = require('./telemetry-core.js');
+const canvasPaths = [];
 const elements = new Map();
 function element(id) {
   if (!elements.has(id)) elements.set(id, {
@@ -11,7 +12,12 @@ function element(id) {
     disabled: false, hidden: false, textContent: '', innerHTML: '', style: {}, handlers: {},
     classList: { toggle() {} }, addEventListener(event, callback) { this.handlers[event] = callback; },
     click() {}, clientWidth: 900, clientHeight: 370,
-    getContext() { return new Proxy({}, { get: (target, key) => target[key] || (() => {}), set: (target, key, value) => (target[key] = value, true) }); }
+    getContext() { return new Proxy({}, { get: (target, key) => {
+      if (key === 'beginPath') return () => { target.commands = []; };
+      if (key === 'moveTo' || key === 'lineTo') return (...args) => { target.commands.push({ kind: key, args }); };
+      if (key === 'stroke') return () => canvasPaths.push({ color: target.strokeStyle, commands: target.commands.slice() });
+      return target[key] || (() => {});
+    }, set: (target, key, value) => (target[key] = value, true) }); }
   });
   return elements.get(id);
 }
@@ -82,8 +88,18 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
   assert.equal(element('positionError').textContent, '-12 counts');
   assert.equal(element('targetAngleOffset').textContent, '-1.016°');
   element('signal').value = 'position';vm.runInContext('draw()', context);
-  assert.match(element('chartTitle').textContent, /最短误差/);
+  assert.match(element('chartTitle').textContent, /累计位置/);
   assert.match(element('range').textContent, /counts/);
+  vm.runInContext('recording.clear(); decoder.feed("T,00000000,+000.0,+0000,+0000,+0408,+0000,-0408,+0000\\r\\nT,00000001,+000.0,+0000,+0000,+0816,+0000,-0816,+0000\\r\\n"); refreshMetrics();', context);
+  assert.equal(element('armPosition').textContent, '816 counts');
+  assert.equal(element('positionError').textContent, '-816 counts');
+  canvasPaths.length = 0;vm.runInContext('draw()', context);
+  for (const color of ['#62dfc5', '#c4b5fd']) {
+    const trace = canvasPaths.find(path => path.color === color);
+    assert.ok(trace, `missing multi-turn trace ${color}`);
+    assert.equal(trace.commands.filter(command => command.kind === 'moveTo').length, 1, 'a full turn must remain connected');
+    assert.ok(trace.commands.some(command => command.kind === 'lineTo'));
+  }
   element('signal').value = 'offset';vm.runInContext('draw()', context);
   assert.match(element('chartTitle').textContent, /目标倾角偏移/);
   console.log('PASS: mocked serial PWM reception, chart selector, old/new CSV import, missing vs zero, P/Q and lock cleanup');
