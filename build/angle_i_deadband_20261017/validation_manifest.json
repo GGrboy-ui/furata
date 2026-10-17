@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-17",
+  "project": "G:/furata-git/furata",
+  "angleIntegralDeadbandQ": 65536,
+  "baseline": {
+    "passed": 29,
+    "total": 31,
+    "failed": [
+      "tb_acg720_oled",
+      "tb_control_position_linear"
+    ]
+  },
+  "candidate": {
+    "passed": 31,
+    "total": 33,
+    "failed": [
+      "tb_acg720_oled",
+      "tb_control_position_linear"
+    ],
+    "newFailures": []
+  },
+  "newTests": [
+    {
+      "path": "sim/tb_pid_integral_deadband.v",
+      "sha256": "A2A72F1D53872B974B5BBBD341B4BFAA66F6093AC349C763C7D8A0D2A97771FF"
+    },
+    {
+      "path": "sim/tb_control_integral_deadband.v",
+      "sha256": "7087E611157531933536FA7D5DD6782F0C2ECBF9AA7B3231FEF2A02FBEDA0F99"
+    }
+  ],
+  "timing": {
+    "clockConstraintMhz": 50,
+    "fmaxMhz": 65.347,
+    "worstSetupSlackNs": 4.697,
+    "worstHoldSlackNs": 0.247,
+    "setupViolations": 0,
+    "holdViolations": 0
+  },
+  "bitstream": "candidate/impl/pnr/furata.fs",
+  "sha256": "042A0837136698FED6331EDF7779C6A78E6DA1424B13783DB17D01F359B3FB80",
+  "sourceFilesMatchBuild": true,
+  "changedSourceFiles": [
+    "src/rtl/control_core.v",
+    "src/rtl/pid_fixed.v"
+  ],
+  "programmedToHardware": false
+}

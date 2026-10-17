@@ -12,21 +12,21 @@
   <Part Number>: GW5AT-LV60PG484AC1/I0
   <Device>: GW5AT-60
   <Device Version>: B
-  <Created Time>:Sat Oct 17 16:38:44 2026
+  <Created Time>:Sat Oct 17 17:31:31 2026
 
 
 2. PnR Details
 
   Running placement:
     Placement Phase 0: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
-    Placement Phase 1: CPU time = 0h 0m 0.705s, Elapsed time = 0h 0m 0.706s
+    Placement Phase 1: CPU time = 0h 0m 0.718s, Elapsed time = 0h 0m 0.719s
     Placement Phase 2: CPU time = 0h 0m 3s, Elapsed time = 0h 0m 3s
     Placement Phase 3: CPU time = 0h 0m 3s, Elapsed time = 0h 0m 3s
     Total Placement: CPU time = 0h 0m 8s, Elapsed time = 0h 0m 8s
  Running routing:
-    Routing Phase 0: CPU time = 0h 0m 0.003s, Elapsed time = 0h 0m 0.004s
+    Routing Phase 0: CPU time = 0h 0m 0.005s, Elapsed time = 0h 0m 0.005s
     Routing Phase 1: CPU time = 0h 0m 12s, Elapsed time = 0h 0m 12s
-    Routing Phase 2: CPU time = 0h 0m 0.133s, Elapsed time = 0h 0m 0.133s
+    Routing Phase 2: CPU time = 0h 0m 0.18s, Elapsed time = 0h 0m 0.18s
     Routing Phase 3: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
     Total Routing: CPU time = 0h 0m 12s, Elapsed time = 0h 0m 12s
  Generate output files:
@@ -40,22 +40,22 @@
   --------------------------------------------------------------------------------
   Resources                   | Usage                               | Utilization
   --------------------------------------------------------------------------------
-  Logic                       | 7097/59904                          |  12%
-    --LUT,ALU,ROM16           | 7097(6325 LUT, 772 ALU, 0 ROM16)    | -
+  Logic                       | 7024/59904                          |  12%
+    --LUT,ALU,ROM16           | 7024(6272 LUT, 752 ALU, 0 ROM16)    | -
     --SSRAM(RAM16)            | 0                                   | -
-  Register                    | 2806/60780                          |  5%
+  Register                    | 2838/60780                          |  5%
     --Logic Register as Latch | 0/59904                             |  0%
-    --Logic Register as FF    | 2794/59904                          |  5%
+    --Logic Register as FF    | 2826/59904                          |  5%
     --I/O Register as Latch   | 0/876                               |  0%
     --I/O Register as FF      | 12/876                              |  2%
-  CLS                         | 4184/29952                          |  14%
+  CLS                         | 4147/29952                          |  14%
   I/O Port                    | 24/297                              |  9%
   I/O Buf                     | 24                                  | -
     --Input Buf               | 10                                  | -
     --Output Buf              | 12                                  | -
     --Inout Buf               | 2                                   | -
-  DSP                         | 14/118                              | 12%
-    --MULT27X36               | 6
+  DSP                         | 12/118                              | 11%
+    --MULT27X36               | 5
     --MULTALU27X18            | 2
   ================================================================================
 
@@ -87,7 +87,7 @@
   Clock Resource| Usage         | Utilization 
   ------------------------------------------
   PRIMARY       | 1/8           | 13%
-  LW            | 5/8           | 63%
+  LW            | 4/8           | 50%
   GCLK_PIN      | 3/40          | 8%
   ==========================================
 
@@ -100,8 +100,7 @@
   clk_d          | PRIMARY        |  TR BR BL
   reset_n        | LW             |  -
   control_reset_n| LW             |  -
-  oled/n1973_21  | LW             |  -
-  core/previous_q_31_15| LW             |  -
+  oled/n1973_11  | LW             |  -
   telemetry/convert_left_4_12| LW             |  -
   ===========================================
 

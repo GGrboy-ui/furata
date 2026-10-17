@@ -1,0 +1,19 @@
+-d G:\furata-git\furata\build\angle_i_deadband_repair_20261017\candidate\impl\gwsynthesis\furata.vg
+-p GW5AT-60B-PBGA484A-1
+-pn GW5AT-LV60PG484AC1/I0
+-cst G:\furata-git\furata\build\angle_i_deadband_repair_20261017\candidate\src\constraints\acg720.cst
+-cfg G:\furata-git\furata\build\angle_i_deadband_repair_20261017\candidate\impl\pnr\device.cfg
+-sdc G:\furata-git\furata\build\angle_i_deadband_repair_20261017\candidate\src\furata.sdc
+-bit
+-tr
+-ph
+-timing
+-cst_error
+-convert_sdp32_36_to_sdp16_18
+-place_option 0
+-route_option 0
+-clock_route_order 0
+-correct_hold 1
+-route_maxfan 23
+-global_freq 100.000
+-enable_dsrm 0

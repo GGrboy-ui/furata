@@ -2,11 +2,11 @@
 
 打开 `furata.gprj`，顶层为 `acg720_top`，器件为 GW5AT-LV60PG484AC1/I0。
 
-当前源码（2026-10-17）：位置环采用相对捕获原点的连续累计计数，取消每圈误差归零，D 项也使用连续差值。默认一圈 408 counts，正向一圈的位置/误差为 +408/-408；超过捕获原点 **±10 圈净位移**仍触发故障 7。OLED 和网页同步显示累计位置，详见 [连续位置说明](doc/continuous-position.md)。
+当前源码（2026-10-17 积分死区修订）：角度环 I 项在 **±1 ADC 码（约 ±0.0813°，含边界）** 内保留已有积分、停止新增积分，P/D 继续使用完整误差。详见 [角度积分死区](doc/angle-integral-deadband.md)。本次保留当前一圈取模的位置反馈及 ±10 圈净位移保护；早前连续位置版本见 [历史说明](doc/continuous-position.md)。
 
-本次保留已有调参：顶层 `CENTER=1007`；角度 PID Q16.16 系数 `19661/655/26214`，位置 PID 系数 `26214/0/261072`；`ENCODER_INVERT=0`、`MOTOR_INVERT=1`、`PWM_SLEW_STEP=16`，起摆为 50% / 100 ms。顶层 `BALANCE_BOOST_MAX_PERCENT=0`，当前关闭线性 PWM 补偿。已删除独立 `ARM_DAMPING` 速度阻尼，两个 PID 的 D 项保留。实际参数以 [参数表](doc/parameters.md) 及源码为准。
+误删修复保留已有调参：顶层 `CENTER=1007`；角度 PID Q16.16 系数 `20661/720/31214`，位置 PID 系数 `26214/0/262144`；`ENCODER_INVERT=0`、`MOTOR_INVERT=1`、`PWM_SLEW_STEP=16`，起摆为 50% / 100 ms。顶层 `BALANCE_BOOST_MAX_PERCENT=0`，当前关闭线性 PWM 补偿。已删除独立 `ARM_DAMPING` 速度阻尼，两个 PID 的 D 项保留。实际参数以 [参数表](doc/parameters.md) 及源码为准。
 
-本次独立固件为 `build/linear_position_20261017/impl/pnr/furata.fs`；31/31 项仿真、网页测试及 50 MHz 时序检查通过，详见 [验证记录](doc/test-record.md)。机械平衡与回位效果需实物验证。
+本次误删修复的独立固件为 `build/angle_i_deadband_repair_20261017/candidate/impl/pnr/furata.fs`。积分死区专项测试 2/2 通过，完整回归 31/33 通过（两项位置相关失败此前已存在，无新增失败）；50 MHz 时序通过。修复前源码和失败复现位于同级 `before/`，详见 [验证记录](doc/test-record.md)。机械平衡与回位效果需实物验证。
 
 以下日期段落保留历史版本的标定、功能与实现记录，其中的参数和下载文件不代表当前源码。
 
@@ -17,9 +17,10 @@
 - [下载、显示格式、串口命令和标定方法](doc/angle-display.md)
 - [K2 固定 20% PWM 试转与 K4 复位说明](doc/motor-test.md)
 - [K3 手动扶直后维持平衡](doc/manual-balance.md)
+- [角度环 ±1 ADC 码积分死区](doc/angle-integral-deadband.md)
 - [±2° 线性 PWM 补偿与调参](doc/balance-pwm-boost.md)
 - [转臂速度阻尼历史记录（当前已删除）](doc/arm-damping.md)
-- [连续累计位置、位置误差与 ±10 圈保护](doc/continuous-position.md)
+- [连续累计位置独立版本记录](doc/continuous-position.md)
 - [一圈位置归零历史记录](doc/circular-position.md)
 - [OLED 编码器 RAW / POS / REL 显示与接线](doc/oled-encoder.md)
 - [网页角度与要求/实际 PWM 串口回传](doc/uart-telemetry.md)

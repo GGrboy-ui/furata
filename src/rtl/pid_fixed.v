@@ -9,7 +9,10 @@ module pid_fixed #(
     parameter signed [31:0] OUT_LIMIT = 32'sd6553600,
     parameter signed [31:0] I_LIMIT = 32'sd1073741824,
     // Enable only for circular position error. Error is already normalized.
-    parameter signed [31:0] DELTA_WRAP_Q = 0
+    parameter signed [31:0] DELTA_WRAP_Q = 0,
+    // Inclusive error band that holds the accumulated integral; <=0 disables it.
+    // P and D always use the complete error. Units match the Q16.16 inputs.
+    parameter signed [31:0] I_DEADBAND_Q = 32'sd0
 ) (
     input wire clk, rst_n, clear, tick,
     input wire signed [31:0] target_q, actual_q,
@@ -37,6 +40,8 @@ module pid_fixed #(
         error_q=clamp32(error_w);
         isum_w={{32{integral_q[31]}},integral_q}+{{32{error_q[31]}},error_q};
         if (KI==0) inext_q=0;
+        else if (I_DEADBAND_Q>0 && error_q>=-I_DEADBAND_Q && error_q<=I_DEADBAND_Q)
+            inext_q=integral_q;
         else if (isum_w > $signed(I_LIMIT)) inext_q=I_LIMIT;
         else if (isum_w < -$signed(I_LIMIT)) inext_q=-I_LIMIT;
         else inext_q=isum_w[31:0];

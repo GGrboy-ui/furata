@@ -1,0 +1,6 @@
+ACG720 FPGA regression 2026-10-17T17:25:38
+requested=tb_control_integral_deadband
+passed=0
+failed=tb_control_integral_deadband
+missing=
+waveforms=G:\furata-git\furata\build\angle_i_deadband_repair_20261017\before\build\oss

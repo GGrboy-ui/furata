@@ -1,0 +1,1580 @@
+$date
+	Sat Oct 17 17:26:54 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_control_position_linear $end
+$var wire 3 ! state [2:0] $end
+$var wire 32 " relative_position [31:0] $end
+$var wire 32 # offset_q [31:0] $end
+$var wire 4 $ fault [3:0] $end
+$var wire 32 % error_q [31:0] $end
+$var wire 32 & derivative_offset_q [31:0] $end
+$var wire 32 ' command_q [31:0] $end
+$var reg 1 ( balance_cmd $end
+$var reg 1 ) clk $end
+$var reg 32 * position [31:0] $end
+$var reg 1 + rst_n $end
+$var reg 1 , sample_valid $end
+$var reg 1 - stop_cmd $end
+$var reg 32 . target [31:0] $end
+$scope module derivative_dut $end
+$var wire 1 / angle_tick $end
+$var wire 1 ( balance_cmd $end
+$var wire 1 0 boost_enable $end
+$var wire 1 1 centered $end
+$var wire 1 ) clk $end
+$var wire 1 2 fault_latched $end
+$var wire 32 3 measured_angle [31:0] $end
+$var wire 1 4 motor_test_cmd $end
+$var wire 1 5 permit $end
+$var wire 32 6 position [31:0] $end
+$var wire 32 7 position_target_q [31:0] $end
+$var wire 1 8 position_tick $end
+$var wire 1 9 prev_centered $end
+$var wire 32 : pulse_q [31:0] $end
+$var wire 1 + rst_n $end
+$var wire 1 ; running $end
+$var wire 12 < sample [11:0] $end
+$var wire 1 = sample_ready $end
+$var wire 1 , sample_valid $end
+$var wire 1 > start_cmd $end
+$var wire 1 - stop_cmd $end
+$var wire 1 ? swinging $end
+$var wire 32 @ test_q [31:0] $end
+$var wire 32 A wrapped_position_q [31:0] $end
+$var wire 32 B travel_position [31:0] $end
+$var wire 32 C target_angle [31:0] $end
+$var wire 1 D reset_pid $end
+$var wire 50 E relative_position_q [49:0] $end
+$var wire 32 F relative_position [31:0] $end
+$var wire 33 G rel_w [32:0] $end
+$var wire 1 H position_valid $end
+$var wire 1 I position_update $end
+$var wire 32 J position_out [31:0] $end
+$var wire 50 K position_error_w [49:0] $end
+$var wire 1 L position_error_valid $end
+$var wire 32 M position_error_q [31:0] $end
+$var wire 32 N command_q [31:0] $end
+$var wire 35 O boost_scaled [34:0] $end
+$var wire 35 P boost_product [34:0] $end
+$var wire 32 Q boost_offset [31:0] $end
+$var wire 32 R boost_distance [31:0] $end
+$var wire 33 S boost_applied_q [32:0] $end
+$var wire 33 T balance_sum [32:0] $end
+$var wire 32 U balance_command [31:0] $end
+$var wire 1 V balance $end
+$var wire 1 W angle_update $end
+$var wire 32 X angle_target_offset_q [31:0] $end
+$var wire 32 Y angle_out [31:0] $end
+$var parameter 32 Z ANGLE_I_DEADBAND_Q $end
+$var parameter 32 [ ANGLE_KD $end
+$var parameter 32 \ ANGLE_KI $end
+$var parameter 32 ] ANGLE_KP $end
+$var parameter 32 ^ ANGLE_MS $end
+$var parameter 3 _ BALANCE $end
+$var parameter 32 ` BALANCE_BOOST_MAX_PERCENT $end
+$var parameter 32 a BALANCE_BOOST_RANGE_CODES $end
+$var parameter 32 b BOOST_MAX $end
+$var parameter 23 c BOOST_MAX_Q $end
+$var parameter 32 d BOOST_RANGE $end
+$var parameter 32 e CAPTURE_RANGE $end
+$var parameter 32 f CENTER $end
+$var parameter 32 g CHECK_MS $end
+$var parameter 32 h COUNTS_PER_REV $end
+$var parameter 3 i FAULT $end
+$var parameter 3 j MOTOR_TEST $end
+$var parameter 32 k MOTOR_TEST_PERCENT $end
+$var parameter 32 l MOTOR_TEST_REVERSE $end
+$var parameter 32 m POSITION_KD $end
+$var parameter 32 n POSITION_KI $end
+$var parameter 32 o POSITION_KP $end
+$var parameter 32 p POSITION_LIMIT_COUNTS $end
+$var parameter 32 q POSITION_MS $end
+$var parameter 3 r PULL $end
+$var parameter 32 s PULSE_MS $end
+$var parameter 3 t PUSH $end
+$var parameter 32 u START_PERCENT $end
+$var parameter 3 v STOP $end
+$var parameter 32 w SWING_TIMEOUT_MS $end
+$var parameter 32 x TEST_PERCENT $end
+$var parameter 3 y WAIT_PEAK $end
+$var reg 32 z angle_count [31:0] $end
+$var reg 12 { boost_distance_q [11:0] $end
+$var reg 32 | boost_magnitude_q [31:0] $end
+$var reg 1 } boost_sample_pending $end
+$var reg 32 ~ check_count [31:0] $end
+$var reg 2 !" history_count [1:0] $end
+$var reg 32 "" measured_angle_q [31:0] $end
+$var reg 32 #" measured_position_q [31:0] $end
+$var reg 12 $" older [11:0] $end
+$var reg 32 %" origin [31:0] $end
+$var reg 32 &" position_count [31:0] $end
+$var reg 1 '" positive_first $end
+$var reg 12 (" previous [11:0] $end
+$var reg 32 )" pulse_count [31:0] $end
+$var reg 4 *" request_fault [3:0] $end
+$var reg 3 +" state [2:0] $end
+$var reg 32 ," swing_count [31:0] $end
+$var reg 32 -" target_angle_q [31:0] $end
+$var reg 32 ." target_position_q [31:0] $end
+$scope begin enabled_boost $end
+$upscope $end
+$scope module angle_pid $end
+$var wire 32 /" actual_q [31:0] $end
+$var wire 1 D clear $end
+$var wire 1 ) clk $end
+$var wire 1 + rst_n $end
+$var wire 32 0" target_q [31:0] $end
+$var wire 1 / tick $end
+$var parameter 32 1" DELTA_WRAP_Q $end
+$var parameter 32 2" I_DEADBAND_Q $end
+$var parameter 32 3" I_LIMIT $end
+$var parameter 32 4" KD $end
+$var parameter 32 5" KI $end
+$var parameter 32 6" KP $end
+$var parameter 32 7" OUT_LIMIT $end
+$var reg 32 8" delta_q [31:0] $end
+$var reg 32 9" delta_stage_q [31:0] $end
+$var reg 64 :" delta_w [63:0] $end
+$var reg 32 ;" error_q [31:0] $end
+$var reg 32 <" error_stage_q [31:0] $end
+$var reg 64 =" error_w [63:0] $end
+$var reg 32 >" inext_q [31:0] $end
+$var reg 32 ?" integral_q [31:0] $end
+$var reg 32 @" integral_stage_q [31:0] $end
+$var reg 64 A" isum_w [63:0] $end
+$var reg 64 B" kd_term [63:0] $end
+$var reg 64 C" ki_term [63:0] $end
+$var reg 64 D" kp_term [63:0] $end
+$var reg 32 E" out_q [31:0] $end
+$var reg 32 F" previous_q [31:0] $end
+$var reg 1 G" sample_pending $end
+$var reg 64 H" scaled_w [63:0] $end
+$var reg 64 I" sum_w [63:0] $end
+$var reg 1 W valid $end
+$scope function clamp32 $end
+$var reg 64 J" x [63:0] $end
+$upscope $end
+$upscope $end
+$scope module position_pid $end
+$var wire 32 K" actual_q [31:0] $end
+$var wire 1 D clear $end
+$var wire 1 ) clk $end
+$var wire 1 + rst_n $end
+$var wire 32 L" target_q [31:0] $end
+$var wire 1 M" tick $end
+$var parameter 32 N" DELTA_WRAP_Q $end
+$var parameter 32 O" I_DEADBAND_Q $end
+$var parameter 32 P" I_LIMIT $end
+$var parameter 32 Q" KD $end
+$var parameter 32 R" KI $end
+$var parameter 32 S" KP $end
+$var parameter 32 T" OUT_LIMIT $end
+$var reg 32 U" delta_q [31:0] $end
+$var reg 32 V" delta_stage_q [31:0] $end
+$var reg 64 W" delta_w [63:0] $end
+$var reg 32 X" error_q [31:0] $end
+$var reg 32 Y" error_stage_q [31:0] $end
+$var reg 64 Z" error_w [63:0] $end
+$var reg 32 [" inext_q [31:0] $end
+$var reg 32 \" integral_q [31:0] $end
+$var reg 32 ]" integral_stage_q [31:0] $end
+$var reg 64 ^" isum_w [63:0] $end
+$var reg 64 _" kd_term [63:0] $end
+$var reg 64 `" ki_term [63:0] $end
+$var reg 64 a" kp_term [63:0] $end
+$var reg 32 b" out_q [31:0] $end
+$var reg 32 c" previous_q [31:0] $end
+$var reg 1 d" sample_pending $end
+$var reg 64 e" scaled_w [63:0] $end
+$var reg 64 f" sum_w [63:0] $end
+$var reg 1 I valid $end
+$scope function clamp32 $end
+$var reg 64 g" x [63:0] $end
+$upscope $end
+$upscope $end
+$scope module wrap_error $end
+$var wire 1 ) clk $end
+$var wire 1 h" launch $end
+$var wire 1 + rst_n $end
+$var wire 50 i" value_q [49:0] $end
+$var wire 50 j" signed_remainder [49:0] $end
+$var wire 50 k" shortest [49:0] $end
+$var wire 50 l" remainder_q [49:0] $end
+$var wire 50 m" quotient_unused [49:0] $end
+$var wire 50 n" magnitude [49:0] $end
+$var wire 1 o" done $end
+$var wire 1 p" busy $end
+$var parameter 32 q" COUNTS_PER_REV $end
+$var parameter 50 r" HALF_Q $end
+$var parameter 50 s" PERIOD_Q $end
+$var parameter 32 t" REV_COUNTS $end
+$var reg 1 u" negative $end
+$var reg 1 v" pending $end
+$var reg 50 w" submitted_q [49:0] $end
+$var reg 1 L valid $end
+$var reg 32 x" wrapped_q [31:0] $end
+$scope module divide $end
+$var wire 1 ) clk $end
+$var wire 50 y" den [49:0] $end
+$var wire 50 z" num [49:0] $end
+$var wire 1 + rst_n $end
+$var wire 51 {" shifted [50:0] $end
+$var wire 1 h" start $end
+$var wire 1 |" nxt_bit $end
+$var wire 1 }" ge $end
+$var wire 51 ~" den_x [50:0] $end
+$var wire 32 !# bit_idx [31:0] $end
+$var parameter 32 "# WIDTH $end
+$var reg 1 p" busy $end
+$var reg 50 ## den_r [49:0] $end
+$var reg 1 o" done $end
+$var reg 32 $# i [31:0] $end
+$var reg 1 %# last $end
+$var reg 50 &# num_r [49:0] $end
+$var reg 50 '# q [49:0] $end
+$var reg 50 (# q_done [49:0] $end
+$var reg 50 )# quo [49:0] $end
+$var reg 50 *# r [49:0] $end
+$var reg 50 +# rem [49:0] $end
+$upscope $end
+$upscope $end
+$scope module wrap_position $end
+$var wire 1 ) clk $end
+$var wire 1 ,# launch $end
+$var wire 1 + rst_n $end
+$var wire 50 -# value_q [49:0] $end
+$var wire 50 .# signed_remainder [49:0] $end
+$var wire 50 /# shortest [49:0] $end
+$var wire 50 0# remainder_q [49:0] $end
+$var wire 50 1# quotient_unused [49:0] $end
+$var wire 50 2# magnitude [49:0] $end
+$var wire 1 3# done $end
+$var wire 1 4# busy $end
+$var parameter 32 5# COUNTS_PER_REV $end
+$var parameter 50 6# HALF_Q $end
+$var parameter 50 7# PERIOD_Q $end
+$var parameter 32 8# REV_COUNTS $end
+$var reg 1 9# negative $end
+$var reg 1 :# pending $end
+$var reg 50 ;# submitted_q [49:0] $end
+$var reg 1 H valid $end
+$var reg 32 <# wrapped_q [31:0] $end
+$scope module divide $end
+$var wire 1 ) clk $end
+$var wire 50 =# den [49:0] $end
+$var wire 50 ># num [49:0] $end
+$var wire 1 + rst_n $end
+$var wire 51 ?# shifted [50:0] $end
+$var wire 1 ,# start $end
+$var wire 1 @# nxt_bit $end
+$var wire 1 A# ge $end
+$var wire 51 B# den_x [50:0] $end
+$var wire 32 C# bit_idx [31:0] $end
+$var parameter 32 D# WIDTH $end
+$var reg 1 4# busy $end
+$var reg 50 E# den_r [49:0] $end
+$var reg 1 3# done $end
+$var reg 32 F# i [31:0] $end
+$var reg 1 G# last $end
+$var reg 50 H# num_r [49:0] $end
+$var reg 50 I# q [49:0] $end
+$var reg 50 J# q_done [49:0] $end
+$var reg 50 K# quo [49:0] $end
+$var reg 50 L# r [49:0] $end
+$var reg 50 M# rem [49:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module dut $end
+$var wire 1 N# angle_tick $end
+$var wire 1 ( balance_cmd $end
+$var wire 1 O# boost_enable $end
+$var wire 1 P# centered $end
+$var wire 1 ) clk $end
+$var wire 1 Q# fault_latched $end
+$var wire 32 R# measured_angle [31:0] $end
+$var wire 1 S# motor_test_cmd $end
+$var wire 1 T# permit $end
+$var wire 32 U# position [31:0] $end
+$var wire 32 V# position_target_q [31:0] $end
+$var wire 1 W# position_tick $end
+$var wire 1 X# prev_centered $end
+$var wire 32 Y# pulse_q [31:0] $end
+$var wire 1 + rst_n $end
+$var wire 1 Z# running $end
+$var wire 12 [# sample [11:0] $end
+$var wire 1 \# sample_ready $end
+$var wire 1 , sample_valid $end
+$var wire 1 ]# start_cmd $end
+$var wire 1 - stop_cmd $end
+$var wire 1 ^# swinging $end
+$var wire 32 _# test_q [31:0] $end
+$var wire 32 `# wrapped_position_q [31:0] $end
+$var wire 32 a# travel_position [31:0] $end
+$var wire 32 b# target_angle [31:0] $end
+$var wire 1 c# reset_pid $end
+$var wire 50 d# relative_position_q [49:0] $end
+$var wire 32 e# relative_position [31:0] $end
+$var wire 33 f# rel_w [32:0] $end
+$var wire 1 g# position_valid $end
+$var wire 1 h# position_update $end
+$var wire 32 i# position_out [31:0] $end
+$var wire 50 j# position_error_w [49:0] $end
+$var wire 1 k# position_error_valid $end
+$var wire 32 l# position_error_q [31:0] $end
+$var wire 32 m# command_q [31:0] $end
+$var wire 35 n# boost_scaled [34:0] $end
+$var wire 35 o# boost_product [34:0] $end
+$var wire 32 p# boost_offset [31:0] $end
+$var wire 32 q# boost_distance [31:0] $end
+$var wire 33 r# boost_applied_q [32:0] $end
+$var wire 33 s# balance_sum [32:0] $end
+$var wire 32 t# balance_command [31:0] $end
+$var wire 1 u# balance $end
+$var wire 1 v# angle_update $end
+$var wire 32 w# angle_target_offset_q [31:0] $end
+$var wire 32 x# angle_out [31:0] $end
+$var parameter 32 y# ANGLE_I_DEADBAND_Q $end
+$var parameter 32 z# ANGLE_KD $end
+$var parameter 32 {# ANGLE_KI $end
+$var parameter 32 |# ANGLE_KP $end
+$var parameter 32 }# ANGLE_MS $end
+$var parameter 3 ~# BALANCE $end
+$var parameter 32 !$ BALANCE_BOOST_MAX_PERCENT $end
+$var parameter 32 "$ BALANCE_BOOST_RANGE_CODES $end
+$var parameter 32 #$ BOOST_MAX $end
+$var parameter 23 $$ BOOST_MAX_Q $end
+$var parameter 32 %$ BOOST_RANGE $end
+$var parameter 32 &$ CAPTURE_RANGE $end
+$var parameter 32 '$ CENTER $end
+$var parameter 32 ($ CHECK_MS $end
+$var parameter 32 )$ COUNTS_PER_REV $end
+$var parameter 3 *$ FAULT $end
+$var parameter 3 +$ MOTOR_TEST $end
+$var parameter 32 ,$ MOTOR_TEST_PERCENT $end
+$var parameter 32 -$ MOTOR_TEST_REVERSE $end
+$var parameter 32 .$ POSITION_KD $end
+$var parameter 32 /$ POSITION_KI $end
+$var parameter 32 0$ POSITION_KP $end
+$var parameter 32 1$ POSITION_LIMIT_COUNTS $end
+$var parameter 32 2$ POSITION_MS $end
+$var parameter 3 3$ PULL $end
+$var parameter 32 4$ PULSE_MS $end
+$var parameter 3 5$ PUSH $end
+$var parameter 32 6$ START_PERCENT $end
+$var parameter 3 7$ STOP $end
+$var parameter 32 8$ SWING_TIMEOUT_MS $end
+$var parameter 32 9$ TEST_PERCENT $end
+$var parameter 3 :$ WAIT_PEAK $end
+$var reg 32 ;$ angle_count [31:0] $end
+$var reg 12 <$ boost_distance_q [11:0] $end
+$var reg 32 =$ boost_magnitude_q [31:0] $end
+$var reg 1 >$ boost_sample_pending $end
+$var reg 32 ?$ check_count [31:0] $end
+$var reg 2 @$ history_count [1:0] $end
+$var reg 32 A$ measured_angle_q [31:0] $end
+$var reg 32 B$ measured_position_q [31:0] $end
+$var reg 12 C$ older [11:0] $end
+$var reg 32 D$ origin [31:0] $end
+$var reg 32 E$ position_count [31:0] $end
+$var reg 1 F$ positive_first $end
+$var reg 12 G$ previous [11:0] $end
+$var reg 32 H$ pulse_count [31:0] $end
+$var reg 4 I$ request_fault [3:0] $end
+$var reg 3 J$ state [2:0] $end
+$var reg 32 K$ swing_count [31:0] $end
+$var reg 32 L$ target_angle_q [31:0] $end
+$var reg 32 M$ target_position_q [31:0] $end
+$scope begin enabled_boost $end
+$upscope $end
+$scope module angle_pid $end
+$var wire 32 N$ actual_q [31:0] $end
+$var wire 1 c# clear $end
+$var wire 1 ) clk $end
+$var wire 1 + rst_n $end
+$var wire 32 O$ target_q [31:0] $end
+$var wire 1 N# tick $end
+$var parameter 32 P$ DELTA_WRAP_Q $end
+$var parameter 32 Q$ I_DEADBAND_Q $end
+$var parameter 32 R$ I_LIMIT $end
+$var parameter 32 S$ KD $end
+$var parameter 32 T$ KI $end
+$var parameter 32 U$ KP $end
+$var parameter 32 V$ OUT_LIMIT $end
+$var reg 32 W$ delta_q [31:0] $end
+$var reg 32 X$ delta_stage_q [31:0] $end
+$var reg 64 Y$ delta_w [63:0] $end
+$var reg 32 Z$ error_q [31:0] $end
+$var reg 32 [$ error_stage_q [31:0] $end
+$var reg 64 \$ error_w [63:0] $end
+$var reg 32 ]$ inext_q [31:0] $end
+$var reg 32 ^$ integral_q [31:0] $end
+$var reg 32 _$ integral_stage_q [31:0] $end
+$var reg 64 `$ isum_w [63:0] $end
+$var reg 64 a$ kd_term [63:0] $end
+$var reg 64 b$ ki_term [63:0] $end
+$var reg 64 c$ kp_term [63:0] $end
+$var reg 32 d$ out_q [31:0] $end
+$var reg 32 e$ previous_q [31:0] $end
+$var reg 1 f$ sample_pending $end
+$var reg 64 g$ scaled_w [63:0] $end
+$var reg 64 h$ sum_w [63:0] $end
+$var reg 1 v# valid $end
+$scope function clamp32 $end
+$var reg 64 i$ x [63:0] $end
+$upscope $end
+$upscope $end
+$scope module position_pid $end
+$var wire 32 j$ actual_q [31:0] $end
+$var wire 1 c# clear $end
+$var wire 1 ) clk $end
+$var wire 1 + rst_n $end
+$var wire 32 k$ target_q [31:0] $end
+$var wire 1 l$ tick $end
+$var parameter 32 m$ DELTA_WRAP_Q $end
+$var parameter 32 n$ I_DEADBAND_Q $end
+$var parameter 32 o$ I_LIMIT $end
+$var parameter 32 p$ KD $end
+$var parameter 32 q$ KI $end
+$var parameter 32 r$ KP $end
+$var parameter 32 s$ OUT_LIMIT $end
+$var reg 32 t$ delta_q [31:0] $end
+$var reg 32 u$ delta_stage_q [31:0] $end
+$var reg 64 v$ delta_w [63:0] $end
+$var reg 32 w$ error_q [31:0] $end
+$var reg 32 x$ error_stage_q [31:0] $end
+$var reg 64 y$ error_w [63:0] $end
+$var reg 32 z$ inext_q [31:0] $end
+$var reg 32 {$ integral_q [31:0] $end
+$var reg 32 |$ integral_stage_q [31:0] $end
+$var reg 64 }$ isum_w [63:0] $end
+$var reg 64 ~$ kd_term [63:0] $end
+$var reg 64 !% ki_term [63:0] $end
+$var reg 64 "% kp_term [63:0] $end
+$var reg 32 #% out_q [31:0] $end
+$var reg 32 $% previous_q [31:0] $end
+$var reg 1 %% sample_pending $end
+$var reg 64 &% scaled_w [63:0] $end
+$var reg 64 '% sum_w [63:0] $end
+$var reg 1 h# valid $end
+$scope function clamp32 $end
+$var reg 64 (% x [63:0] $end
+$upscope $end
+$upscope $end
+$scope module wrap_error $end
+$var wire 1 ) clk $end
+$var wire 1 )% launch $end
+$var wire 1 + rst_n $end
+$var wire 50 *% value_q [49:0] $end
+$var wire 50 +% signed_remainder [49:0] $end
+$var wire 50 ,% shortest [49:0] $end
+$var wire 50 -% remainder_q [49:0] $end
+$var wire 50 .% quotient_unused [49:0] $end
+$var wire 50 /% magnitude [49:0] $end
+$var wire 1 0% done $end
+$var wire 1 1% busy $end
+$var parameter 32 2% COUNTS_PER_REV $end
+$var parameter 50 3% HALF_Q $end
+$var parameter 50 4% PERIOD_Q $end
+$var parameter 32 5% REV_COUNTS $end
+$var reg 1 6% negative $end
+$var reg 1 7% pending $end
+$var reg 50 8% submitted_q [49:0] $end
+$var reg 1 k# valid $end
+$var reg 32 9% wrapped_q [31:0] $end
+$scope module divide $end
+$var wire 1 ) clk $end
+$var wire 50 :% den [49:0] $end
+$var wire 50 ;% num [49:0] $end
+$var wire 1 + rst_n $end
+$var wire 51 <% shifted [50:0] $end
+$var wire 1 )% start $end
+$var wire 1 =% nxt_bit $end
+$var wire 1 >% ge $end
+$var wire 51 ?% den_x [50:0] $end
+$var wire 32 @% bit_idx [31:0] $end
+$var parameter 32 A% WIDTH $end
+$var reg 1 1% busy $end
+$var reg 50 B% den_r [49:0] $end
+$var reg 1 0% done $end
+$var reg 32 C% i [31:0] $end
+$var reg 1 D% last $end
+$var reg 50 E% num_r [49:0] $end
+$var reg 50 F% q [49:0] $end
+$var reg 50 G% q_done [49:0] $end
+$var reg 50 H% quo [49:0] $end
+$var reg 50 I% r [49:0] $end
+$var reg 50 J% rem [49:0] $end
+$upscope $end
+$upscope $end
+$scope module wrap_position $end
+$var wire 1 ) clk $end
+$var wire 1 K% launch $end
+$var wire 1 + rst_n $end
+$var wire 50 L% value_q [49:0] $end
+$var wire 50 M% signed_remainder [49:0] $end
+$var wire 50 N% shortest [49:0] $end
+$var wire 50 O% remainder_q [49:0] $end
+$var wire 50 P% quotient_unused [49:0] $end
+$var wire 50 Q% magnitude [49:0] $end
+$var wire 1 R% done $end
+$var wire 1 S% busy $end
+$var parameter 32 T% COUNTS_PER_REV $end
+$var parameter 50 U% HALF_Q $end
+$var parameter 50 V% PERIOD_Q $end
+$var parameter 32 W% REV_COUNTS $end
+$var reg 1 X% negative $end
+$var reg 1 Y% pending $end
+$var reg 50 Z% submitted_q [49:0] $end
+$var reg 1 g# valid $end
+$var reg 32 [% wrapped_q [31:0] $end
+$scope module divide $end
+$var wire 1 ) clk $end
+$var wire 50 \% den [49:0] $end
+$var wire 50 ]% num [49:0] $end
+$var wire 1 + rst_n $end
+$var wire 51 ^% shifted [50:0] $end
+$var wire 1 K% start $end
+$var wire 1 _% nxt_bit $end
+$var wire 1 `% ge $end
+$var wire 51 a% den_x [50:0] $end
+$var wire 32 b% bit_idx [31:0] $end
+$var parameter 32 c% WIDTH $end
+$var reg 1 S% busy $end
+$var reg 50 d% den_r [49:0] $end
+$var reg 1 R% done $end
+$var reg 32 e% i [31:0] $end
+$var reg 1 f% last $end
+$var reg 50 g% num_r [49:0] $end
+$var reg 50 h% q [49:0] $end
+$var reg 50 i% q_done [49:0] $end
+$var reg 50 j% quo [49:0] $end
+$var reg 50 k% r [49:0] $end
+$var reg 50 l% rem [49:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope task check $end
+$var reg 32 m% expected_offset [31:0] $end
+$var integer 32 n% displacement [31:0] $end
+$upscope $end
+$scope task cycles $end
+$var integer 32 o% n [31:0] $end
+$upscope $end
+$scope task position_step $end
+$upscope $end
+$scope task sample_tick $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b110010 c%
+b110011000 W%
+b1100110000000000000000000 V%
+b110011000000000000000000 U%
+b110011000 T%
+b110010 A%
+b110011000 5%
+b1100110000000000000000000 4%
+b110011000000000000000000 3%
+b110011000 2%
+b11001000000000000000000 s$
+b1000000000000 r$
+b0 q$
+b0 p$
+b1000000000000000000000000000000 o$
+b0 n$
+b1100110000000000000000000 m$
+b11001000000000000000000 V$
+b0 U$
+b0 T$
+b0 S$
+b1000000000000000000000000000000 R$
+b10000000000000000 Q$
+b0 P$
+b11 :$
+b10100 9$
+b11101010011000 8$
+b0 7$
+b110010 6$
+b1 5$
+b1100100 4$
+b10 3$
+b110010 2$
+b111111110000 1$
+b1000000000000 0$
+b0 /$
+b0 .$
+b0 -$
+b10100 ,$
+b110 +$
+b101 *$
+b110011000 )$
+b101000 ($
+b1111110110 '$
+b111110100 &$
+b11000 %$
+b1010000000000000000 $$
+b101 #$
+b11000 "$
+b101 !$
+b100 ~#
+b101 }#
+b0 |#
+b0 {#
+b0 z#
+b10000000000000000 y#
+b110010 D#
+b110011000 8#
+b1100110000000000000000000 7#
+b110011000000000000000000 6#
+b110011000 5#
+b110010 "#
+b110011000 t"
+b1100110000000000000000000 s"
+b110011000000000000000000 r"
+b110011000 q"
+b11001000000000000000000 T"
+b0 S"
+b0 R"
+b10000000000000000 Q"
+b1000000000000000000000000000000 P"
+b0 O"
+b1100110000000000000000000 N"
+b11001000000000000000000 7"
+b0 6"
+b0 5"
+b0 4"
+b1000000000000000000000000000000 3"
+b10000000000000000 2"
+b0 1"
+b11 y
+b10100 x
+b11101010011000 w
+b0 v
+b110010 u
+b1 t
+b1100100 s
+b10 r
+b110010 q
+b111111110000 p
+b0 o
+b0 n
+b10000000000000000 m
+b0 l
+b10100 k
+b110 j
+b101 i
+b110011000 h
+b101000 g
+b1111110110 f
+b111110100 e
+b11000 d
+b1010000000000000000 c
+b101 b
+b11000 a
+b101 `
+b100 _
+b101 ^
+b0 ]
+b0 \
+b0 [
+b10000000000000000 Z
+$end
+#0
+$dumpvars
+b11 o%
+bx n%
+bx m%
+bx l%
+bx k%
+bx j%
+bx i%
+bx h%
+bx g%
+xf%
+bx e%
+bx d%
+bx b%
+b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx a%
+x`%
+x_%
+bx ^%
+bx ]%
+b1100110000000000000000000 \%
+bx [%
+bx Z%
+xY%
+xX%
+xS%
+xR%
+bx Q%
+bx P%
+bx O%
+bx N%
+bx M%
+bx0000000000000000 L%
+xK%
+bx J%
+bx I%
+bx H%
+bx G%
+bx F%
+bx E%
+xD%
+bx C%
+bx B%
+bx @%
+b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ?%
+x>%
+x=%
+bx <%
+bx ;%
+b1100110000000000000000000 :%
+bx 9%
+bx 8%
+x7%
+x6%
+x1%
+x0%
+bx /%
+bx .%
+bx -%
+bx ,%
+bx +%
+bx *%
+x)%
+bx (%
+bx '%
+bx &%
+x%%
+bx $%
+bx #%
+bx "%
+bx !%
+bx ~$
+bx }$
+bx |$
+bx {$
+bx z$
+bx y$
+bx x$
+bx w$
+bx v$
+bx u$
+bx t$
+0l$
+bx k$
+bx j$
+bx i$
+bx h$
+bx g$
+xf$
+bx e$
+bx d$
+bx c$
+bx b$
+bx a$
+bx `$
+bx _$
+bx ^$
+bx ]$
+bx \$
+bx [$
+bx Z$
+bx Y$
+bx X$
+bx W$
+bx O$
+bx N$
+bx M$
+bx L$
+bx K$
+bx J$
+b0 I$
+bx H$
+bx G$
+xF$
+bx E$
+bx D$
+bx C$
+bx B$
+bx A$
+bx @$
+bx ?$
+x>$
+bx =$
+bx <$
+bx ;$
+bx x#
+bx w#
+xv#
+xu#
+bx t#
+bx s#
+bx r#
+bx q#
+bx p#
+bx o#
+bx n#
+bx m#
+bx l#
+xk#
+bx j#
+bx i#
+xh#
+xg#
+bx f#
+bx e#
+bx0000000000000000 d#
+xc#
+bx b#
+bx a#
+bx `#
+b101000000000000000000 _#
+x^#
+0]#
+1\#
+b1111110110 [#
+xZ#
+b1100100000000000000000 Y#
+xX#
+0W#
+b0 V#
+b10011010010 U#
+1T#
+0S#
+b11111101100000000000000000 R#
+0Q#
+1P#
+xO#
+0N#
+bx M#
+bx L#
+bx K#
+bx J#
+bx I#
+bx H#
+xG#
+bx F#
+bx E#
+bx C#
+b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx B#
+xA#
+x@#
+bx ?#
+bx >#
+b1100110000000000000000000 =#
+bx <#
+bx ;#
+x:#
+x9#
+x4#
+x3#
+bx 2#
+bx 1#
+bx 0#
+bx /#
+bx .#
+bx0000000000000000 -#
+x,#
+bx +#
+bx *#
+bx )#
+bx (#
+bx '#
+bx &#
+x%#
+bx $#
+bx ##
+bx !#
+b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ~"
+x}"
+x|"
+bx {"
+bx z"
+b1100110000000000000000000 y"
+bx x"
+bx w"
+xv"
+xu"
+xp"
+xo"
+bx n"
+bx m"
+bx l"
+bx k"
+bx j"
+bx i"
+xh"
+bx g"
+bx f"
+bx e"
+xd"
+bx c"
+bx b"
+bx a"
+bx `"
+bx _"
+bx ^"
+bx ]"
+bx \"
+bx ["
+bx Z"
+bx Y"
+bx X"
+bx W"
+bx V"
+bx U"
+0M"
+bx L"
+bx K"
+bx J"
+bx I"
+bx H"
+xG"
+bx F"
+bx E"
+bx D"
+bx C"
+bx B"
+bx A"
+bx @"
+bx ?"
+bx >"
+bx ="
+bx <"
+bx ;"
+bx :"
+bx 9"
+bx 8"
+bx 0"
+bx /"
+bx ."
+bx -"
+bx ,"
+bx +"
+b0 *"
+bx )"
+bx ("
+x'"
+bx &"
+bx %"
+bx $"
+bx #"
+bx ""
+bx !"
+bx ~
+x}
+bx |
+bx {
+bx z
+bx Y
+bx X
+xW
+xV
+bx U
+bx T
+bx S
+bx R
+bx Q
+bx P
+bx O
+bx N
+bx M
+xL
+bx K
+bx J
+xI
+xH
+bx G
+bx F
+bx0000000000000000 E
+xD
+bx C
+bx B
+bx A
+b101000000000000000000 @
+x?
+0>
+1=
+b1111110110 <
+x;
+b1100100000000000000000 :
+x9
+08
+b0 7
+b10011010010 6
+15
+04
+b11111101100000000000000000 3
+02
+11
+x0
+0/
+b0 .
+0-
+0,
+0+
+b10011010010 *
+0)
+0(
+bx '
+bx &
+bx %
+b0 $
+bx #
+bx "
+bx !
+$end
+#5000
+b100110100100000000000000000 /%
+b100110100100000000000000000 ;%
+b100110100100000000000000000 Q%
+b100110100100000000000000000 ]%
+b0 '
+b0 m#
+b100110100100000000000000000 n"
+b100110100100000000000000000 z"
+b100110100100000000000000000 2#
+b100110100100000000000000000 >#
+b0 N
+b11111111111111111111111011001011100000000000000000 j#
+b11111111111111111111111011001011100000000000000000 *%
+0Z#
+0O#
+b11111111111111111111111011001011100000000000000000 K
+b11111111111111111111111011001011100000000000000000 i"
+0;
+00
+b0 t#
+b10011010010 a#
+b100110100100000000000000000 d#
+b100110100100000000000000000 L%
+b0 U
+b10011010010 B
+b100110100100000000000000000 E
+b100110100100000000000000000 -#
+b0x ^%
+b0 N%
+1K%
+b0x <%
+b0 ,%
+1)%
+b0 s#
+b0 r#
+b1111110110 q#
+b10011010010 f#
+0X#
+0^#
+b0x ?#
+b0 /#
+1,#
+b0x {"
+b0 k"
+1h"
+b0 T
+b0 S
+b1111110110 R
+b10011010010 G
+09
+0?
+b0 a%
+b0 M%
+b0 ?%
+b0 +%
+b0 &%
+b0 '%
+b0 ~$
+b0 !%
+b0 "%
+b0 t$
+b0 v$
+b0 z$
+b0 }$
+b0 w$
+b0 (%
+b0 y$
+b11111111111111111111110000001010 p#
+b0 g$
+b0 h$
+b0 a$
+b0 b$
+b0 c$
+b11111101100000000000000000 W$
+b11111101100000000000000000 Y$
+b0 ]$
+b11111101100000000000000000 `$
+b11111101100000000000000000 Z$
+b11111101100000000000000000 i$
+b11111101100000000000000000 \$
+b0 n#
+b0 o#
+b0 B#
+b0 .#
+b0 ~"
+b0 j"
+b0 e"
+b0 f"
+b0 _"
+b0 `"
+b0 a"
+b0 U"
+b0 W"
+b0 ["
+b0 ^"
+b0 X"
+b0 g"
+b0 Z"
+b11111111111111111111110000001010 Q
+b0 H"
+b0 I"
+b0 B"
+b0 C"
+b0 D"
+b11111101100000000000000000 8"
+b11111101100000000000000000 :"
+b0 >"
+b11111101100000000000000000 A"
+b11111101100000000000000000 ;"
+b11111101100000000000000000 J"
+b11111101100000000000000000 ="
+b0 O
+b0 P
+b0 i%
+b0 O%
+b0 k%
+b0 P%
+b0 h%
+b0 d%
+b0 g%
+b0 j%
+b0 l%
+b11111111111111111111111111111111 b%
+b0 e%
+0f%
+0R%
+0S%
+b0 Z%
+0X%
+0Y%
+0g#
+b0 "
+b0 e#
+b0 `#
+b0 [%
+b0 G%
+b0 -%
+b0 I%
+b0 .%
+b0 F%
+b0 B%
+b0 E%
+b0 H%
+b0 J%
+b11111111111111111111111111111111 @%
+b0 C%
+0D%
+00%
+01%
+b0 8%
+06%
+07%
+0k#
+b0 %
+b0 l#
+b0 9%
+0f$
+b0 X$
+b0 _$
+b0 [$
+0v#
+b0 ^$
+b0 e$
+b0 x#
+b0 d$
+0%%
+b0 u$
+b0 |$
+b0 x$
+0h#
+b0 {$
+b0 $%
+b11111101100000000000000000 b#
+b0 #
+b0 w#
+b0 i#
+b0 #%
+b11111101100000000000000000 L$
+b11111101100000000000000000 O$
+b0 M$
+b0 k$
+b0 B$
+b0 j$
+b0 A$
+b0 N$
+b0 =$
+0>$
+b0 <$
+b0 D$
+b0 @$
+b0 C$
+b0 G$
+1F$
+b0 E$
+b0 ;$
+b0 K$
+b0 ?$
+b0 H$
+1c#
+0u#
+b0 !
+b0 J$
+b0 J#
+b0 0#
+b0 L#
+b0 1#
+b0 I#
+b0 E#
+b0 H#
+b0 K#
+b0 M#
+b11111111111111111111111111111111 C#
+b0 F#
+0G#
+03#
+04#
+b0 ;#
+09#
+0:#
+0H
+b0 F
+b0 A
+b0 <#
+b0 (#
+b0 l"
+b0 *#
+b0 m"
+b0 '#
+b0 ##
+b0 &#
+b0 )#
+b0 +#
+b11111111111111111111111111111111 !#
+b0 $#
+0%#
+0o"
+0p"
+b0 w"
+0u"
+0v"
+0L
+b0 M
+b0 x"
+0G"
+b0 9"
+b0 @"
+b0 <"
+0W
+b0 ?"
+b0 F"
+b0 Y
+b0 E"
+0d"
+b0 V"
+b0 ]"
+b0 Y"
+0I
+b0 \"
+b0 c"
+b11111101100000000000000000 C
+b0 &
+b0 X
+b0 J
+b0 b"
+b11111101100000000000000000 -"
+b11111101100000000000000000 0"
+b0 ."
+b0 L"
+b0 #"
+b0 K"
+b0 ""
+b0 /"
+b0 |
+0}
+b0 {
+b0 %"
+b0 !"
+b0 $"
+b0 ("
+1'"
+b0 &"
+b0 z
+b0 ,"
+b0 ~
+b0 )"
+1D
+0V
+b0 +"
+1)
+#10000
+0)
+#15000
+1)
+#20000
+0)
+#25000
+1)
+#30000
+1+
+0)
+#35000
+0}"
+b0 {"
+0A#
+b0 ?#
+0>%
+b0 <%
+0`%
+b0 ^%
+b0 R
+0h"
+0,#
+b0 q#
+0)%
+0K%
+b0 Q
+b0 8"
+b0 :"
+b0 A"
+b0 ;"
+b0 J"
+b0 ="
+b1100110000000000000000000 ~"
+0|"
+b1100110000000000000000000 B#
+0@#
+b0 p#
+b0 W$
+b0 Y$
+b0 `$
+b0 Z$
+b0 i$
+b0 \$
+b1100110000000000000000000 ?%
+0=%
+b1100110000000000000000000 a%
+0_%
+b11111101100000000000000000 ""
+b11111101100000000000000000 /"
+b11111111111111111111111011001011100000000000000000 w"
+1u"
+1v"
+b1100110000000000000000000 ##
+b100110100100000000000000000 &#
+b110001 !#
+b110010 $#
+1p"
+b100110100100000000000000000 ;#
+1:#
+b1100110000000000000000000 E#
+b100110100100000000000000000 H#
+b110001 C#
+b110010 F#
+14#
+b11111101100000000000000000 A$
+b11111101100000000000000000 N$
+b11111111111111111111111011001011100000000000000000 8%
+16%
+17%
+b1100110000000000000000000 B%
+b100110100100000000000000000 E%
+b110001 @%
+b110010 C%
+11%
+b100110100100000000000000000 Z%
+1Y%
+b1100110000000000000000000 d%
+b100110100100000000000000000 g%
+b110001 b%
+b110010 e%
+1S%
+1)
+#40000
+0)
+#45000
+b110000 b%
+b110001 e%
+b110000 @%
+b110001 C%
+b110000 C#
+b110001 F#
+b110000 !#
+b110001 $#
+1)
+#50000
+0)
+#55000
+b101111 !#
+b110000 $#
+b101111 C#
+b110000 F#
+b101111 @%
+b110000 C%
+b101111 b%
+b110000 e%
+1)
+#60000
+b1 o%
+1(
+0)
+#65000
+b0 a#
+1O#
+b0 B
+10
+b0 /%
+b0 ;%
+b0 Q%
+b0 ]%
+b0 n"
+b0 z"
+b0 2#
+b0 >#
+b0 j#
+b0 *%
+b0 d#
+b0 L%
+1Z#
+b0 K
+b0 i"
+b0 E
+b0 -#
+1;
+b0 f#
+b0 G
+b101110 b%
+b101111 e%
+b101110 @%
+b101111 C%
+b10011010010 D$
+0c#
+1u#
+b100 !
+b100 J$
+b101110 C#
+b101111 F#
+b101110 !#
+b101111 $#
+b10011010010 %"
+0D
+1V
+b100 +"
+1)
+#70000
+b11 o%
+0(
+0)
+#75000
+b101101 !#
+b101110 $#
+b101101 C#
+b101110 F#
+b101101 @%
+b101110 C%
+b101101 b%
+b101110 e%
+1)
+#80000
+0)
+#85000
+b101100 b%
+b101101 e%
+b101100 @%
+b101101 C%
+b101100 C#
+b101101 F#
+b101100 !#
+b101101 $#
+1)
+#90000
+0)
+#95000
+b101011 !#
+b101100 $#
+b101011 C#
+b101100 F#
+b101011 @%
+b101100 C%
+b101011 b%
+b101100 e%
+1)
+#100000
+b110011000 B
+b110011000 a#
+b1100110000000000000000000 n"
+b1100110000000000000000000 z"
+b1100110000000000000000000 2#
+b1100110000000000000000000 >#
+b1100110000000000000000000 /%
+b1100110000000000000000000 ;%
+b1100110000000000000000000 Q%
+b1100110000000000000000000 ]%
+b11111111111111111111111110011010000000000000000000 K
+b11111111111111111111111110011010000000000000000000 i"
+b1100110000000000000000000 E
+b1100110000000000000000000 -#
+b11111111111111111111111110011010000000000000000000 j#
+b11111111111111111111111110011010000000000000000000 *%
+b1100110000000000000000000 d#
+b1100110000000000000000000 L%
+b110011000 G
+b110011000 f#
+b11001101010 *
+b11001101010 6
+b11001101010 U#
+b110011000 n%
+0)
+#105000
+b101010 b%
+b101011 e%
+b101010 @%
+b101011 C%
+b101010 C#
+b101011 F#
+b101010 !#
+b101011 $#
+1)
+#110000
+0)
+#115000
+b101001 !#
+b101010 $#
+b101001 C#
+b101010 F#
+b101001 @%
+b101010 C%
+b101001 b%
+b101010 e%
+1)
+#120000
+0)
+#125000
+b101000 b%
+b101001 e%
+b101000 @%
+b101001 C%
+b101000 C#
+b101001 F#
+b101000 !#
+b101001 $#
+1)
+#130000
+0)

@@ -1,0 +1,8 @@
+
+=== [sim] tb_control_integral_deadband ===
+  G:\furata-git\furata\build\angle_i_deadband_repair_20261017\before\sim\tb_control_integral_deadband.v:18: error: parameter `ANGLE_I_DEADBAND_Q` not found in `tb_control_integral_deadband.legacy`.
+  2 error(s) during elaboration.
+  compile FAILED
+
+=== summary: 0 / 1 testbench(es) passed ===
+failed: tb_control_integral_deadband

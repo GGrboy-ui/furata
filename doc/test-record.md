@@ -1,5 +1,33 @@
 # FPGA regression record
 
+## 2026-10-17 积分死区参数与连接误删修复
+
+与上次验证源码快照比较，23 个源文件中仅 `control_core.v` 不同：除后续 PID 调参外，缺少 `ANGLE_I_DEADBAND_Q` 声明及角度 PID 的 `.I_DEADBAND_Q(ANGLE_I_DEADBAND_Q)` 连接。`pid_fixed.v` 的实际死区逻辑完整。恢复这两处后默认仍为 ±1 ADC 码，保留当前角度 `20661/720/31214`、位置 `26214/0/262144` 和顶层 `CENTER=1007`；其余控制核心内容与已验证版本一致。
+
+修复前 `tb_control_integral_deadband` 复现参数不存在的 elaboration 错误，记录为 `build/angle_i_deadband_repair_20261017/before/before_test.log`。修复后两项积分死区专项测试均通过，完整回归 **31/33 通过**；仅保留此前已存在的 `tb_acg720_oled` 和 `tb_control_position_linear` 两项位置模式不匹配失败，无新增失败。完整记录为同目录 `candidate/regression.log` 与 `candidate/build/oss/regression_report.txt`。
+
+Gowin 独立构建完成：50 MHz 约束下 **Fmax=65.557 MHz**，最差建立余量 **4.746 ns**，最差保持余量 **0.247 ns**；建立/保持 TNS 及违例端点均为零。固件为 `build/angle_i_deadband_repair_20261017/candidate/impl/pnr/furata.fs`，SHA256：`2B3A2E667A2F2802327E54F70CA1E6B25A2A7369D79E6979F6A8D945BDF6BE67`。修复前后源码和验证产物均保留，未覆盖旧构建，未烧录板卡。
+
+## 2026-10-17 角度环 ±1 ADC 码积分死区
+
+新增 `pid_fixed.I_DEADBAND_Q`（默认 0）及 `control_core.ANGLE_I_DEADBAND_Q=65536`，仅角度 PID 在闭区间 ±1 ADC 码内保持已有积分、停止新增积分；P/D 保留真实误差，死区外按完整误差累积。0 或负阈值禁用；KI=0、复位/清除优先级与流水线均保留。未增加积分衰减、I 项输出限幅或抗饱和。详见 [积分死区说明](angle-integral-deadband.md)。
+
+修改前实际参数为角度 `20661/770/31214`、位置 `26214/0/322144`、顶层 `CENTER=1007`，本次全部保留。当前工作区仍采用环形位置反馈；下方连续位置章节及对应固件为早前独立版本。
+
+| 回归 | 结果 | 失败项 |
+|---|---|---|
+| 修改前基线 | 29/31 通过 | `tb_acg720_oled`、`tb_control_position_linear` |
+| 修改后完整回归 | 31/33 通过 | 同上，无新增失败 |
+| 新增专项测试 | 2/2 通过 | 无 |
+
+基线失败原因：OLED 跨圈测试要求显示累计计数，但当前接线仍使用一圈坐标；连续位置测试在位移 408 时要求位置为 408，但环形实现返回 0。两项在修改前即失败，修改后失败消息相同；本次没有修改其夹具或位置算法以消除失败。完整日志为 `build/angle_i_deadband_20261017/baseline/baseline_regression.log` 和 `candidate/regression.log`，各自的 `build/oss/regression_report.txt` 保留完整清单与波形路径。
+
+新测试 `tb_pid_integral_deadband` 验证正负边界、边界外最小 Q16.16 单位、小数误差、非零旧积分保持、原积分限幅、P/D 正常响应、默认和负阈值禁用、KI=0、复位/清除及结果延迟。`tb_control_integral_deadband` 验证角度实例的默认配置和关闭对照、位置环实时/小数目标、位置 I 项不受影响及停止/复位。原有 PID、控制、按键、安全、PWM、传感器与 UART 等其余 29 项回归通过。未运行 Verilator lint，使用 Icarus 和 Gowin 完成验证。
+
+Gowin V1.9.12.03 完成独立综合、布局布线和新固件生成：约束 **50 MHz**，**Fmax=65.347 MHz**，最差建立余量 **4.697 ns**，最差保持余量 **0.247 ns**；建立/保持 TNS 为 0，违例端点为 0。
+
+固件：`build/angle_i_deadband_20261017/candidate/impl/pnr/furata.fs`。SHA256：`042A0837136698FED6331EDF7779C6A78E6DA1424B13783DB17D01F359B3FB80`。独立目录保留基线与候选源码、测试、清单、日志和报告，原项目 `impl/` 及既有回归产物未由本次构建覆盖。未烧录板卡；机械不对称、摆动和爬行的改善仍待实物验证。
+
 ## 2026-10-17 连续累计位置反馈
 
 项目：`G:/furata-git/furata`。取消控制核心中相对位置与位置误差的一圈取模，位置 PID 采用连续 D 项。OLED POS/REL 与串口/网页同步采用累计计数；行程保护直接比较宽位移 `position-origin`，默认严格超出 ±4080 counts 时请求故障 7。保留修改前已有的 `CENTER=1007` 与 `POSITION_KD=261072`，未修改其他增益和控制周期。行为详见 [连续位置说明](continuous-position.md)。

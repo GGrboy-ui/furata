@@ -7,12 +7,15 @@ module control_core #(
     parameter integer ANGLE_MS=5, POSITION_MS=50, SWING_TIMEOUT_MS=15000,
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
-    parameter signed [31:0] ANGLE_KP=32'sd20661, ANGLE_KI=32'sd600, ANGLE_KD=32'sd31214,
-    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd0, POSITION_KD=32'sd322144,
+    parameter signed [31:0] ANGLE_KP=32'sd20661, ANGLE_KI=32'sd720, ANGLE_KD=32'sd31214,
+    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd0, POSITION_KD=32'sd262144,
     // Linear PWM addition about fixed CENTER; zero width/maximum disables it.
     parameter integer BALANCE_BOOST_RANGE_CODES=24,
     parameter integer BALANCE_BOOST_MAX_PERCENT=5,
-    parameter integer COUNTS_PER_REV=408
+    parameter integer COUNTS_PER_REV=408,
+    // Hold the angle integral within +/-1 ADC code of its live target.
+    // Q16.16 ADC codes; <=0 restores integration for every error sample.
+    parameter signed [31:0] ANGLE_I_DEADBAND_Q=32'sd655360
 ) (
     input wire clk, rst_n, sample_valid, sample_ready,
     input wire [11:0] sample,
@@ -75,7 +78,8 @@ module control_core #(
             target_angle_q<=target_angle;
         end
     end
-    pid_fixed #(.KP(ANGLE_KP),.KI(ANGLE_KI),.KD(ANGLE_KD)) angle_pid (
+    pid_fixed #(.KP(ANGLE_KP),.KI(ANGLE_KI),.KD(ANGLE_KD),
+        .I_DEADBAND_Q(ANGLE_I_DEADBAND_Q)) angle_pid (
         .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(angle_tick),
         .target_q(target_angle_q),.actual_q(measured_angle_q),.out_q(angle_out),.valid(angle_update));
     pid_fixed #(.KP(POSITION_KP),.KI(POSITION_KI),.KD(POSITION_KD),

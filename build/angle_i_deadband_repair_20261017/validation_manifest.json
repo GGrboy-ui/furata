@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-17",
+  "repair": "Restore missing angle integral deadband declaration and connection",
+  "angleIntegralDeadbandQ": 65536,
+  "preservedAnglePid": [
+    20661,
+    720,
+    31214
+  ],
+  "preservedPositionPid": [
+    26214,
+    0,
+    262144
+  ],
+  "center": 1007,
+  "before": "tb_control_integral_deadband fails elaboration: missing ANGLE_I_DEADBAND_Q parameter",
+  "after": {
+    "passed": 31,
+    "total": 33,
+    "knownFailures": [
+      "tb_acg720_oled",
+      "tb_control_position_linear"
+    ],
+    "newFailures": []
+  },
+  "timing": {
+    "constraintMhz": 50,
+    "fmaxMhz": 65.557,
+    "setupSlackNs": 4.746,
+    "holdSlackNs": 0.247,
+    "setupViolations": 0,
+    "holdViolations": 0
+  },
+  "bitstream": "candidate/impl/pnr/furata.fs",
+  "sha256": "2B3A2E667A2F2802327E54F70CA1E6B25A2A7369D79E6979F6A8D945BDF6BE67",
+  "sourceMatchesBuild": true,
+  "programmedToHardware": false
+}

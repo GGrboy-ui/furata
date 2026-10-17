@@ -145,7 +145,7 @@
                 "SubInsts": [
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 45,
+                        "InstLine": 48,
                         "InstName": "wrap_position",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/position_wrap.v",
                         "ModuleLine": 4,
@@ -163,7 +163,7 @@
                     },
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 47,
+                        "InstLine": 50,
                         "InstName": "wrap_error",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/position_wrap.v",
                         "ModuleLine": 4,
@@ -181,7 +181,7 @@
                     },
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 78,
+                        "InstLine": 82,
                         "InstName": "angle_pid",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/pid_fixed.v",
                         "ModuleLine": 5,
@@ -189,7 +189,7 @@
                     },
                     {
                         "InstFile": "G:/furata-git/furata/src/rtl/control_core.v",
-                        "InstLine": 82,
+                        "InstLine": 86,
                         "InstName": "position_pid",
                         "ModuleFile": "G:/furata-git/furata/src/rtl/pid_fixed.v",
                         "ModuleLine": 5,
