@@ -3,19 +3,26 @@
 // One sample_valid represents 1 ms. Angle is an ADC code, not degrees.
 module control_core #(
     parameter integer CENTER=1014, CAPTURE_RANGE=500,
-    parameter integer START_PERCENT=50, PULSE_MS=100, CHECK_MS=40,
+    parameter integer START_PERCENT=59, PULSE_MS=120, CHECK_MS=40,
     parameter integer ANGLE_MS=5, POSITION_MS=50, SWING_TIMEOUT_MS=15000,
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
-    parameter signed [31:0] ANGLE_KP=32'sd20661, ANGLE_KI=32'sd720, ANGLE_KD=32'sd31214,
-    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd0, POSITION_KD=32'sd262144,
+    parameter signed [31:0] ANGLE_KP=32'sd20661, ANGLE_KI=32'sd820, ANGLE_KD=32'sd31214,
+    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd1000, POSITION_KD=32'sd272144,
     // Linear PWM addition about fixed CENTER; zero width/maximum disables it.
     parameter integer BALANCE_BOOST_RANGE_CODES=24,
     parameter integer BALANCE_BOOST_MAX_PERCENT=5,
     parameter integer COUNTS_PER_REV=408,
-    // Hold the angle integral within +/-1 ADC code of its live target.
+    // Hold the angle integral within +/-10 ADC codes of its live target.
     // Q16.16 ADC codes; <=0 restores integration for every error sample.
-    parameter signed [31:0] ANGLE_I_DEADBAND_Q=32'sd655360
+    parameter signed [31:0] ANGLE_I_DEADBAND_Q=32'sd655360,
+    // Within +/-2 encoder counts of the live position target, bleed stored
+    // position I at each position tick (50 ms by default).
+    // No error is integrated inside this band. <=0 disables the bleed.
+    parameter signed [31:0] POSITION_I_DECAY_BAND_Q=32'sd131072,
+    // Percentage of stored I retained per tick: 30 means retain 30%, remove 70%.
+    // Adjustable 0..100 (clamped): 0 clears, 100 holds without adding error.
+    parameter integer POSITION_I_DECAY_RETAIN_PERCENT=15
 ) (
     input wire clk, rst_n, sample_valid, sample_ready,
     input wire [11:0] sample,
@@ -83,6 +90,8 @@ module control_core #(
         .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(angle_tick),
         .target_q(target_angle_q),.actual_q(measured_angle_q),.out_q(angle_out),.valid(angle_update));
     pid_fixed #(.KP(POSITION_KP),.KI(POSITION_KI),.KD(POSITION_KD),
+        .I_DECAY_BAND_Q(POSITION_I_DECAY_BAND_Q),
+        .I_DECAY_RETAIN_PERCENT(POSITION_I_DECAY_RETAIN_PERCENT),
         .DELTA_WRAP_Q(COUNTS_PER_REV*65536)) position_pid (
         .clk(clk),.rst_n(rst_n),.clear(reset_pid),.tick(position_tick && position_error_valid),
         .target_q(target_position_q),.actual_q(measured_position_q),.out_q(position_out),.valid(position_update));

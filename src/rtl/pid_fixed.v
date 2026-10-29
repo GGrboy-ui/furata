@@ -12,7 +12,12 @@ module pid_fixed #(
     parameter signed [31:0] DELTA_WRAP_Q = 0,
     // Inclusive error band that holds the accumulated integral; <=0 disables it.
     // P and D always use the complete error. Units match the Q16.16 inputs.
-    parameter signed [31:0] I_DEADBAND_Q = 32'sd0
+    parameter signed [31:0] I_DEADBAND_Q = 32'sd0,
+    // Optional near-target bleed: retain a percentage of stored I per tick, without
+    // adding error. Signed division rounds toward zero for symmetric decay.
+    // Takes priority over hold deadband; <=0 preserves the existing behavior.
+    parameter signed [31:0] I_DECAY_BAND_Q = 32'sd0,
+    parameter integer I_DECAY_RETAIN_PERCENT = 75
 ) (
     input wire clk, rst_n, clear, tick,
     input wire signed [31:0] target_q, actual_q,
@@ -25,6 +30,11 @@ module pid_fixed #(
     reg signed [31:0] error_q, inext_q, delta_q;
     reg signed [63:0] error_w, isum_w, delta_w;
     reg signed [63:0] kp_term, ki_term, kd_term, sum_w, scaled_w;
+    localparam signed [38:0] I_RETAIN_PERCENT = (I_DECAY_RETAIN_PERCENT<0) ? 0 :
+        (I_DECAY_RETAIN_PERCENT>100) ? 100 : I_DECAY_RETAIN_PERCENT;
+    // 32-bit signed I times 0..100 fits in 39 signed bits.
+    wire signed [38:0] i_decay_product =
+        $signed({{7{integral_q[31]}},integral_q}) * I_RETAIN_PERCENT;
 
     function [31:0] clamp32;
         input signed [63:0] x;
@@ -40,6 +50,8 @@ module pid_fixed #(
         error_q=clamp32(error_w);
         isum_w={{32{integral_q[31]}},integral_q}+{{32{error_q[31]}},error_q};
         if (KI==0) inext_q=0;
+        else if (I_DECAY_BAND_Q>0 && error_q>=-I_DECAY_BAND_Q && error_q<=I_DECAY_BAND_Q)
+            inext_q=i_decay_product/39'sd100;
         else if (I_DEADBAND_Q>0 && error_q>=-I_DEADBAND_Q && error_q<=I_DEADBAND_Q)
             inext_q=integral_q;
         else if (isum_w > $signed(I_LIMIT)) inext_q=I_LIMIT;

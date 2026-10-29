@@ -10,12 +10,14 @@ module tb_control_integral_deadband;
  // I-only fixtures make an extra integrated ADC code visible as one output unit.
  // The position I is deliberately enabled to check that its deadband stays disabled.
  control_core #(.CENTER(1007),.ANGLE_KP(0),.ANGLE_KI(Q),.ANGLE_KD(0),
+   .ANGLE_I_DEADBAND_Q(Q),.POSITION_I_DECAY_BAND_Q(0),
    .POSITION_KP(0),.POSITION_KI(Q),.POSITION_KD(0),.BALANCE_BOOST_MAX_PERCENT(0)) dut (
    .clk(clk),.rst_n(rst_n),.sample_valid(sample_valid),.sample_ready(1'b1),.sample(sample),
    .position(32'sd0),.position_target_q(position_target_q),.start_cmd(1'b0),.motor_test_cmd(1'b0),
    .balance_cmd(balance_cmd),.stop_cmd(stop_cmd),.permit(1'b1),.fault_latched(1'b0),
    .command_q(command_q),.state(state),.angle_target_offset_q(offset_q));
  control_core #(.CENTER(1007),.ANGLE_KP(0),.ANGLE_KI(Q),.ANGLE_KD(0),.ANGLE_I_DEADBAND_Q(0),
+   .POSITION_I_DECAY_BAND_Q(0),
    .POSITION_KP(0),.POSITION_KI(Q),.POSITION_KD(0),.BALANCE_BOOST_MAX_PERCENT(0)) legacy (
    .clk(clk),.rst_n(rst_n),.sample_valid(sample_valid),.sample_ready(1'b1),.sample(sample),
    .position(32'sd0),.position_target_q(position_target_q),.start_cmd(1'b0),.motor_test_cmd(1'b0),
