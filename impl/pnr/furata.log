@@ -1,0 +1,13 @@
+Reading netlist file: "G:\furata-git\furata\impl\gwsynthesis\furata.vg"
+Parsing netlist file "G:\furata-git\furata\impl\gwsynthesis\furata.vg" completed
+Processing netlist completed
+Reading constraint file: "G:\furata-git\furata\src\constraints\acg720.cst"
+Physical Constraint parsed completed
+Running placement......
+[10%] Placement Phase 0 completed
+[20%] Placement Phase 1 completed
+[30%] Placement Phase 2 completed
+[50%] Placement Phase 3 completed
+Running routing......
+[60%] Routing Phase 0 completed
+[70%] Routing Phase 1 completed
