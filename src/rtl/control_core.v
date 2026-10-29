@@ -8,7 +8,7 @@ module control_core #(
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
     parameter signed [31:0] ANGLE_KP=32'sd20661, ANGLE_KI=32'sd820, ANGLE_KD=32'sd31214,
-    parameter signed [31:0] POSITION_KP=32'sd26214, POSITION_KI=32'sd1000, POSITION_KD=32'sd272144,
+    parameter signed [31:0] POSITION_KP=32'sd38214, POSITION_KI=32'sd200, POSITION_KD=32'sd402144,
     // Linear PWM addition about fixed CENTER; zero width/maximum disables it.
     parameter integer BALANCE_BOOST_RANGE_CODES=24,
     parameter integer BALANCE_BOOST_MAX_PERCENT=5,
@@ -22,7 +22,7 @@ module control_core #(
     parameter signed [31:0] POSITION_I_DECAY_BAND_Q=32'sd131072,
     // Percentage of stored I retained per tick: 30 means retain 30%, remove 70%.
     // Adjustable 0..100 (clamped): 0 clears, 100 holds without adding error.
-    parameter integer POSITION_I_DECAY_RETAIN_PERCENT=15
+    parameter integer POSITION_I_DECAY_RETAIN_PERCENT=50
 ) (
     input wire clk, rst_n, sample_valid, sample_ready,
     input wire [11:0] sample,

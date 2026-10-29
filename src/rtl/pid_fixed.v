@@ -30,11 +30,24 @@ module pid_fixed #(
     reg signed [31:0] error_q, inext_q, delta_q;
     reg signed [63:0] error_w, isum_w, delta_w;
     reg signed [63:0] kp_term, ki_term, kd_term, sum_w, scaled_w;
-    localparam signed [38:0] I_RETAIN_PERCENT = (I_DECAY_RETAIN_PERCENT<0) ? 0 :
+    localparam integer I_RETAIN_PERCENT = (I_DECAY_RETAIN_PERCENT<0) ? 0 :
         (I_DECAY_RETAIN_PERCENT>100) ? 100 : I_DECAY_RETAIN_PERCENT;
-    // 32-bit signed I times 0..100 fits in 39 signed bits.
-    wire signed [38:0] i_decay_product =
-        $signed({{7{integral_q[31]}},integral_q}) * I_RETAIN_PERCENT;
+    // Exact truncate-toward-zero division of the 32-bit I by 100, expressed as a
+    // single constant multiply so synthesis infers DSPs instead of a combinational
+    // divider (a LUT divider added ~57 logic levels and missed 50 MHz by 23 ns).
+    //   K = ceil(I_RETAIN_PERCENT * 2^38 / 100)
+    // The reciprocal rounding error e = 100*K - I_RETAIN_PERCENT*2^38 is in
+    // [0,99] and e*2^31 < 2^38, so floor(|I|*K/2^38) == floor(|I|*RETAIN/100).
+    // Keeping the product signed and adding 2^38-1 for negative values only turns
+    // the arithmetic shift into Verilog's truncate-toward-zero `/`, so no
+    // absolute-value or sign-restore logic sits on the critical path.
+    localparam [38:0] I_RETAIN_RECIP =
+        (I_RETAIN_PERCENT * 64'sd274877906944 + 64'sd99) / 64'sd100;
+    wire signed [70:0] i_decay_product =
+        $signed({{39{integral_q[31]}},integral_q}) * $signed({1'b0,I_RETAIN_RECIP});
+    wire signed [70:0] i_decay_adjusted = i_decay_product
+        + (i_decay_product[70] ? 71'sh0000003FFFFFFFFF : 71'sd0);
+    wire signed [31:0] i_decay_next = i_decay_adjusted[69:38];
 
     function [31:0] clamp32;
         input signed [63:0] x;
@@ -51,7 +64,7 @@ module pid_fixed #(
         isum_w={{32{integral_q[31]}},integral_q}+{{32{error_q[31]}},error_q};
         if (KI==0) inext_q=0;
         else if (I_DECAY_BAND_Q>0 && error_q>=-I_DECAY_BAND_Q && error_q<=I_DECAY_BAND_Q)
-            inext_q=i_decay_product/39'sd100;
+            inext_q=i_decay_next;
         else if (I_DEADBAND_Q>0 && error_q>=-I_DEADBAND_Q && error_q<=I_DEADBAND_Q)
             inext_q=integral_q;
         else if (isum_w > $signed(I_LIMIT)) inext_q=I_LIMIT;

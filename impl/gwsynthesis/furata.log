@@ -39,8 +39,7 @@ Compiling module 'control_core(CENTER=1007,PULSE_MS=100,BALANCE_BOOST_MAX_PERCEN
 Compiling module 'position_wrap'("G:\furata-git\furata\src\rtl\position_wrap.v":4)
 Compiling module 'divider_seq(WIDTH=50)'("G:\furata-git\furata\src\rtl\divider_seq.v":30)
 Compiling module 'pid_fixed(KP=32'sb00000000000000000101000010110101,KI=32'sb00000000000000000000001100110100,KD=32'sb00000000000000000111100111101110,I_DEADBAND_Q=32'sb00000000000010100000000000000000)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
-Compiling module 'pid_fixed(KP=32'sb00000000000000000110011001100110,KI=32'sb00000000000000000000001111101000,KD=32'sb00000000000001000010011100010000,DELTA_WRAP_Q=26738688,I_DECAY_BAND_Q=32'sb00000000000000100000000000000000,I_DECAY_RETAIN_PERCENT=15)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
-WARN  (EX3791) : Expression size 39 truncated to fit in target size 32("G:\furata-git\furata\src\rtl\pid_fixed.v":54)
+Compiling module 'pid_fixed(KP=32'sb00000000000000001001010101000110,KI=32'sb00000000000000000000000011001000,KD=32'sb00000000000001100010001011100000,DELTA_WRAP_Q=26738688,I_DECAY_BAND_Q=32'sb00000000000000100000000000000000,I_DECAY_RETAIN_PERCENT=50)'("G:\furata-git\furata\src\rtl\pid_fixed.v":5)
 Compiling module 'pwm_motor(PWM_MAX=2500,SLEW_STEP=16'b0000000000010000)'("G:\furata-git\furata\src\rtl\pwm_motor.v":34)
 Compiling module 'uart_telemetry(POSITION_FIELDS=1)'("G:\furata-git\furata\src\rtl\uart_telemetry.v":7)
 NOTE  (EX0101) : Current top module is "acg720_top"
