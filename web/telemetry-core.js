@@ -17,6 +17,7 @@
         const line = this.pending.slice(0, end).replace(/\r$/, '');
         this.pending = this.pending.slice(end + 1);
         // Ignore command echoes before a complete telemetry line.
+        if (line.startsWith('@')) continue; // Independent ARM1/TRJ1 replies are not telemetry errors.
         const start = line.indexOf('T,');
         if (start < 0) continue;
         const match = /^T,([0-9a-fA-F]{8}),([+-]\d{3}\.\d)(?:,([+-]\d{4}),([+-]\d{4})(?:,([+-]\d{4}),([+-]\d{4}),([+-]\d{4}),([+-]\d{4}))?)?$/.exec(line.slice(start));

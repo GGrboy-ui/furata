@@ -4,7 +4,8 @@
 module uart_commands #(
     parameter integer CLK_HZ=50_000_000,
     parameter integer BAUD=115200,
-    parameter integer TELEMETRY=0
+    parameter integer TELEMETRY=0,
+    parameter integer FRAMED=0
 ) (
     input wire clk, rst_n, rx,
     output wire tx,
@@ -16,6 +17,8 @@ module uart_commands #(
     output wire tx_ready
 );
     localparam integer DIV=CLK_HZ/BAUD;
+    reg in_packet;
+    reg [31:0] packet_age;
     reg [1:0] sync;
     reg [1:0] state;
     reg [31:0] count, tx_count;
@@ -27,6 +30,7 @@ module uart_commands #(
     assign tx_ready=(tx_left==0);
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
+            in_packet<=0; packet_age<=0;
             sync<=2'b11; state<=0; count<=0; bit_no<=3'd0; byte_q<=0;
             start_cmd<=0; stop_cmd<=0; clear_cmd<=0;
             received_byte<=0; received_valid<=0;
@@ -34,6 +38,9 @@ module uart_commands #(
         end else begin
             sync<={sync[0],rx}; start_cmd<=0; stop_cmd<=0; clear_cmd<=0;
             received_valid<=0;
+            // An expired framed line remains quarantined until LF, a fresh @,
+            // or X. Late S/C bytes must never become standalone motor commands.
+            if (in_packet && packet_age<CLK_HZ/5) packet_age<=packet_age+1'b1;
             if (tx_left!=0) begin
                 if (tx_count!=0) tx_count<=tx_count-1;
                 else begin tx_count<=DIV-1; tx_shift<={1'b1,tx_shift[9:1]}; tx_left<=tx_left-4'd1; end
@@ -56,10 +63,14 @@ module uart_commands #(
                        state<=0;
                        if (sync[1]) begin
                            received_byte<=byte_q; received_valid<=1;
-                           start_cmd<=(byte_q==8'h53);
+                           if (FRAMED!=0) begin
+                               if (byte_q==8'h40) begin in_packet<=1; packet_age<=0; end
+                               else if (byte_q==8'h0a || byte_q==8'h58) begin in_packet<=0; packet_age<=0; end
+                           end
+                           start_cmd<=(byte_q==8'h53) && (FRAMED==0 || !in_packet);
                            stop_cmd<=(byte_q==8'h58);
-                           clear_cmd<=(byte_q==8'h43);
-                           if (tx_left==0 && (TELEMETRY==0 || (!tx_frame_active && !tx_valid))) begin
+                           clear_cmd<=(byte_q==8'h43) && (FRAMED==0 || !in_packet);
+                           if (FRAMED==0 && tx_left==0 && (TELEMETRY==0 || (!tx_frame_active && !tx_valid))) begin
                                tx_shift<={1'b1,byte_q,1'b0}; tx_left<=4'd10; tx_count<=DIV-1;
                            end
                        end

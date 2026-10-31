@@ -13,7 +13,8 @@ module tb_acg720_motor_test;
    begin for(k=0;k<n;k=k+1) @(negedge clk); end
  endtask
  task press; input integer k;
-   begin key_n[k]=0; cycles(110); key_n[k]=1; cycles(110); end
+   begin if(k==1)begin cycles(100);force dut.motor_test_cmd=1;cycles(1);release dut.motor_test_cmd;cycles(119);end
+   else begin key_n[k]=0; cycles(110); key_n[k]=1; cycles(110);end end
  endtask
  task sample_tick;
    begin

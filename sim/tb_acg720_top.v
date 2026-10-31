@@ -38,11 +38,12 @@ module tb_acg720_top;
    if(stby_fpga!==1'b0 || dut.motor_ready!==1'b0 || pwm_a!==1'b0 || ain1!==1'b0 || ain2!==1'b0) begin
      $display("FAIL: internal fault did not immediately gate motor outputs"); errors=errors+1;
    end
-   force dut.command_q=32'sd2293760; cycles(3); #1;
+   // Four conversion/compensation registers; allow one clock for stimulus alignment.
+   force dut.command_q=32'sd2293760; cycles(5); #1;
    if(dut.pwm_command!==-16'sd35) begin $display("FAIL: +35 percent conversion=%0d",dut.pwm_command); errors=errors+1; end
-   force dut.command_q=-32'sd2293760; cycles(3); #1;
+   force dut.command_q=-32'sd2293760; cycles(5); #1;
    if(dut.pwm_command!==16'sd35) begin $display("FAIL: -35 percent conversion=%0d",dut.pwm_command); errors=errors+1; end
-   force dut.command_q=32'sd9830400; cycles(3); #1;
+   force dut.command_q=32'sd9830400; cycles(5); #1;
    if(dut.pwm_command!==-16'sd100) begin $display("FAIL: command saturation=%0d",dut.pwm_command); errors=errors+1; end
    release dut.command_q;
    cycles(2); #1;

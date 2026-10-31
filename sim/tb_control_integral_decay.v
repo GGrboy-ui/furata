@@ -6,7 +6,7 @@ module tb_control_integral_decay;
  wire signed [31:0] offset;
  wire [2:0] state;
  always #5 clk=~clk;
- control_core #(.CENTER(1007),.POSITION_KP(0),.POSITION_KI(Q),.POSITION_KD(0),
+ control_core #(.POSITION_I_DECAY_RETAIN_PERCENT(30),.CENTER(1007),.POSITION_KP(0),.POSITION_KI(Q),.POSITION_KD(0),
    .ANGLE_KP(0),.ANGLE_KI(0),.ANGLE_KD(0),.BALANCE_BOOST_MAX_PERCENT(0)) dut (
    .clk(clk),.rst_n(rst_n),.sample_valid(sample_valid),.sample_ready(1'b1),.sample(12'd1007),
    .position(position),.position_target_q(target),.start_cmd(1'b0),.motor_test_cmd(1'b0),
@@ -27,11 +27,11 @@ module tb_control_integral_decay;
    position=98;cycles(120);samples(50);check(-47185);
    position=102;cycles(120);samples(50);check(-14155);
    position=97;cycles(120);samples(50);check(-210763); // outside restores normal I
-   // Target-relative classification and circular wrap are both used.
+   // Target-relative classification includes an accumulated full-turn target.
    target=8*Q;position=106;cycles(120);samples(50);check(-63228);
-   target=0;position=508;cycles(120);samples(50);check(-18968);
+   target=408*Q;position=508;cycles(120);samples(50);check(-18968);
    stop_cmd=1;cycles(1);stop_cmd=0;cycles(120);check(0);
-   start;position=516;cycles(120);samples(50);check(8*Q); // negative accumulated I
+   target=0;start;position=516;cycles(120);samples(50);check(8*Q); // negative accumulated I
    position=508;cycles(120);samples(50);check(157286);
    samples(50);check(47185); // 9% remains after 100 ms, with truncation
    samples(50);check(14155); // 2.7% remains after 150 ms

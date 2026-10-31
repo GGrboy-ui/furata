@@ -51,6 +51,7 @@ module encoder_qei #(
     output wire signed [31:0] position,     // signed 4x-decoded count; wraps on purpose
     output reg  signed [31:0] vel,          // Q(VEL_FRAC) counts/s, + = forward
     output reg  signed [31:0] delta,        // position change over the last tick_speed window
+    output wire signed [31:0] control_velocity_q, // Q16.16 counts/s, filtered and age-aware
     output wire signed [31:0] position_modulo // one-turn coordinate; total position stays unwrapped
 );
     // ---------------------------------------------------------------------------
@@ -149,6 +150,10 @@ module encoder_qei #(
     end
 
     assign position = pos_q;
+    velocity_feedback #(.CLK_HZ(CLK_HZ)) control_speed (
+        .clk(clk),.rst_n(rst_n),.tick_ms(tick_speed),
+        .edge_valid(any_edge && (step==2'd1 || step==2'd3)),.edge_negative(step==2'd3),
+        .velocity_q(control_velocity_q));
 
     // ---------------------------------------------------------------------------
     // 4. Period measurement between accepted edges, saturating.

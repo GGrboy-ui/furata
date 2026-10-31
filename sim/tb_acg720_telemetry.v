@@ -51,7 +51,7 @@ module tb_acg720_telemetry;
         send_byte("P"); cycles(17000);
         if(dut.state!==0 || stby!==0 || snapshots<2)
             $fatal(1,"FAIL: P started motor or failed to sample stopped display");
-        keys[1]=0; cycles(1100); keys[1]=1; cycles(1100);
+        force dut.motor_test_cmd=1; cycles(1); release dut.motor_test_cmd; cycles(2199);
         cycles(40000);
         if(dut.state!==6 || dut.requested_pwm!==500 || dut.pwm_command!==-500 ||
            dut.actual_pwm!==$signed(dut.motor.duty_q) || ramp_snapshots==0)

@@ -1,0 +1,17 @@
+# Generated build outputs, historical snapshots and simulation waveforms
+/build/
+/impl/*
+!/impl/furata_process_config.json
+*.vcd
+*.vvp
+*.fst
+*.wlf
+*.log
+__pycache__/
+*.py[cod]
+
+# Per-machine IDE state and temporary helper files
+/furata.gprj.user
+/transcript
+/.codex_gw_help.tcl
+*.tmp

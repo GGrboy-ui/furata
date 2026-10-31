@@ -6,7 +6,8 @@
 // Each frame snapshots all fields together. Q completes a frame already begun.
 module uart_telemetry #(
     parameter integer CLK_HZ=50_000_000,
-    parameter integer POSITION_FIELDS=0
+    parameter integer POSITION_FIELDS=0,
+    parameter integer ARM_CHANNEL=0
 ) (
     input wire clk, rst_n,
     input wire [7:0] received_byte,
@@ -18,6 +19,7 @@ module uart_telemetry #(
     output reg [7:0] tx_data,
     output wire tx_valid,
     input wire tx_ready,
+    input wire inhibit,
     output wire frame_active
 );
     localparam integer PERIOD=CLK_HZ/200;
@@ -136,7 +138,7 @@ module uart_telemetry #(
             end else if (enabled) begin
                 if (timer==PERIOD-1) begin
                     timer<=0; sequence_q<=sequence_q+1'b1;
-                    if (angle_valid && phase==IDLE) begin
+                    if (angle_valid && phase==IDLE && (ARM_CHANNEL==0 || !inhibit)) begin
                         frame_sequence<=sequence_q;
                         angle_binary<=magnitude(angle_tenths);
                         request_binary<=magnitude(requested_pwm);

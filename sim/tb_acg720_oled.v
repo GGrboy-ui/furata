@@ -6,7 +6,7 @@ module tb_acg720_oled;
     wire stby,pwm,in1,in2,active;
     always #5 clk=~clk;
     // This fixture checks the inverted encoder coordinate independently of bench wiring.
-    acg720_top #(.ENCODER_INVERT(1),.CLK_HZ(1_000_000),.BAUD(10000),.PWM_HZ(1000),
+    acg720_top #(.CENTER(1000),.DEFAULT_OUTER_SPEED(0),.ENCODER_INVERT(1),.CLK_HZ(1_000_000),.BAUD(10000),.PWM_HZ(1000),
         .KEY_DEBOUNCE_MS(1),.OLED_POWER_WAIT_MS(1),.OLED_REFRESH_MS(1)) dut (
         .clk(clk),.rst_n(rst_n),.uart_rx(1'b1),.enc_a(enc_a),.enc_b(enc_b),
         .board_adc_dout(1'b0),.key1_n(key_n[0]),.key2_n(key_n[1]),
@@ -57,7 +57,8 @@ module tb_acg720_oled;
         if(dut.state!==0 || stby!==0 || dut.raw_position!==424 || dut.relative_position!==-424)
             $fatal(1,"FAIL: K4 motor reset/count retention");
         next_frame;assert_counts(40'h424,40'h424,40'h424,0,1,1);
-        ack_enable=0;wait(dut.oled_error);press(1);cycles(20000);
+        // Inject the retained diagnostic command on a clock edge; physical K2 is speed entry.
+        ack_enable=0;wait(dut.oled_error);cycles(1);force dut.motor_test_cmd=1;cycles(1);release dut.motor_test_cmd;cycles(20000);
         if(dut.state!==6 || stby!==1 || dut.motor_ready!==1 || dut.motor.duty_q==0 || dut.fault_latched)
             $fatal(1,"FAIL: missing OLED blocked motor test");
         press(3);press(2);cycles(3000);

@@ -5,6 +5,17 @@
     <Version>5</Version>
     <Device name="GW5AT-60B" pn="GW5AT-LV60PG484AC1/I0">gw5at60b-002</Device>
     <FileList>
+        <File path="src/rtl/outer_handover.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/pwm_friction.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/speed_outer.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/velocity_feedback.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/trajectory_math.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/trajectory_engine.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/trajectory_uart.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/position_period.v" type="file.verilog" enable="1"/>
+
+        <File path="src/rtl/command_router.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/arm_move.v" type="file.verilog" enable="1"/>
         <File path="src/board/acg720_top.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/adc128s102_reader.v" type="file.verilog" enable="1"/>
         <File path="src/rtl/angle_display_data.v" type="file.verilog" enable="1"/>

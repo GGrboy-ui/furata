@@ -14,6 +14,8 @@ module acg720_top #(
     parameter integer COUNTS_PER_REV=408,
     parameter integer KEY_DEBOUNCE_MS=20,
     parameter integer CW_POSITIVE=1,
+    parameter integer POSITION_MS=50,
+    parameter integer DEFAULT_OUTER_SPEED=0,
     parameter integer MOVE_DEG_PER_SEC=30,
     parameter integer MOTOR_TEST_PERCENT=20,
     parameter integer MOTOR_TEST_REVERSE=0,
@@ -22,7 +24,7 @@ module acg720_top #(
     parameter integer BALANCE_BOOST_RANGE_TENTHS=20,
     parameter integer BALANCE_BOOST_MAX_PERCENT=0,
     // User measured upright (stationary) ADC code on 2026-10-09.
-    parameter integer CENTER=1007,
+    parameter integer CENTER=3124,
     parameter integer ANGLE_ADC_ZERO=CENTER,
     parameter integer ANGLE_ADC_SPAN=4095,
     parameter integer ANGLE_RANGE_TENTHS=3330,
@@ -57,15 +59,27 @@ module acg720_top #(
 
     wire start_cmd, uart_start_cmd, stop_cmd, uart_stop_cmd, clear_cmd;
     wire [7:0] received_byte;
-    wire received_valid;
+    wire received_valid,legacy_valid;
+    wire [7:0] arm_rx_byte,trajectory_rx_byte;
+    wire arm_rx_valid,trajectory_rx_valid;
+    command_router #(.CLK_HZ(CLK_HZ)) router(
+        .clk(clk),.rst_n(reset_n),.data(received_byte),.valid(received_valid),
+        .arm_data(arm_rx_byte),.arm_valid(arm_rx_valid),
+        .trajectory_data(trajectory_rx_byte),.trajectory_valid(trajectory_rx_valid));
+    wire [7:0] arm_byte;
+    wire arm_valid,arm_pending,arm_busy,arm_load;
+    wire arm_tx_active,trajectory_tx_active,trajectory_tx_valid,trajectory_tx_pending;
+    wire [7:0] trajectory_tx_byte;
+    wire signed [31:0] arm_goal_q,arm_origin_q;
+
     wire [7:0] telemetry_byte;
     wire telemetry_valid, telemetry_active, uart_tx_ready;
     reg display_raw;
     always @(posedge clk or negedge reset_n) begin
         if (!reset_n) display_raw<=0;
-        else if (received_valid) begin
-            if (received_byte==8'h44) display_raw<=1; // D: raw ADC (decimal)
-            else if (received_byte==8'h41) display_raw<=0; // A: signed angle
+        else if (legacy_valid) begin
+            if (arm_rx_byte==8'h44) display_raw<=1; // D: raw ADC (decimal)
+            else if (arm_rx_byte==8'h41) display_raw<=0; // A: signed angle
         end
     end
     wire [3:0] key_press;
@@ -78,15 +92,16 @@ module acg720_top #(
     clock_reset control_reset_conditioner (
         .clk(clk),.arst_n(reset_n && !key_press[3]),.locked(1'b1),.rst_n(control_reset_n));
     assign start_cmd=!key_press[3] && (uart_start_cmd || (key_press==4'b0001));
-    wire motor_test_cmd=(key_press==4'b0010);
+    wire motor_test_cmd=1'b0; // K2 now exclusively selects the speed outer loop in BALANCE.
     wire balance_cmd=(key_press==4'b0100);
     assign stop_cmd=uart_stop_cmd || key_press[3];
-    uart_commands #(.CLK_HZ(CLK_HZ),.BAUD(BAUD),.TELEMETRY(1)) uart (
+    uart_commands #(.CLK_HZ(CLK_HZ),.BAUD(BAUD),.TELEMETRY(1),.FRAMED(1)) uart (
         .clk(clk),.rst_n(reset_n),.rx(uart_rx),.tx(uart_tx),
         .start_cmd(uart_start_cmd),.stop_cmd(uart_stop_cmd),.clear_cmd(clear_cmd),
         .received_byte(received_byte),.received_valid(received_valid),
-        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),
-        .tx_frame_active(telemetry_active),.tx_ready(uart_tx_ready));
+        .tx_data(trajectory_tx_valid ? trajectory_tx_byte:arm_valid ? arm_byte : telemetry_byte),
+        .tx_valid(trajectory_tx_valid || arm_valid || telemetry_valid),
+        .tx_frame_active(telemetry_active || arm_pending || trajectory_tx_pending),.tx_ready(uart_tx_ready));
 
     wire [11:0] sample;
     wire sample_valid, sample_ready;
@@ -98,12 +113,13 @@ module acg720_top #(
         .sample(sample),.sample_valid(sample_valid),.ready(sample_ready),
         .error_code(sensor_fault));
 
-    wire signed [31:0] raw_position, raw_position_modulo, velocity_unused, delta_unused;
+    wire signed [31:0] raw_position, raw_position_modulo, velocity_unused, delta_unused, raw_control_velocity_q;
     encoder_qei #(.CLK_HZ(CLK_HZ),.COUNTS_PER_REV(COUNTS_PER_REV)) encoder (
         .clk(clk),.rst_n(reset_n),.enc_a(enc_a),.enc_b(enc_b),
         .tick_speed(sample_valid),.position(raw_position),
-        .vel(velocity_unused),.delta(delta_unused),.position_modulo(raw_position_modulo));
+        .control_velocity_q(raw_control_velocity_q),.vel(velocity_unused),.delta(delta_unused),.position_modulo(raw_position_modulo));
     wire signed [31:0] position=(ENCODER_INVERT!=0) ? -raw_position : raw_position;
+    wire signed [31:0] control_velocity_q=(ENCODER_INVERT!=0) ? -raw_control_velocity_q:raw_control_velocity_q;
     wire signed [31:0] inverted_modulo=-raw_position_modulo;
     wire signed [31:0] position_modulo=(ENCODER_INVERT==0) ? raw_position_modulo :
         (inverted_modulo*2>=COUNTS_PER_REV) ? inverted_modulo-COUNTS_PER_REV : inverted_modulo;
@@ -117,11 +133,14 @@ module acg720_top #(
     oled_encoder_display #(.CLK_HZ(CLK_HZ),.I2C_HZ(OLED_I2C_HZ),
         .ADDRESS(OLED_ADDRESS),.COLUMN_OFFSET(OLED_COLUMN_OFFSET),
         .POWER_WAIT_MS(OLED_POWER_WAIT_MS),.REFRESH_MS(OLED_REFRESH_MS)) oled (
-        .clk(clk),.rst_n(reset_n),.raw_count(raw_position),.position_count(position_modulo),
+        .clk(clk),.rst_n(reset_n),.raw_count(raw_position),.position_count(position),
         .relative_count(relative_position),.scl(oled_scl),.sda(oled_sda),
         .initialized(oled_initialized),.error(oled_error),.frame_done(oled_frame_done));
     wire angle_update, position_update;
     wire signed [31:0] position_error_q, angle_target_offset_q;
+    wire signed [31:0] angle_pid_q;
+    wire [287:0] controller_config;
+    wire signed [15:0] requested_pwm,actual_pwm;
     wire [3:0] internal_fault=(sensor_fault!=0) ? sensor_fault : core_fault;
     wire [63:0] display_segments;
     wire signed [15:0] displayed_angle;
@@ -137,21 +156,63 @@ module acg720_top #(
     seg595_scan #(.CLK_HZ(CLK_HZ)) segment_driver (
         .clk(clk),.rst_n(reset_n),.segments(display_segments),
         .sclk(seg7_sclk),.rclk(seg7_rclk),.dio(seg7_dio));
-    wire signed [31:0] position_goal_q, position_target_q;
+    wire signed [31:0] position_goal_q,position_target_q,legacy_goal_q,legacy_target_q;
+    wire signed [31:0] trajectory_target_q,trajectory_goal_q,trajectory_velocity_q,legacy_velocity_q;
+    reg trajectory_selected;
+    reg outer_speed;
+    wire speed_update,start_accepted,switch_speed_cmd;
+    wire [7:0] handover_remaining;
+    wire [15:0] applied_friction_t;
+    wire [95:0] position_defaults;
+    wire signed [31:0] position_kp_q,position_ki_q,position_kd_q;
+    wire [15:0] speed_period_ms,speed_friction_t;
+    wire signed [31:0] speed_kp_q,speed_ki_q,speed_kd_q,speed_kpos_q,speed_target_q;
+    wire signed [31:0] reference_velocity_q=trajectory_selected ? trajectory_velocity_q:legacy_velocity_q;
+    wire trajectory_busy,trajectory_started,trajectory_event,trajectory_submit,period_request,period_pending,period_reply;
+    wire [15:0] actual_position_ms,requested_period,trajectory_request_id,trajectory_id,trajectory_event_id;
+    wire [7:0] trajectory_event_code,trajectory_status_code;
+    wire [7:0] period_code=8'd0; // Legacy reply input is inactive (period_reply=0).
+    wire [2:0] trajectory_mode,trajectory_phase,requested_mode;
+    wire [3:0] trajectory_point,requested_count;
+    wire [7:0] requested_cycles;
+    wire [31:0] trajectory_elapsed,trajectory_total,requested_time,requested_dwell;
+    wire [255:0] requested_angles;
+    assign position_goal_q=trajectory_selected ? trajectory_goal_q:legacy_goal_q;
+    assign position_target_q=trajectory_selected ? trajectory_target_q:legacy_target_q;
+    assign switch_speed_cmd=(key_press==4'b0010) && state==4 && !outer_speed && permit && !fault_latched && internal_fault==0 &&
+        control_reset_n && !stop_cmd && !arm_busy && !trajectory_busy && !trajectory_submit && !period_pending && !period_request && handover_remaining==0;
+    always @(posedge clk or negedge reset_n) begin
+        if(!reset_n) outer_speed<=0;
+        else if(start_accepted) outer_speed<=0;
+        else if(switch_speed_cmd) outer_speed<=1;
+    end
+    wire signed [31:0] protocol_position;
     wire move_enable=(state==3'd4) && permit && !fault_latched && !stop_cmd && (internal_fault==0);
-    position_target #(.COUNTS_PER_REV(COUNTS_PER_REV),.CW_POSITIVE(CW_POSITIVE),
+    position_target #(.REMOTE(1),.COUNTS_PER_REV(COUNTS_PER_REV),.CW_POSITIVE(CW_POSITIVE),
         .MOVE_DEG_PER_SEC(MOVE_DEG_PER_SEC),.POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10)) target (
         .clk(clk),.rst_n(control_reset_n),.enable(move_enable),.tick_ms(sample_valid),
         // K3 now starts manual balance. Hold the captured arm position.
-        .move_cmd(3'b000),
-        .goal_q(position_goal_q),.target_q(position_target_q));
+        .move_cmd(3'b000),.load(arm_load),.load_goal_q(arm_goal_q),.load_origin_q(arm_origin_q),
+        .velocity_q(legacy_velocity_q),.goal_q(legacy_goal_q),.target_q(legacy_target_q));
+
+    arm_move #(.CLK_HZ(CLK_HZ),.COUNTS_PER_REV(COUNTS_PER_REV),
+        .MOVE_DEG_PER_SEC(MOVE_DEG_PER_SEC),.POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10),
+        .CW_POSITIVE(CW_POSITIVE)) arm (
+        .clk(clk),.rst_n(reset_n),.tick_ms(sample_valid),.enable(move_enable),.stop_cmd(stop_cmd),
+        .control_state(state),.position(protocol_position),.target_q(position_target_q),.goal_q(position_goal_q),
+        .received_byte(arm_rx_byte),.received_valid(arm_rx_valid),.legacy_valid(legacy_valid),
+        .load(arm_load),.load_goal_q(arm_goal_q),.load_origin_q(arm_origin_q),.busy(arm_busy),
+        .tx_data(arm_byte),.tx_valid(arm_valid),.tx_pending(arm_pending),
+        .tx_ready(uart_tx_ready && !trajectory_tx_active),
+        .telemetry_active(telemetry_active || trajectory_tx_active),
+        .motion_lock(trajectory_busy || period_pending || period_request || handover_remaining!=0 || switch_speed_cmd),.tx_active(arm_tx_active));
 
     safety_monitor safety(
         .clk(clk),.rst_n(control_reset_n),
         .clear_fault(clear_cmd),.running(running),.internal_fault(internal_fault),
         .permit(permit),.latched(fault_latched),.code(fault_code));
 
-    control_core #(.CENTER(CENTER),.CAPTURE_RANGE(CAPTURE_RANGE),.PULSE_MS(PULSE_MS),
+    control_core #(.PIPELINED_ANGLE_PID(1),.RUNTIME_POSITION_GAINS(1),.ENABLE_VELOCITY(1),.MAX_SPEED(MOVE_DEG_PER_SEC),.RUNTIME_POSITION_PERIOD(1),.POSITION_MS(POSITION_MS),.CENTER(CENTER),.CAPTURE_RANGE(CAPTURE_RANGE),.PULSE_MS(PULSE_MS),
         .CHECK_MS(CHECK_MS),.SWING_TIMEOUT_MS(SWING_TIMEOUT_MS),
         .MOTOR_TEST_PERCENT(MOTOR_TEST_PERCENT),.MOTOR_TEST_REVERSE(MOTOR_TEST_REVERSE),
         .BALANCE_BOOST_RANGE_CODES(BALANCE_BOOST_RANGE_CODES),
@@ -159,12 +220,64 @@ module acg720_top #(
         .POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10),.COUNTS_PER_REV(COUNTS_PER_REV)) core (
         .clk(clk),.rst_n(control_reset_n),.sample_valid(sample_valid),.sample_ready(sample_ready),
         .sample(sample),.position(position),.position_target_q(position_target_q),
+        .position_period_ms(actual_position_ms),.outer_speed(outer_speed),
+        .position_kp_q(position_kp_q),.position_ki_q(position_ki_q),.position_kd_q(position_kd_q),
+        .switch_speed_cmd(switch_speed_cmd),.speed_friction_t(speed_friction_t),.start_accepted(start_accepted),
+        .position_defaults(position_defaults),.handover_remaining(handover_remaining),.applied_friction_t(applied_friction_t),.speed_period_ms(speed_period_ms),
+        .speed_kp_q(speed_kp_q),.speed_ki_q(speed_ki_q),.speed_kd_q(speed_kd_q),.speed_kpos_q(speed_kpos_q),
+        .reference_velocity_q(reference_velocity_q),.actual_velocity_q(control_velocity_q),
+        .speed_target_q(speed_target_q),.speed_update(speed_update),
         .start_cmd(start_cmd),.motor_test_cmd(motor_test_cmd),.balance_cmd(balance_cmd),.stop_cmd(stop_cmd),
         .permit(permit),.fault_latched(fault_latched),.running(running),
         .command_q(command_q),.state(state),.request_fault(core_fault),
-        .relative_position(relative_position),.angle_update(angle_update),
+        .relative_position(relative_position),.protocol_position(protocol_position),.angle_update(angle_update),
         .position_update(position_update),.position_error_q(position_error_q),
-        .angle_target_offset_q(angle_target_offset_q));
+        .angle_target_offset_q(angle_target_offset_q),.angle_pid_q(angle_pid_q),.controller_config(controller_config));
+
+    // Both parameter banks are committed in the system-reset UART configuration domain.
+    assign period_pending=1'b0;
+    assign period_reply=1'b0;
+    trajectory_engine #(.COUNTS_PER_REV(COUNTS_PER_REV),.POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10),
+        .CW_POSITIVE(CW_POSITIVE),.MAX_SPEED(MOVE_DEG_PER_SEC)) trajectory(
+        .clk(clk),.rst_n(reset_n),.tick_ms(sample_valid),.enable(move_enable && outer_speed),.stop_cmd(stop_cmd),
+        .external_busy(arm_busy || period_pending || period_request || handover_remaining!=0 || switch_speed_cmd),.submit(trajectory_submit),
+        .request_id(trajectory_request_id),.request_mode(requested_mode),.request_time_ms(requested_time),
+        .request_dwell_ms(requested_dwell),.request_cycles(requested_cycles),.request_count(requested_count),
+        .request_angles(requested_angles),.position(protocol_position),.busy(trajectory_busy),
+        .started(trajectory_started),.event_valid(trajectory_event),.active_id(trajectory_id),
+        .event_id(trajectory_event_id),.event_code(trajectory_event_code),.status_code(trajectory_status_code),
+        .mode(trajectory_mode),.phase(trajectory_phase),.point_index(trajectory_point),
+        .elapsed_ms(trajectory_elapsed),.total_ms(trajectory_total),.target_q(trajectory_target_q),
+        .goal_q(trajectory_goal_q),.velocity_q(trajectory_velocity_q));
+    always @(posedge clk or negedge control_reset_n) begin
+        if(!control_reset_n) trajectory_selected<=0;
+        else if(!move_enable || arm_load) trajectory_selected<=0;
+        else if(trajectory_started) trajectory_selected<=1;
+    end
+    trajectory_uart #(.CLK_HZ(CLK_HZ),.COUNTS_PER_REV(COUNTS_PER_REV),.LIMIT_COUNTS(COUNTS_PER_REV*10),
+        .MAX_SPEED(MOVE_DEG_PER_SEC),.MAX_PWM(PWM_MAX),.DEFAULT_PERIOD(POSITION_MS),.DEFAULT_OUTER_SPEED(DEFAULT_OUTER_SPEED)) trajectory_protocol(
+        .clk(clk),.rst_n(reset_n),.tick_ms(sample_valid),
+        .received_byte(trajectory_rx_byte),.received_valid(trajectory_rx_valid),
+        .speed_config_allowed(state==0 && permit && !fault_latched && internal_fault==0 && !arm_busy &&
+            !trajectory_busy && !period_pending && !start_cmd && !motor_test_cmd && !balance_cmd && !stop_cmd),
+        .outer_speed(outer_speed),.handover_remaining(handover_remaining),.position_defaults(position_defaults),
+        .position_kp_q(position_kp_q),.position_ki_q(position_ki_q),.position_kd_q(position_kd_q),
+        .speed_period_ms(speed_period_ms),.speed_friction_t(speed_friction_t),.speed_kp_q(speed_kp_q),
+        .speed_ki_q(speed_ki_q),.speed_kd_q(speed_kd_q),.speed_kpos_q(speed_kpos_q),.speed_reference_q(reference_velocity_q),
+        .speed_target_q(speed_target_q),.speed_actual_q(control_velocity_q),.speed_angle_offset_q(angle_target_offset_q),
+        .submit(trajectory_submit),.period_request(period_request),.request_id(trajectory_request_id),
+        .requested_period(requested_period),.request_mode(requested_mode),.request_time_ms(requested_time),
+        .request_dwell_ms(requested_dwell),.request_cycles(requested_cycles),.request_count(requested_count),
+        .request_angles(requested_angles),.event_valid(trajectory_event),.started(trajectory_started),
+        .period_reply(period_reply),.event_id(trajectory_event_id),.actual_period(actual_position_ms),
+        .active_id(trajectory_id),.event_code(trajectory_event_code),.period_code(period_code),
+        .control_state(state),.phase(trajectory_phase),.mode(trajectory_mode),.point_index(trajectory_point),
+        .elapsed_ms(trajectory_elapsed),.total_ms(trajectory_total),.position(protocol_position),
+        .target_q(trajectory_target_q),.velocity_q(trajectory_velocity_q),.goal_q(trajectory_goal_q),
+        .tx_data(trajectory_tx_byte),.tx_valid(trajectory_tx_valid),.tx_pending(trajectory_tx_pending),
+        .tx_active(trajectory_tx_active),.tx_ready(uart_tx_ready),
+        .tx_blocked(telemetry_active || arm_tx_active || (!trajectory_tx_active && arm_pending)));
+    wire signed [31:0] final_command_q=command_q;
 
     // Assert STBY first, then allow the driver 2 ms to wake before PWM/IN change.
     // Keep the permission path combinational so a fault disables the outputs
@@ -185,8 +298,8 @@ module acg720_top #(
     // Clamping before multiplication keeps the datapath small and makes even
     // -2^31 saturate safely. The safety gate above is independent of this latency.
     localparam [32:0] HUNDRED_PERCENT_Q=33'd6553600;
-    wire signed [32:0] command_ext={command_q[31],command_q};
-    wire [32:0] command_abs=command_q[31] ? -command_ext : command_ext;
+    wire signed [32:0] command_ext={final_command_q[31],final_command_q};
+    wire [32:0] command_abs=final_command_q[31] ? -command_ext : command_ext;
     wire [22:0] command_abs_limited=(command_abs>HUNDRED_PERCENT_Q) ?
                                      HUNDRED_PERCENT_Q[22:0] : command_abs[22:0];
     reg [22:0] command_mag_q;
@@ -195,7 +308,7 @@ module acg720_top #(
         if (!control_reset_n) begin command_mag_q<=0; command_negative_q<=0; end
         else begin
             command_mag_q<=command_abs_limited;
-            command_negative_q<=command_q[31] ^ (MOTOR_INVERT!=0);
+            command_negative_q<=final_command_q[31] ^ (MOTOR_INVERT!=0);
         end
     end
 
@@ -210,12 +323,12 @@ module acg720_top #(
         assign duty_magnitude=duty_product/39'd6553600;
     end endgenerate
 
-    reg signed [15:0] pwm_command;
-    always @(posedge clk or negedge control_reset_n) begin
-        if (!control_reset_n) pwm_command<=0;
-        else pwm_command<=command_negative_q ? -$signed(duty_magnitude) :
-                                                $signed(duty_magnitude);
-    end
+    wire signed [15:0] pwm_command;
+    pwm_friction #(.PWM_MAX(PWM_MAX)) speed_friction(
+        .clk(clk),.rst_n(control_reset_n),
+        .active(outer_speed && state==3'd4 && command_mag_q!=0),
+        .negative(command_negative_q),.magnitude(duty_magnitude),.t_counts(applied_friction_t),
+        .command(pwm_command));
     wire pwm_raw, in1_raw, in2_raw;
     wire signed [15:0] applied_pwm;
     pwm_motor #(.PWM_MAX(PWM_MAX),.SLEW_STEP(PWM_SLEW_STEP)) motor (
@@ -223,11 +336,16 @@ module acg720_top #(
         .cmd(pwm_command),.pwm(pwm_raw),.in1(in1_raw),.in2(in2_raw),
         .applied_cmd(applied_pwm));
     // Undo only the physical wiring inversion: both fields use control sign.
-    wire signed [15:0] requested_pwm=(MOTOR_INVERT!=0) ? -pwm_command : pwm_command;
-    wire signed [15:0] actual_pwm=(MOTOR_INVERT!=0) ? -applied_pwm : applied_pwm;
+    assign requested_pwm=(MOTOR_INVERT!=0) ? -pwm_command : pwm_command;
+    assign actual_pwm=(MOTOR_INVERT!=0) ? -applied_pwm : applied_pwm;
     // Registered metadata conversion. Offset units are 0.1 ADC code; the website
     // converts to degrees using the same calibrated display scale.
-    wire signed [63:0] offset_tenths_w=$signed(angle_target_offset_q)*64'sd10;
+    reg signed [31:0] telemetry_offset_q;
+    reg signed [63:0] offset_tenths_w;
+    always @(posedge clk or negedge control_reset_n) begin
+        if(!control_reset_n) begin telemetry_offset_q<=0;offset_tenths_w<=0;end
+        else begin telemetry_offset_q<=angle_target_offset_q;offset_tenths_w<=$signed(telemetry_offset_q)*64'sd10;end
+    end
     reg signed [15:0] target_offset_adc_tenths, position_target_counts, position_error_counts;
     function signed [15:0] telemetry_count16;
         input signed [63:0] value;
@@ -246,13 +364,13 @@ module acg720_top #(
             position_error_counts<=telemetry_count16($signed(position_error_q)/64'sd65536);
         end
     end
-    uart_telemetry #(.CLK_HZ(CLK_HZ),.POSITION_FIELDS(1)) telemetry (
-        .clk(clk),.rst_n(reset_n),.received_byte(received_byte),.received_valid(received_valid),
+    uart_telemetry #(.CLK_HZ(CLK_HZ),.POSITION_FIELDS(1),.ARM_CHANNEL(1)) telemetry (
+        .clk(clk),.rst_n(reset_n),.received_byte(arm_rx_byte),.received_valid(legacy_valid),
         .angle_tenths(displayed_angle),.angle_valid(display_angle_valid),
         .requested_pwm(requested_pwm),.actual_pwm(actual_pwm),
         .arm_position(relative_position[15:0]),.position_target(position_target_counts),
         .position_error(position_error_counts),.target_offset_adc_tenths(target_offset_adc_tenths),
-        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),.tx_ready(uart_tx_ready),
+        .tx_data(telemetry_byte),.tx_valid(telemetry_valid),.tx_ready(uart_tx_ready),.inhibit(arm_pending || trajectory_tx_pending),
         .frame_active(telemetry_active));
     assign pwm_a=motor_ready && pwm_raw;
     assign ain1=motor_ready && in1_raw;

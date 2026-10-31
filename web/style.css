@@ -22,20 +22,21 @@ footer { display:grid; grid-template-columns:1fr 1fr; gap:45px; padding:20px 0 0
 .position-readings strong { font-family:Consolas,monospace; color:#c4b5fd; }
 .legend.target { background:#fbbf24; } .legend.error { background:#c4b5fd; }
 
-.calibration-card { margin:22px 0 30px; padding:24px; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
-.cal-heading { display:flex; align-items:center; justify-content:space-between; gap:18px; } .cal-heading h2 { margin:8px 0; font-size:21px; } .cal-heading p { color:var(--muted); font:12px Consolas,monospace; }
 button.danger { background:#6b2933; border-color:#b45661; color:#ffe1e4; font-weight:600; }
-.calibration-card details { border-top:1px solid var(--line); padding:18px 0; } .calibration-card summary { font-weight:600; cursor:pointer; color:#c9d5e7; }
-.cal-fields { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px 20px; margin:17px 0; } .cal-fields label { display:flex; flex-direction:column; gap:8px; font-size:12px; } .cal-fields input,.cal-fields select { width:100%; margin:0; min-width:0; }
-.cal-test-fields { grid-template-columns:repeat(4,minmax(0,1fr)); }
-.cal-help { color:var(--muted); font-size:12px; line-height:1.85; } .cal-check { display:flex; align-items:flex-start; gap:9px; font-size:12px; line-height:1.8; margin:16px 0; } .cal-check input { width:auto; margin:4px 0 0; }
-.cal-actions { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin:14px 0; } .cal-actions strong { margin-left:8px; color:var(--accent); font-size:12px; font-weight:500; }
-.cal-manifest-label { display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-size:12px; }.cal-manifest-label input { width:auto; max-width:100%; margin:0; }
-.cal-live { color:var(--accent); font:12px Consolas,"Microsoft YaHei",monospace; line-height:1.8; word-break:break-word; padding:12px 14px; border-radius:6px; background:#111723; }
-.cal-chart-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--muted); margin-top:20px; }.cal-chart { height:260px; margin-top:12px; }
-.cal-table-wrap { overflow-x:auto; margin:17px 0; }.cal-table-wrap table { border-collapse:collapse; width:100%; min-width:640px; font-size:12px; }.cal-table-wrap th,.cal-table-wrap td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }.cal-table-wrap th { color:var(--muted); font-weight:500; }.cal-table-wrap td { color:#c9d5e7; font-variant-numeric:tabular-nums; }
-.calibration-card h3 { font-size:14px; margin-top:25px; }
-.cal-pulse-settings { grid-template-columns:repeat(2,minmax(0,1fr)); padding:16px; background:#111723; border:1px solid var(--line); border-radius:8px; }
-.cal-pulse-settings label { font-size:14px; color:#dae7f7; }.cal-pulse-settings input { font-size:18px; font-variant-numeric:tabular-nums; }
-@media(max-width:900px) { .cal-fields,.cal-test-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-card { padding:20px 16px; } }
-@media(max-width:520px) { .cal-fields,.cal-test-fields { grid-template-columns:1fr; } .cal-heading { align-items:flex-start; }.cal-heading h2 { font-size:19px; }.cal-heading button { padding:10px; font-size:12px; }.cal-actions button { font-size:12px; }.cal-actions strong { margin:6px 0; width:100%; } }
+.help { color:var(--muted); font-size:12px; line-height:1.85; }
+
+.arm-card { margin: 18px 0; padding: 22px; border: 1px solid #314051; border-radius: 16px; background: #131e2b; }
+.arm-card h2 { margin: 0 0 8px; font-size: 20px; }
+.arm-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.arm-controls label { display: grid; gap: 8px; }
+.arm-controls input { width: 220px; padding: 10px; border: 1px solid #41546a; border-radius: 8px; color: #f1f5f9; background: #0b1521; font-size: 18px; }
+.arm-readings { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+
+.trajectory-card{margin:22px 0;padding:24px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.tr-heading,.tr-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.tr-heading{justify-content:space-between}.tr-heading h2{margin:8px 0}.tr-heading p{color:var(--muted);font-size:12px}
+.tr-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0}.tr-fields label,.tr-actions label{display:flex;flex-direction:column;gap:8px;font-size:12px}.tr-fields input,.tr-fields select{width:100%;min-width:0;margin:0}.tr-wide{grid-column:span 2}
+.tr-plots{display:grid;grid-template-columns:1fr 1fr;gap:16px}.tr-plots>div{min-width:0;background:#111723;border-radius:8px;padding:12px}.tr-plots h3,.tr-period h3{font-size:14px;margin:0 0 8px}.tr-plots svg{display:block;width:100%;height:auto;min-height:120px}
+.tr-period{margin:20px 0;padding:18px;border:1px solid var(--line);border-radius:8px}.tr-actions{margin:14px 0}.tr-actions input{width:120px}.tr-actions span{font-size:12px}.tr-readings{display:flex;flex-wrap:wrap;gap:12px 24px;font-size:12px;margin:16px 0;line-height:1.9}.tr-readings strong{color:var(--accent)}
+[hidden]{display:none!important}
+@media(max-width:850px){.tr-fields{grid-template-columns:1fr 1fr}.tr-plots{grid-template-columns:1fr}.trajectory-card{padding:18px}.tr-wide{grid-column:span 2}}
+@media(max-width:520px){.tr-fields{grid-template-columns:1fr}.tr-wide{grid-column:span 1}}

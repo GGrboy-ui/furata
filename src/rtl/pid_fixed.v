@@ -3,6 +3,8 @@
 // Ki and Kd are selected for the actual update interval (5 ms angle, 50 ms position);
 // they are never silently rescaled when the tick rate changes.
 module pid_fixed #(
+    parameter integer RUNTIME_GAINS=0,
+    parameter integer PIPELINED_ARITH=0,
     parameter signed [31:0] KP = 32'sd23921,       // 0.365 * 2^16
     parameter signed [31:0] KI = 32'sd655,         // 0.010 * 2^16
     parameter signed [31:0] KD = 32'sd26214,       // 0.400 * 2^16
@@ -21,12 +23,20 @@ module pid_fixed #(
 ) (
     input wire clk, rst_n, clear, tick,
     input wire signed [31:0] target_q, actual_q,
+    input wire signed [31:0] runtime_kp_q,runtime_ki_q,runtime_kd_q,
     output reg signed [31:0] out_q,
     output reg valid
 );
     reg signed [31:0] previous_q, integral_q;
     reg signed [31:0] error_stage_q, integral_stage_q, delta_stage_q;
     reg sample_pending;
+    reg product_pending,sum_pending;
+    reg signed [63:0] runtime_p,runtime_i,runtime_d,runtime_sum;
+    wire signed [63:0] runtime_scaled=runtime_sum/64'sd65536;
+    wire signed [31:0] kp_live=RUNTIME_GAINS ? runtime_kp_q:KP;
+    wire signed [31:0] ki_live=RUNTIME_GAINS ? runtime_ki_q:KI;
+    wire signed [31:0] kd_live=RUNTIME_GAINS ? runtime_kd_q:KD;
+    reg signed [31:0] kp_sample,ki_sample,kd_sample;
     reg signed [31:0] error_q, inext_q, delta_q;
     reg signed [63:0] error_w, isum_w, delta_w;
     reg signed [63:0] kp_term, ki_term, kd_term, sum_w, scaled_w;
@@ -62,7 +72,7 @@ module pid_fixed #(
         error_w={{32{target_q[31]}},target_q}-{{32{actual_q[31]}},actual_q};
         error_q=clamp32(error_w);
         isum_w={{32{integral_q[31]}},integral_q}+{{32{error_q[31]}},error_q};
-        if (KI==0) inext_q=0;
+        if (ki_live==0) inext_q=0;
         else if (I_DECAY_BAND_Q>0 && error_q>=-I_DECAY_BAND_Q && error_q<=I_DECAY_BAND_Q)
             inext_q=i_decay_next;
         else if (I_DEADBAND_Q>0 && error_q>=-I_DEADBAND_Q && error_q<=I_DEADBAND_Q)
@@ -79,9 +89,9 @@ module pid_fixed #(
 
         // Sign-extend both factors before multiplication.  Without this explicit
         // widening Verilog may evaluate a 32x32 product in only 32 bits.
-        kp_term=$signed({{32{KP[31]}},KP}) * $signed({{32{error_stage_q[31]}},error_stage_q});
-        ki_term=$signed({{32{KI[31]}},KI}) * $signed({{32{integral_stage_q[31]}},integral_stage_q});
-        kd_term=$signed({{32{KD[31]}},KD}) * $signed({{32{delta_stage_q[31]}},delta_stage_q});
+        kp_term=$signed({{32{kp_sample[31]}},kp_sample}) * $signed({{32{error_stage_q[31]}},error_stage_q});
+        ki_term=$signed({{32{ki_sample[31]}},ki_sample}) * $signed({{32{integral_stage_q[31]}},integral_stage_q});
+        kd_term=$signed({{32{kd_sample[31]}},kd_sample}) * $signed({{32{delta_stage_q[31]}},delta_stage_q});
         sum_w=kp_term+ki_term+kd_term;
         scaled_w=sum_w/64'sd65536; // signed division truncates toward zero
     end
@@ -89,30 +99,43 @@ module pid_fixed #(
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             out_q<=0; previous_q<=0; integral_q<=0; valid<=0;
+            kp_sample<=KP;ki_sample<=KI;kd_sample<=KD;
             error_stage_q<=0; integral_stage_q<=0; delta_stage_q<=0;
-            sample_pending<=0;
+            sample_pending<=0;product_pending<=0;sum_pending<=0;runtime_p<=0;runtime_i<=0;runtime_d<=0;runtime_sum<=0;
         end else begin
             valid<=0;
             if (clear) begin
                 out_q<=0; previous_q<=0; integral_q<=0;
                 error_stage_q<=0; integral_stage_q<=0; delta_stage_q<=0;
-                sample_pending<=0;
+                sample_pending<=0;product_pending<=0;sum_pending<=0;runtime_p<=0;runtime_i<=0;runtime_d<=0;runtime_sum<=0;
             end else begin
                 // The next clock computes the result of this captured sample.
                 // Tick spacing is 5 ms / 50 ms in the board design.
                 sample_pending<=tick;
+                product_pending<=sample_pending;sum_pending<=product_pending;
                 if (tick) begin
+                    kp_sample<=kp_live;ki_sample<=ki_live;kd_sample<=kd_live;
                     previous_q<=error_q;
                     integral_q<=inext_q;
                     error_stage_q<=error_q;
                     integral_stage_q<=inext_q;
                     delta_stage_q<=delta_q;
                 end
-                if (sample_pending) begin
+                if (RUNTIME_GAINS==0 && PIPELINED_ARITH==0 && sample_pending) begin
                     valid<=1;
                     if (scaled_w>$signed(OUT_LIMIT)) out_q<=OUT_LIMIT;
                     else if (scaled_w<-$signed(OUT_LIMIT)) out_q<=-$signed(OUT_LIMIT);
                     else out_q<=scaled_w[31:0];
+                end
+                if(RUNTIME_GAINS!=0 || PIPELINED_ARITH!=0) begin
+                    if(sample_pending) begin runtime_p<=kp_term;runtime_i<=ki_term;runtime_d<=kd_term;end
+                    if(product_pending) runtime_sum<=runtime_p+runtime_i+runtime_d;
+                    if(sum_pending) begin
+                        valid<=1;
+                        if(runtime_scaled>$signed(OUT_LIMIT)) out_q<=OUT_LIMIT;
+                        else if(runtime_scaled<-$signed(OUT_LIMIT)) out_q<=-OUT_LIMIT;
+                        else out_q<=runtime_scaled[31:0];
+                    end
                 end
             end
         end

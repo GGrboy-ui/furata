@@ -1,6 +1,0 @@
-ACG720 FPGA regression 2026-10-29T18:46:31
-requested=tb_pid_integral_deadband
-passed=1
-failed=
-missing=
-waveforms=G:\furata-git\furata\build\oss

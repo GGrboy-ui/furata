@@ -1,13 +1,14 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const recording = new Telemetry.Recording();
+const diagnostics = typeof SerialDiagnostics!=='undefined' ? SerialDiagnostics.create():null;
 let decoder = new Telemetry.LineDecoder(frame => {
   if (recording.add(frame)) { lastReceived = performance.now(); streaming = true; dirty = true; updateControls(); }
 });
 let port = null, reader = null, readTask = null, keepReading = false;
 let connecting = false, disconnecting = false, sending = false, streaming = false;
 let dirty = true, frozen = false, lastReceived = 0, lastPaint = 0, chartView = null;
-let writeQueue = Promise.resolve(), calibration = null;
+let writeQueue = Promise.resolve(), trajectory = null, arm = null;
 const canvas = $('chart'), ctx = canvas.getContext('2d');
 
 function message(text, error = false) { $('message').textContent = text; $('message').classList.toggle('error', error); }
@@ -15,8 +16,8 @@ function updateControls() {
   const connected = !!port;
   $('connect').disabled = connected || connecting || disconnecting || !('serial' in navigator);
   $('disconnect').disabled = !connected || disconnecting || sending;
-  $('start').disabled = !connected || disconnecting || sending || !!calibration?.locked;
-  $('stop').disabled = !connected || disconnecting || sending || !!calibration?.locked;
+  $('start').disabled = !connected || disconnecting || sending;
+  $('stop').disabled = !connected || disconnecting || sending;
   $('baud').disabled = connected || connecting;
   $('import').disabled = connected;
   $('export').disabled = !recording.length;
@@ -29,14 +30,15 @@ function writeCommand(command) {
   const operation = writeQueue.catch(() => {}).then(async () => {
     if (!currentPort?.writable || currentPort !== port) throw new Error('串口尚未连接');
     const writer = currentPort.writable.getWriter();
-    try { await writer.write(new TextEncoder().encode(command)); }
+    try { await writer.write(new TextEncoder().encode(command)); diagnostics?.tx(command); }
+    catch(error){diagnostics?.txError(command,error.message);throw error;}
     finally { writer.releaseLock(); }
   });
   writeQueue = operation.catch(() => {});
   return operation;
 }
 async function command(value) {
-  if (sending || disconnecting || calibration?.locked) return;
+  if (sending || disconnecting) return;
   sending = true; updateControls();
   try {
     await writeCommand(value);
@@ -55,7 +57,7 @@ async function readLoop(currentPort) {
           const { value, done } = await reader.read();
           if (done) break;
           const text = textDecoder.decode(value, { stream: true });
-          decoder.feed(text); calibration?.feed(text);
+          diagnostics?.rx(text); decoder.feed(text); trajectory?.feed(text); arm?.feed(text);
         }
       } finally { reader.releaseLock(); reader = null; }
     }
@@ -65,7 +67,7 @@ async function readLoop(currentPort) {
     if (!disconnecting && port === currentPort) {
       keepReading = false;
       try { await currentPort.close(); } catch (_) { /* Disconnected devices may already be closed. */ }
-      port = null; streaming = false; calibration?.disconnected(); updateControls();
+      diagnostics?.disconnected(); port = null; streaming = false; trajectory?.disconnected(); arm?.disconnected(); updateControls();
     }
   }
 }
@@ -79,13 +81,15 @@ $('connect').addEventListener('click', async () => {
     selected = await navigator.serial.requestPort();
     await selected.open({ baudRate, dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none' });
     port = selected; keepReading = true; streaming = false;
+    diagnostics?.connected({baudRate,pageUrl:typeof location!=='undefined'?location.href:'',userAgent:navigator.userAgent||''});
     decoder = new Telemetry.LineDecoder(frame => {
       if (recording.add(frame)) { lastReceived = performance.now(); streaming = true; dirty = true; }
     });
     // A new connection is a separate acquisition session, even when firmware was not reset.
     if (recording.length) { recording.session++; recording.lastSequence = null; recording.time += 5; }
     readTask = readLoop(selected);
-    await calibration?.connected();
+    await trajectory?.connected();
+    await arm?.connected();
     message('串口已连接。点击「开始回传 P」接收角度、PWM、位置和目标偏移。');
   } catch (error) {
     if (selected && selected !== port) { try { await selected.close(); } catch (_) {} }
@@ -98,17 +102,18 @@ $('disconnect').addEventListener('click', async () => {
   if (!port || disconnecting) return;
   disconnecting = true; updateControls();
   const currentPort = port;
-  let stopped = false;
+  let stopped = false, armStopFailed = false;
   try {
-    try { await calibration?.beforeDisconnect(); } catch (_) { /* The hardware watchdog still expires after heartbeats stop. */ }
+    try { await arm?.beforeDisconnect(); } catch (_) { armStopFailed = true; }
+    try { await trajectory?.beforeDisconnect(); } catch (_) { armStopFailed = true; }
     try { await writeCommand('Q'); stopped = true; } catch (_) {}
     keepReading = false;
     if (reader) await reader.cancel();
     if (readTask) await readTask;
     await currentPort.close();
-    message(stopped ? '已停止回传并断开串口；数据可继续查看或导出。' : '串口已断开，Q 未成功发送；数据可继续导出。', !stopped);
+    message(armStopFailed ? '串口已断开，但移动停机 X 未确认；必要时请使用实体 K4。数据可继续导出。' : stopped ? '已停止回传并断开串口；数据可继续查看或导出。' : '串口已断开，Q 未成功发送；数据可继续导出。', armStopFailed || !stopped);
   } catch (error) { message(`断开串口：${error.message}。数据已保留。`, true); }
-  finally { port = null; streaming = false; disconnecting = false; calibration?.disconnected(); updateControls(); }
+  finally { diagnostics?.disconnected(); port = null; streaming = false; disconnecting = false; trajectory?.disconnected(); arm?.disconnected(); updateControls(); }
 });
 $('clear').addEventListener('click', () => {
   recording.clear(); decoder.pending = ''; decoder.invalid = 0; dirty = true;
@@ -165,7 +170,7 @@ function refreshMetrics() {
   $('retention').textContent = recording.total > recording.capacity ?
     `已覆盖 ${recording.total - recording.capacity} 个早期样本；当前保留最近 ${recording.length.toLocaleString()} 个，导出为保留部分。` :
     '保留最近 120,000 个样本，约 10 分钟；可随时导出。';
-  if (streaming && !calibration?.locked && performance.now() - lastReceived > 1500) {
+  if (streaming && !trajectory?.locked && performance.now() - lastReceived > 1500) {
     streaming = false;
     message('暂未收到新角度值；请检查回传是否停止，或数码管是否正在显示无效角度。');
   }
@@ -277,7 +282,33 @@ function animate(now) {
   if (dirty && !frozen && now - lastPaint > 33) { draw(); dirty = false; lastPaint = now; }
   requestAnimationFrame(animate);
 }
-if (typeof CalibrationApp !== 'undefined') calibration = CalibrationApp.create({ getElement: $, send: writeCommand, isConnected: () => !!port && !disconnecting, onStateChange: () => { if (calibration?.locked) streaming = false; updateControls(); } });
+function recentTelemetry() {
+  const latest=recording.latest(),points=[];
+  if(!latest)return points;
+  for(let i=recording.length-1;i>=0;i--){const p=recording.get(i);if(p.session!==latest.session||p.time<latest.time-200)break;points.push(p);}
+  return points.reverse();
+}
+if (typeof TrajectoryApp !== 'undefined') trajectory = TrajectoryApp.create({
+  getElement:$,send:writeCommand,isConnected:()=>!!port&&!disconnecting,legacyLocked:()=>!!arm?.locked,
+  getRecentTelemetry:recentTelemetry,
+  getTaskTelemetry:task=>recording.values().filter(p=>p.session===task.session&&p.time>=task.startTime&&(task.endTime==null||p.time<=task.endTime)),
+  download:(text,name)=>{const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},
+  onStateChange:()=>{arm?.update();updateControls();}
+});
+if (typeof ArmApp !== 'undefined') arm = ArmApp.create({
+  getElement:$,send:writeCommand,isConnected:()=>!!port&&!disconnecting,
+  motionLocked:()=>!!trajectory?.locked,onStateChange:()=>updateControls()
+});
+function updateDiagnostics(){
+ if(!diagnostics)return;const s=diagnostics.snapshot(),v=s.lastVelocity;
+ $('diag-export').disabled=s.totalEntries===0;
+ $('diag-status').textContent=!v?'尚未收到 @W / @V 速度帧；请确认页面已识别 VEL3 并保持连接。':`已收 ${s.velocityFrames} 条速度帧 · 原始速度 0x${v.actualHex} = ${v.actualCountsPerSecond.toFixed(6)} counts/s = ${v.actualDegreesPerSecond.toFixed(6)}°/s · 最近位置 ${s.lastPosition?.counts??'—'} counts${Date.now()-v.hostTimeMs>1500?' · 速度回读已过期':''}`;
+ $('diag-frame').textContent=v?.rawFrame||'等待 @W / @V';
+}
+$('diag-export')?.addEventListener('click',()=>{
+ if(!diagnostics)return;const text=diagnostics.json({pageUrl:typeof location!=='undefined'?location.href:'',baudRate:Number($('baud').value)});
+ const url=URL.createObjectURL(new Blob([text],{type:'application/json;charset=utf-8'})),link=document.createElement('a');link.href=url;link.download=`furuta-serial-diagnostic-${Date.now()}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
 if (!('serial' in navigator)) message('当前浏览器无法访问串口。请在桌面 Chrome / Edge 中打开本地网页；此处仍可导入数据查看曲线。', true);
-else if (!window.isSecureContext) message('串口需要安全上下文，请通过启动脚本提供的 http://localhost:8765 打开网页。', true);
-updateControls(); refreshMetrics(); draw(); requestAnimationFrame(animate); setInterval(refreshMetrics, 250);
+else if (!window.isSecureContext) message('串口需要安全上下文，请通过启动脚本提供的 http://localhost:8766 打开网页。', true);
+updateControls(); refreshMetrics(); draw(); requestAnimationFrame(animate); setInterval(() => { refreshMetrics(); updateDiagnostics(); void arm?.poll(); void trajectory?.poll(); }, 250);

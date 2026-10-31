@@ -42,7 +42,7 @@ module tb_acg720_keys;
    press(0);
    if(dut.state!==1) $fatal(1,"FAIL: KEY1 did not start swing-up");
    press(1);
-   if(dut.state!==1 || dut.position_goal_q!==0)
+   if(dut.state!==1 || dut.outer_speed || dut.position_goal_q!==0)
      $fatal(1,"FAIL: KEY2 interrupted an active swing-up");
    repeat(8) sample_tick;
    if(dut.state!==4) $fatal(1,"FAIL: swing-up did not capture BALANCE");
@@ -51,14 +51,16 @@ module tb_acg720_keys;
    repeat(60) sample_tick;
    if(dut.position_target_q!==0 || dut.core.position_out!==0)
      $fatal(1,"FAIL: KEY3 changed the held position target");
-   press(1); press(0);
+   press(1);
+   if(!dut.outer_speed||dut.handover_remaining==0)$fatal(1,"FAIL: K2 did not select speed");
+   press(1);press(0);
    if(dut.state!==4 || dut.position_goal_q!==0)
      $fatal(1,"FAIL: start keys interrupted BALANCE");
    press(3); check_reset;
    if(dut.core.angle_pid.out_q!==0 || dut.core.position_pid.out_q!==0 || dut.wake_count!==0)
      $fatal(1,"FAIL: KEY4 left stale PID/wake state");
    press(0); repeat(8) sample_tick; cycles(3);
-   if(dut.state!==4) $fatal(1,"FAIL: re-start did not balance");
+   if(dut.state!==4||dut.outer_speed) $fatal(1,"FAIL: K1 must re-start in position");
    force dut.sample=12'd2098; sample_tick; cycles(3);
    if(dut.state!==5 || dut.fault_code!==5 || stby_fpga!==0 || pwm_a!==0)
      $fatal(1,"FAIL: old center did not trip balance-range protection");

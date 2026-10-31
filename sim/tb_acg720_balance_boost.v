@@ -4,7 +4,7 @@ module tb_acg720_balance_boost;
  wire stby,pwm,in1,in2;
  // Nondefault calibration-based half-width and increment verify top-to-core
  // forwarding. 3 degrees maps to floor(30*4095/3330)=36 ADC codes.
- acg720_top #(.CENTER(1005),.ENCODER_INVERT(1),.CLK_HZ(100000),.BAUD(1000),.PWM_HZ(1000),
+ acg720_top #(.DEFAULT_OUTER_SPEED(0),.CENTER(1005),.ENCODER_INVERT(1),.CLK_HZ(100000),.BAUD(1000),.PWM_HZ(1000),
    .BALANCE_BOOST_RANGE_TENTHS(30),.BALANCE_BOOST_MAX_PERCENT(3)) dut (
    .clk(clk),.rst_n(rst_n),.uart_rx(1'b1),.enc_a(enc_a),.enc_b(enc_b),.board_adc_dout(1'b0),
    .key1_n(1'b1),.key2_n(1'b1),.key3_n(1'b1),.key4_n(1'b1),

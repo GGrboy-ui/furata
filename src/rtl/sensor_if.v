@@ -19,6 +19,7 @@ module sensor_if #(
     reg [31:0] count, age, rails, frame_age;
     reg [11:0] sample_q;
     reg sample_valid_q;
+    reg frame_expired,age_expired,rails_expired;
     wire busy;
     wire request=(count==PERIOD-1) && !busy;
     wire [11:0] adc_data;
@@ -27,9 +28,9 @@ module sensor_if #(
     assign sample=sample_q;
     assign sample_valid=sample_valid_q;
     // 3: no completed conversion; 4: analogue input at a rail; 5: SPI frame timeout.
-    assign error_code=(frame_age>=TIMEOUT) ? 4'd5 :
-                      (age>=TIMEOUT) ? 4'd3 :
-                      (rails>=RAIL_LIMIT_SAMPLES) ? 4'd4 : 4'd0;
+    assign error_code=(frame_expired) ? 4'd5 :
+                      (age_expired) ? 4'd3 :
+                      (rails_expired) ? 4'd4 : 4'd0;
 
     adc128s102_reader #(.HALF_DIV(ADC_HALF_DIV)) adc (
         .clk(clk),.rst_n(rst_n),.start(request),.channel(3'd0),.dout(dout),
@@ -39,20 +40,21 @@ module sensor_if #(
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             count<=0; age<=0; rails<=0; frame_age<=0; sample_q<=0;
-            sample_valid_q<=0; ready<=0;
+            sample_valid_q<=0; ready<=0;frame_expired<=0;age_expired<=0;rails_expired<=(RAIL_LIMIT_SAMPLES<=0);
         end else begin
             sample_valid_q<=0;
             count <= (count==PERIOD-1) ? 0 : count+1;
             if (busy) begin
+                frame_expired<=(frame_age>=TIMEOUT-1);
                 if (frame_age<TIMEOUT) frame_age<=frame_age+1;
-            end else frame_age<=0;
+            end else begin frame_age<=0;frame_expired<=0;end
             if (adc_valid) begin
                 sample_q<=adc_data;
                 sample_valid_q<=1;
-                age<=0; ready<=1;
-                if ((adc_data!=0) && (adc_data!=4095)) rails<=0;
-                else if (rails<RAIL_LIMIT_SAMPLES) rails<=rails+1;
-            end else if (age<TIMEOUT) age<=age+1;
+                age<=0; age_expired<=0;ready<=1;
+                if ((adc_data!=0) && (adc_data!=4095)) begin rails<=0;rails_expired<=(RAIL_LIMIT_SAMPLES<=0);end
+                else begin rails_expired<=(rails>=RAIL_LIMIT_SAMPLES-1);if (rails<RAIL_LIMIT_SAMPLES) rails<=rails+1;end
+            end else begin age_expired<=(age>=TIMEOUT-1);if (age<TIMEOUT) age<=age+1;end
         end
     end
 endmodule
