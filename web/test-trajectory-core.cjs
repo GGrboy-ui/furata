@@ -12,6 +12,20 @@ assert.throws(()=>T.validate({...defaults[1],angles:[0]}));
 assert.throws(()=>T.validate({...defaults[2],angles:Array(9).fill(0)}));
 assert.equal(T.seconds('0.501',.5,600,'time'),501);assert.throws(()=>T.integer('1.2',1,1000,'period'));
 assert.equal(T.parse('@I,TRJ1,0198,0FF0,001E,0032').defaultPeriod,50);
+assert.equal(T.parse('@I,TRJ1,0198,0FF0,001E,0032').outer,1);
+assert.equal(T.parse('@I,TRJ2,0198,0FF0,001E,0032').outer,0);
+for(const mode of [1,2,3,4])for(const degrees of [60,90,180,270,360]){
+ const p={mode,time:15000,dwell:mode===3?3000:0,cycles:1,angles:mode===3?[degrees*10,0,-degrees*10,0]:[degrees*10]};
+ p.time=T.recommendedTime(p);T.validate(p);
+ assert.ok(p.time>=(mode===2?20000:15000));
+ assert.equal(T.sample(p,T.total(p)).v,0);
+ if(mode===1&&degrees===360)assert.equal(p.time,22500);
+ if(mode===4&&degrees===360)assert.equal(p.time,19200);
+ if(mode===2&&degrees===360)assert.equal(p.time,75500);
+}
+assert.throws(()=>T.validate({mode:1,time:20000,dwell:0,cycles:1,angles:[3600]}),/22\.500 s/);
+T.validate({mode:4,time:20000,dwell:0,cycles:1,angles:[-3600]});
+assert.equal(T.recommendedTime({mode:3,angles:[3600,-3600]}),45000,'use distance between waypoints, not their absolute magnitude');
 const status='@T,0003,01,4,2,1,0014,00000064,00000FA0,FFFFFFF0,00018000,FFFF0000,00020000,0,0014,0003';
 const parsed=T.parse(status);assert.equal(parsed.actual,-16);assert.equal(parsed.target,1.5);assert.equal(parsed.velocity,-1);assert.equal(parsed.period,20);
 for(const bad of [status+',0',status.replace('0014','0000'),status.replace('FFFFFFF0','oops')])assert.equal(T.parse(bad),null);
@@ -21,7 +35,7 @@ assert.equal(T.estimateVelocity(points.slice(0,2),408),null);
 let frames=0;const decoder=new Telemetry.LineDecoder(()=>frames++);decoder.feed(status+'\r\n');assert.equal(decoder.invalid,0);assert.equal(frames,0);
 const file=path.join(__dirname,'../build/oss/tb_acg720_trajectory/trajectory_serial.log');
 if(fs.existsSync(file)){
- const text=fs.readFileSync(file,'utf8'),lines=text.trim().split(/\r?\n/),trj=lines.filter(s=>s.startsWith('@T,')||s.startsWith('@I,TRJ1,'));
+ const text=fs.readFileSync(file,'utf8'),lines=text.trim().split(/\r?\n/),trj=lines.filter(s=>s.startsWith('@T,')||/^@I,TRJ[12],/.test(s));
  assert.ok(trj.length>=6);for(const line of trj)assert.ok(T.parse(line),`real RTL response: ${line}`);
  decoder.feed(text);assert.equal(decoder.invalid,0);assert.ok(frames>0);
 }

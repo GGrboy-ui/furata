@@ -58,7 +58,10 @@ module tb_acg720_velocity;
   repeat(50)ms;
   if(dut.core.speed_out!=0)$fatal(1,"FAIL: inactive speed PI output");
   command("@T,40,1,1000,0,1,1,+10\n");clocks(2000);
-  if(dut.trajectory_busy||dut.trajectory_selected||dut.trajectory_event_code!=17)$fatal(1,"FAIL: position mode accepted trajectory");
+  if(!dut.trajectory_busy||!dut.trajectory_selected||dut.trajectory_event_code!=1)$fatal(1,"FAIL: position mode rejected trajectory");
+  repeat(250)ms;key2;
+  if(dut.outer_speed||dut.core.speed_out!=0||dut.core.position_out==0||dut.angle_target_offset_q!= -dut.core.position_out)$fatal(1,"FAIL: profile bypassed position PID or K2 switched during trajectory");
+  byte_send("X");clocks(15000);key3;
   command("@M,30,+10\n");wait(dut.arm_busy);repeat(50)ms;
   if(dut.core.speed_out!=0||dut.angle_target_offset_q==0)$fatal(1,"FAIL: position outer loop ARM feedback");
   byte_send("X");clocks(15000);
@@ -68,7 +71,7 @@ module tb_acg720_velocity;
   repeat(200)ms;before_report=reports;command("@TVR\n");response(before_report);
   command("@TPI\n");wait(pos_caps==1);command("@TV3\n");wait(caps==3);
   old_pos=pos_reports;command("@TPQ\n");wait(pos_reports>old_pos);
-  if(pos_code!=0||dut.actual_position_ms!=50||dut.position_kp_q!=39214||dut.position_ki_q!=400||dut.position_kd_q!=362144)$fatal(1,"FAIL: new position query defaults");
+  if(pos_code!=0||dut.actual_position_ms!=50||dut.position_kp_q!=dut.core.POSITION_KP||dut.position_ki_q!=dut.core.POSITION_KI||dut.position_kd_q!=dut.core.POSITION_KD)$fatal(1,"FAIL: new position query defaults");
   repeat(200)ms;before_report=reports;command("@TVS\n");response(before_report);
   if(dut.speed_friction_t!=0)$fatal(1,"FAIL: t default");
   before_report=reports;command("@TVC,1,0,30,0,0,0\n");response(before_report);
@@ -108,7 +111,10 @@ module tb_acg720_velocity;
   repeat(20)ms;saved_output=dut.core.speed_out;measured=65536;repeat(20)ms;
   if(dut.core.speed_out>=saved_output||dut.core.position_pid.integral_q!=0)$fatal(1,"FAIL: measured speed not in selected feedback");
   measured=0;
-  // Four profiles through the physical UART, with integer position following
+  command("@T,41,1,1000,0,1,1,+10\n");clocks(2000);
+  if(dut.trajectory_busy||dut.trajectory_event_code!=17)$fatal(1,"FAIL: speed mode accepted position-only trajectory");
+  byte_send("X");clocks(15000);key3;
+  // Four position-PID profiles through the physical UART, with integer position following
   // injected only to exercise completion/hold, never to claim tracking quality.
   for(m=1;m<=4;m=m+1)begin
    if(m==3)command("@T,13,3,1000,20,1,2,+10,-10\n");
@@ -117,11 +123,13 @@ module tb_acg720_velocity;
    while(dut.trajectory_phase==2)begin
     ms;position=500+($signed(dut.position_target_q)>>>16);n=n+1;
     if(dut.reference_velocity_q!==dut.trajectory_velocity_q)$fatal(1,"FAIL: reference velocity disconnected");
+    if(dut.outer_speed||dut.core.speed_out!=0||dut.angle_target_offset_q!= -dut.core.position_out)$fatal(1,"FAIL: mode %0d not using position PID",m);
     if(n>2200)$fatal(1,"FAIL: trajectory deadline mode %0d",m);
    end
    position=500+($signed(dut.trajectory_goal_q)>>>16);repeat(220)ms;
    if(dut.trajectory_phase!=4||dut.reference_velocity_q!=0)$fatal(1,"FAIL: finish/zero-speed hold mode %0d",m);
   end
+  key2;repeat(200)ms;
   command("@M,1,+10\n");wait(dut.arm_busy);repeat(30)ms;
   if(dut.reference_velocity_q==0||dut.reference_velocity_q!==dut.legacy_velocity_q)$fatal(1,"FAIL: ARM ramp reference");
   byte_send("X");clocks(15000);
@@ -141,7 +149,7 @@ module tb_acg720_velocity;
   command("@TVE,9,5,0,0,0,0,0X");clocks(15000);
   if(dut.outer_speed||dut.speed_friction_t!=7)$fatal(1,"FAIL: incomplete packet mutated config");
   rst_n=0;clocks(5);
-  if(dut.outer_speed||dut.speed_period_ms!=20||dut.speed_kp_q!=6554||dut.speed_kd_q!=0||dut.speed_friction_t!=0||dut.position_kp_q!=39214||dut.position_ki_q!=400||dut.position_kd_q!=362144)$fatal(1,"FAIL: system reset position defaults");
+  if(dut.outer_speed||dut.speed_period_ms!=20||dut.speed_kp_q!=6554||dut.speed_kd_q!=0||dut.speed_friction_t!=0||dut.position_kp_q!=dut.core.POSITION_KP||dut.position_ki_q!=dut.core.POSITION_KI||dut.position_kd_q!=dut.core.POSITION_KD)$fatal(1,"FAIL: system reset position defaults");
   $fclose(file);$display("TEST PASSED: tb_acg720_velocity (physical UART/T, VEL1, atomic config, two modes, feedback, four trajectories, ARM, X/K4, reset)");$finish;
  end
  initial begin #80000000;$fatal(1,"FAIL: velocity integration timeout");end

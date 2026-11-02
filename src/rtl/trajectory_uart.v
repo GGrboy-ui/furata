@@ -86,7 +86,7 @@ module trajectory_uart #(
    if(started) task_period<=actual_period;
    if(!sending && !tx_blocked) begin
     if(cap_dirty) begin
-     tx_buffer<={"@I,TRJ1,",h4(COUNTS_PER_REV),8'h2c,h4(LIMIT_COUNTS),8'h2c,h4(MAX_SPEED),8'h2c,h4(DEFAULT_PERIOD),16'h0d0a};
+     tx_buffer<={"@I,TRJ2,",h4(COUNTS_PER_REV),8'h2c,h4(LIMIT_COUNTS),8'h2c,h4(MAX_SPEED),8'h2c,h4(DEFAULT_PERIOD),16'h0d0a};
      tx_length<=29;tx_index<=0;sending<=1;draining<=0;cap_dirty<=0;
     end else if(pos_cap_dirty) begin
      tx_buffer<={"@I,POS1",16'h0d0a};tx_length<=9;tx_index<=0;sending<=1;draining<=0;pos_cap_dirty<=0;

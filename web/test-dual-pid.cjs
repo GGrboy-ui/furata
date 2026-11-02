@@ -15,7 +15,8 @@ const vel=(id=0,code=0,state=0,outer=0,remain=0)=>`@W,${h(id,4)},${h(code,2)},${
  app.feed(pos(1,4,0,131072));assert.equal(app.locked,true);app.feed(vel(1,4));assert.equal(app.locked,false);assert.equal(app.snapshot.position.kp,2);
  el('tr-speed-kp').value='9';el('tr-speed-kd').value='9';el('tr-speed-t').value='80';await app.applyFriction();assert.equal(writes.at(-1),'@TVE,2,20,6554,1311,0,32768,80\n','t only uses actual speed PID');app.feed(vel(2,4));
  app.feed(pos(2,4,4,131072)+vel(2,4,4,1,200));assert.equal(app.canRun,false);assert.equal(el('pos-apply').disabled,true);assert.equal(el('tr-speed-apply').disabled,true);assert.equal(el('tr-speed-t').disabled,false);assert.match(el('pid-mode').textContent,/交接中/);
- app.feed(vel(2,4,4,1,0));assert.equal(app.canRun,true);const count=writes.length;await app.applySpeed();assert.equal(writes.length,count);
+ app.feed(vel(2,4,4,1,0));assert.equal(app.canRun,false,'speed mode must not execute position profiles');
+ app.feed(vel(2,4,4,0,0));assert.equal(app.canRun,true);const count=writes.length;await app.applySpeed();assert.equal(writes.length,count);
  time+=2000;app.update();assert.equal(app.canRun,false,'stale control state locks execution');app.disconnected();assert.equal(el('pos-apply').disabled,true);assert.equal(el('pos-kp').disabled,false);
  app.feed('@I,VEL1,0014,0005,0064\r\n');assert.equal(el('tr-speed-apply').disabled,true,'no VEL3 fallback writes');
  for(const bad of [pos().replace('0032','0000'),vel().replace('0014','0004'),vel().replace('00000000,00008000','00100001,00008000')])assert.equal(Trajectory.parse(bad.trim()),null);

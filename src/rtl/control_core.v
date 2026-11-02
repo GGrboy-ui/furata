@@ -3,7 +3,7 @@
 // One sample_valid represents 1 ms. Angle is an ADC code, not degrees.
 module control_core #(
     parameter integer CENTER=1014, CAPTURE_RANGE=500,
-    parameter integer START_PERCENT=55, PULSE_MS=200, CHECK_MS=40,
+    parameter integer START_PERCENT=55, PULSE_MS=100, CHECK_MS=40,
     parameter integer RUNTIME_POSITION_PERIOD=0,
     parameter integer RUNTIME_POSITION_GAINS=0,
     parameter integer PIPELINED_ANGLE_PID=0,
@@ -12,7 +12,7 @@ module control_core #(
     parameter integer POSITION_LIMIT_COUNTS=4080,
     parameter integer MOTOR_TEST_PERCENT=20, MOTOR_TEST_REVERSE=0,
     parameter signed [31:0] ANGLE_KP=32'sd20661, ANGLE_KI=32'sd820, ANGLE_KD=32'sd31214,
-    parameter signed [31:0] POSITION_KP=32'sd39214, POSITION_KI=32'sd400, POSITION_KD=32'sd362144,
+    parameter signed [31:0] POSITION_KP=32'sd30214, POSITION_KI=32'sd350, POSITION_KD=32'sd392144,
     // Linear PWM addition about fixed CENTER; zero width/maximum disables it.
     parameter integer BALANCE_BOOST_RANGE_CODES=24,
     parameter integer BALANCE_BOOST_MAX_PERCENT=5,
@@ -120,11 +120,12 @@ module control_core #(
     outer_handover transfer(.clk(clk),.rst_n(rst_n),.clear(!balance || stop_cmd || !permit || fault_latched),
         .tick_ms(sample_valid),.start(switch_speed_cmd===1'b1),.position_out(position_out),.speed_out(speed_out),
         .friction_t(speed_friction_t),.remaining_ms(handover_remaining),.out_q(handover_out),.applied_t(transition_t));
+    reg signed [31:0] measured_angle_q, measured_position_q, target_angle_q, target_position_q;
     generate if(ENABLE_VELOCITY!=0) begin: velocity_loop
         speed_outer #(.COUNTS_PER_REV(COUNTS_PER_REV),.MAX_SPEED(MAX_SPEED)) speed_pi (
             .clk(clk),.rst_n(rst_n),.clear(outer_clear || !speed_selected),.tick(speed_tick),
             .period_ms(speed_period_ms),.kp_q(speed_kp_q),.ki_q(speed_ki_q),.kd_q(speed_kd_q),.kpos_q(speed_kpos_q),
-            .position_error_q(position_error_q),.reference_q(reference_velocity_q),.actual_q(actual_velocity_q),
+            .position_error_q(target_position_q),.reference_q(reference_velocity_q),.actual_q(actual_velocity_q),
             .target_q(speed_target_q),.out_q(speed_out),.valid(speed_update));
     end else begin: no_velocity_loop
         assign speed_target_q=0;assign speed_out=0;assign speed_update=0;
@@ -134,7 +135,6 @@ module control_core #(
     wire signed [31:0] measured_angle=$signed({4'b0,sample,16'b0});
     // Both PID loops update in milliseconds. One 50 MHz register of latency
     // separates sensor/encoder inputs and the two control arithmetic chains.
-    reg signed [31:0] measured_angle_q, measured_position_q, target_angle_q, target_position_q;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             measured_angle_q<=0;
@@ -160,6 +160,8 @@ module control_core #(
         .clk(clk),.rst_n(rst_n),.clear(outer_clear || speed_selected),.tick(position_tick),
         .runtime_kp_q(position_kp_q),.runtime_ki_q(position_ki_q),.runtime_kd_q(position_kd_q),
         .target_q(target_position_q),.actual_q(measured_position_q),.out_q(position_out),.valid(position_pid_update));
+    // Speed position correction also uses target_position_q above, separating
+    // the wide coordinate-error arithmetic from the speed PID sample enable.
     // Capture the same registered measurement as angle_pid. The next clock
     // publishes both results together; later sensor changes cannot mix samples.
     // Distance is from fixed CENTER, independently of the outer-loop target.

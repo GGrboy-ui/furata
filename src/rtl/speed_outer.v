@@ -16,7 +16,7 @@ module speed_outer #(
  reg [4:0] stage;
  reg have_previous;
  reg signed [31:0] kd,previous_actual,derivative_q,d_raw,d_term;
- reg signed [63:0] d_w,d_product;
+ reg signed [63:0] d_w,d_product,div_signed;
  reg [63:0] denominator;
  reg [15:0] dt;
  reg signed [31:0] kp,ki,kpos,ep,reference,actual,correction,error_q,p_q,integral_q;
@@ -37,7 +37,7 @@ module speed_outer #(
  endfunction
  always @(posedge clk or negedge rst_n) begin
   if(!rst_n) begin
-   have_previous<=0;kd<=0;previous_actual<=0;derivative_q<=0;d_raw<=0;d_term<=0;d_w<=0;d_product<=0;denominator<=1000;
+   have_previous<=0;kd<=0;previous_actual<=0;derivative_q<=0;d_raw<=0;d_term<=0;d_w<=0;d_product<=0;div_signed<=0;denominator<=1000;
    stage<=0;dt<=0;kp<=0;ki<=0;kpos<=0;ep<=0;reference<=0;actual<=0;correction<=0;error_q<=0;
    p_q<=0;integral_q<=0;product<=0;p_product<=0;i_product<=0;delta_product<=0;desired<=0;error_w<=0;
    i_candidate<=0;sum<=0;div_start<=0;delta_negative<=0;numerator<=0;target_q<=0;out_q<=0;valid<=0;
@@ -63,9 +63,11 @@ module speed_outer #(
     7:begin p_product<=$signed(kp)*$signed(error_q);i_product<=$signed(ki)*$signed(error_q);stage<=8;end
     8:begin p_q<=sat32(p_product>>>16);delta_product<=$signed(sat32(i_product>>>16))*$signed({1'b0,dt});stage<=9;end
     9:begin denominator<=1000;delta_negative<=delta_product[63];numerator<=delta_product[63] ? -delta_product:delta_product;div_start<=1;stage<=10;end
-    10:if(div_done) begin
+    // Register quotient sign separately from accumulation/clamping.
+    10:if(div_done) begin div_signed<=delta_negative ? -$signed(quotient):$signed(quotient);stage<=22;end
+    22:begin
      i_candidate<=ki==0 ? 64'sd0:$signed({{32{integral_q[31]}},integral_q})+
-      (delta_negative ? -$signed(quotient):$signed(quotient));stage<=11;
+      div_signed;stage<=11;
     end
     11:begin i_candidate<=angle_limit(i_candidate);stage<=12;end
     12:begin
@@ -73,10 +75,13 @@ module speed_outer #(
      previous_actual<=actual;have_previous<=1;stage<=14;
     end
     14:begin delta_negative<=d_w[63];numerator<=d_w[63] ? -d_w:d_w;denominator<={48'd0,dt};div_start<=1;stage<=15;end
-    15:if(div_done) begin d_raw<=sat32(delta_negative ? -$signed(quotient):$signed(quotient));stage<=16;end
+    15:if(div_done) begin div_signed<=delta_negative ? -$signed(quotient):$signed(quotient);stage<=23;end
+    23:begin d_raw<=sat32(div_signed);stage<=16;end
     16:begin d_w<=($signed({{32{d_raw[31]}},d_raw})-$signed({{32{derivative_q[31]}},derivative_q}))*$signed({1'b0,dt});stage<=17;end
     17:begin delta_negative<=d_w[63];numerator<=d_w[63] ? -d_w:d_w;denominator<=64'd40+dt;div_start<=1;stage<=18;end
-    18:if(div_done) begin derivative_q<=sat32($signed({{32{derivative_q[31]}},derivative_q})+(delta_negative ? -$signed(quotient):$signed(quotient)));stage<=19;end
+    18:if(div_done) begin div_signed<=delta_negative ? -$signed(quotient):$signed(quotient);stage<=24;end
+    24:begin d_w<=$signed({{32{derivative_q[31]}},derivative_q})+div_signed;stage<=25;end
+    25:begin derivative_q<=sat32(d_w);stage<=19;end
     19:begin d_product<=$signed(kd)*$signed(derivative_q);stage<=20;end
     20:begin d_term<=sat32(d_product>>>16);stage<=21;end
     21:begin sum<=$signed({{32{p_q[31]}},p_q})+i_candidate-$signed({{32{d_term[31]}},d_term});stage<=13;end

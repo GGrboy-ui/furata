@@ -3,6 +3,16 @@
   const names = ['', '五次多项式', '正弦往返', '多点定位', '七段 S 形速度'];
   const smooth = s => s*s*s*(10+s*(-15+6*s));
   const dsmooth = s => 30*s*s*(1-s)*(1-s);
+  function minimumTime(p,maxSpeed=30) {
+    if(!Number.isFinite(maxSpeed)||maxSpeed<=0)throw Error('峰值速度限制必须大于零');
+    let previous=0,peak=0;
+    for(const a of p.angles){peak=Math.max(peak,Math.abs(p.mode===2?a:a-previous)*(p.mode===2?6284:p.mode===4?1600:1875));previous=a;}
+    return Math.max(500,Math.ceil(peak/(maxSpeed*10)));
+  }
+  function recommendedTime(p,maxSpeed=30) {
+    // Keep normal tasks at 15 s / sine at 20 s; extend large moves instead of raising the speed limit.
+    return Math.max(p.mode===2?20000:15000,Math.ceil(minimumTime(p,maxSpeed)/100)*100);
+  }
   function angle(text) {
     const s=String(text).trim();
     if(!/^[+-]?\d+(?:\.\d)?$/.test(s) || Math.abs(Number(s))>3600) throw Error('角度范围为 −3600.0°～+3600.0°，最多一位小数');
@@ -29,7 +39,7 @@
     let previous=0;
     for(const a of p.angles) {
       const peak=Math.abs(p.mode===2?a:a-previous)*(p.mode===2?6284:p.mode===4?1600:1875);
-      if(peak>maxSpeed*p.time*10) throw Error(`峰值参考速度超过 ${maxSpeed}°/s，请增加时间或减小角度`);
+      if(peak>maxSpeed*p.time*10) throw Error(`峰值参考速度超过 ${maxSpeed}°/s；当前角度至少需要 ${(minimumTime(p,maxSpeed)/1000).toFixed(3)} s，可点击“按当前角度放慢用时”`);
       previous=a;
     }
     return p;
@@ -94,9 +104,10 @@
         target:signed(parts[10])/65536,actual:signed(parts[11])/65536,angleOffset:signed(parts[12])/65536,
         activeId:n[12],elapsed:n[13],frictionT:extended?n[14]:null};
     }
-    if(/^@I,TRJ1,(?:[0-9A-F]{4},){3}[0-9A-F]{4}$/.test(line)) {
+    const capability=/^@I,TRJ([12]),(?:[0-9A-F]{4},){3}[0-9A-F]{4}$/.exec(line);
+    if(capability) {
       const [cpr,limit,speed,defaultPeriod]=parts.slice(2).map(v=>parseInt(v,16));
-      if(cpr&&limit&&speed&&defaultPeriod>=1&&defaultPeriod<=1000) return {type:'capability',cpr,limit,speed,defaultPeriod};
+      if(cpr&&limit&&speed&&defaultPeriod>=1&&defaultPeriod<=1000) return {type:'capability',version:Number(capability[1]),outer:capability[1]==='2'?0:1,cpr,limit,speed,defaultPeriod};
     }
     return null;
   }
@@ -118,6 +129,6 @@
     let xy=0,xx=0;p.forEach(p=>{const x=p.time-t0-tm;xy+=x*(p.armPosition-ym);xx+=x*x;});
     return xx?xy/xx*1000*360/cpr:null;
   }
-  const api={names,smooth,dsmooth,angle,integer,seconds,validate,total,sample,command,parse:line=>parse(line)||parseStatus(line),estimateVelocity};
+  const api={names,smooth,dsmooth,minimumTime,recommendedTime,angle,integer,seconds,validate,total,sample,command,parse:line=>parse(line)||parseStatus(line),estimateVelocity};
   root.Trajectory=api;if(typeof module==='object')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

@@ -130,11 +130,18 @@ module acg720_top #(
     wire signed [31:0] command_q, relative_position;
     // Display runs independently of motor/K4 reset; raw QEI resets only at rst_n.
     wire oled_initialized, oled_error, oled_frame_done;
+    // One coherent input register separates coordinate subtraction/saturation
+    // from the OLED signed-magnitude conversion. Motor safety stays immediate.
+    reg signed [31:0] oled_raw_q,oled_position_q,oled_relative_q;
+    always @(posedge clk or negedge reset_n) begin
+        if(!reset_n) begin oled_raw_q<=0;oled_position_q<=0;oled_relative_q<=0;end
+        else begin oled_raw_q<=raw_position;oled_position_q<=position;oled_relative_q<=relative_position;end
+    end
     oled_encoder_display #(.CLK_HZ(CLK_HZ),.I2C_HZ(OLED_I2C_HZ),
         .ADDRESS(OLED_ADDRESS),.COLUMN_OFFSET(OLED_COLUMN_OFFSET),
         .POWER_WAIT_MS(OLED_POWER_WAIT_MS),.REFRESH_MS(OLED_REFRESH_MS)) oled (
-        .clk(clk),.rst_n(reset_n),.raw_count(raw_position),.position_count(position),
-        .relative_count(relative_position),.scl(oled_scl),.sda(oled_sda),
+        .clk(clk),.rst_n(reset_n),.raw_count(oled_raw_q),.position_count(oled_position_q),
+        .relative_count(oled_relative_q),.scl(oled_scl),.sda(oled_sda),
         .initialized(oled_initialized),.error(oled_error),.frame_done(oled_frame_done));
     wire angle_update, position_update;
     wire signed [31:0] position_error_q, angle_target_offset_q;
@@ -239,7 +246,8 @@ module acg720_top #(
     assign period_reply=1'b0;
     trajectory_engine #(.COUNTS_PER_REV(COUNTS_PER_REV),.POSITION_LIMIT_COUNTS(COUNTS_PER_REV*10),
         .CW_POSITIVE(CW_POSITIVE),.MAX_SPEED(MOVE_DEG_PER_SEC)) trajectory(
-        .clk(clk),.rst_n(reset_n),.tick_ms(sample_valid),.enable(move_enable && outer_speed),.stop_cmd(stop_cmd),
+        // Moving position reference; speed mode remains independently key-selected.
+        .clk(clk),.rst_n(reset_n),.tick_ms(sample_valid),.enable(move_enable && !outer_speed),.stop_cmd(stop_cmd),
         .external_busy(arm_busy || period_pending || period_request || handover_remaining!=0 || switch_speed_cmd),.submit(trajectory_submit),
         .request_id(trajectory_request_id),.request_mode(requested_mode),.request_time_ms(requested_time),
         .request_dwell_ms(requested_dwell),.request_cycles(requested_cycles),.request_count(requested_count),

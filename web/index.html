@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Furuta · 角度偏差监测</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="telemetry-core.js"></script>
-  <script defer src="trajectory-core.js?v=k1-k2-pid-20261031"></script>
-  <script defer src="dual-pid-app.js?v=k1-k2-pid-20261031"></script>
-  <script defer src="trajectory-app.js?v=k1-k2-pid-20261031"></script>
-  <script defer src="arm-app.js"></script>
-  <script defer src="serial-diagnostics.js?v=velocity-zero-diag-20261031"></script>
-  <script defer src="app.js?v=velocity-zero-diag-20261031"></script>
+  <link rel="stylesheet" href="style.css?v=position-trajectory-20261102">
+  <script defer src="telemetry-core.js?v=position-trajectory-20261102"></script>
+  <script defer src="trajectory-core.js?v=position-trajectory-20261102"></script>
+  <script defer src="dual-pid-app.js?v=position-trajectory-20261102"></script>
+  <script defer src="trajectory-app.js?v=position-trajectory-20261102"></script>
+  <script defer src="arm-app.js?v=position-trajectory-20261102"></script>
+  <script defer src="serial-diagnostics.js?v=position-trajectory-20261102"></script>
+  <script defer src="app.js?v=position-trajectory-20261102"></script>
 </head>
 <body>
   <main>
     <header>
-      <div class="brand"><span class="brand-icon">∿</span><div><span class="eyebrow">FURUTA / ACG720 · POS1 + VEL3 / K1 → K2</span><h1>角度偏差监测</h1></div></div>
+      <div class="brand"><span class="brand-icon">∿</span><div><span class="eyebrow">FURUTA / ACG720 · TRJ2 / 位置环轨迹</span><h1>角度偏差监测</h1></div></div>
       <div class="connection"><span id="statusDot" class="dot"></span><span id="status">串口未连接</span></div>
     </header>
     <section class="toolbar" aria-label="串口与采集控制">
@@ -26,10 +26,10 @@
     </section>
     <p id="message" class="message" role="status">连接板卡串口后，点击「开始回传 P」。采集不会启动电机。</p>
     <section class="trajectory-card" aria-labelledby="tr-title">
-      <div class="tr-heading"><div><span class="eyebrow">ARM / TRAJECTORY CONTROL</span><h2 id="tr-title">四种转臂轨迹</h2><p id="tr-capability">需要支持 TRJ1 的新固件；旧 ARM1 普通移动保留</p></div><button id="tr-emergency" type="button" class="danger" disabled>立即停机 X</button></div>
-      <p class="help">上电默认位置外环。按 K1 起摆进入位置平衡，再按 K2 切入速度环后执行轨迹。轨迹由 FPGA 按 1 ms 节拍生成，速度外环和角度内环持续运行。所有角度相对本次启动位置；正值沿用顺时针约定。</p>
+      <div class="tr-heading"><div><span class="eyebrow">ARM / POSITION TRAJECTORY</span><h2 id="tr-title">位置环曲线跟踪</h2><p id="tr-capability">需要支持 TRJ2 的位置轨迹固件；旧 ARM1 普通移动保留</p></div><button id="tr-emergency" type="button" class="danger" disabled>立即停机 X</button></div>
+      <p class="help">按 K1 起摆或 K3 进入位置环平衡后执行轨迹。FPGA 每 1 ms 生成连续位置目标，由位置 PID 跟踪，角度内环保持平衡。参考速度是位置曲线的导数，用于与编码器实际速度对照。所有角度相对本次启动位置；正值沿用顺时针约定。</p>
       <p class="message" id="pid-mode">等待实际外环回读</p>
-      <p class="help">K1 起摆并进入位置环平衡；K3 手动进入位置平衡。平衡空闲后按 K2，经过 200 ms 交接进入速度环。网页只调整参数，实际模式由按键控制。</p>
+      <p class="help">轨迹使用位置环，不需要按 K2。若已切到速度环，先 X/K4 停机，再按 K1/K3 返回位置平衡。轨迹用时建议 10～20 s；360°等大角度会按板端限速自动延长推荐用时。位置 PID 更新周期仍独立设置，默认 50 ms。</p>
       <div class="tr-period" id="position-pid-panel">
         <h3>位置外环 PID · 独立参数</h3><p id="pos-capability" class="help">等待 POS1</p>
         <div class="tr-fields">
@@ -57,26 +57,30 @@
       </div>
       <p id="pid-message" class="message" role="status">两套参数独立设置，以各自板端回读为准。编辑草稿不会改变板端；X/K4 后保留参数，上电恢复默认。</p>
       <div class="tr-fields">
+        <label>推荐转角 / 正弦幅值<select id="tr-size"><option value="60">60°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option><option value="360">360°</option></select></label>
+        <button id="tr-preset" type="button">使用角度预设与推荐用时</button><button id="tr-slow" type="button">按当前角度放慢用时</button>
+      </div>
+      <div class="tr-fields">
         <label>轨迹模式<select id="tr-mode"><option value="1">五次多项式</option><option value="2">正弦往返</option><option value="3">多点定位</option><option value="4">七段 S 形速度</option></select></label>
-        <label id="tr-angle-field">相对转角（°）<input id="tr-angle" type="text" inputmode="decimal" value="+15"></label>
-        <label id="tr-time-field">每段移动用时（s）<input id="tr-time" type="number" min="0.5" max="600" step="0.001" value="4"></label>
+        <label id="tr-angle-field">相对转角（°）<input id="tr-angle" type="text" inputmode="decimal" value="+60"></label>
+        <label id="tr-time-field">每段移动用时（s）<input id="tr-time" type="number" min="0.5" max="600" step="0.001" value="15"></label>
       </div>
       <div id="tr-sine-fields" class="tr-fields" hidden>
-        <label>正弦幅值（°）<input id="tr-amplitude" type="text" inputmode="decimal" value="15"></label>
-        <label>正弦周期（s）<input id="tr-wave-period" type="number" min="0.5" max="600" step="0.001" value="12"></label>
+        <label>正弦幅值（°，单侧偏移）<input id="tr-amplitude" type="text" inputmode="decimal" value="60"></label>
+        <label>正弦周期（s）<input id="tr-wave-period" type="number" min="0.5" max="600" step="0.001" value="20"></label>
         <label>周期数<input id="tr-cycles" type="number" min="1" max="100" step="1" value="3"></label>
       </div>
       <div id="tr-waypoint-fields" class="tr-fields" hidden>
-        <label class="tr-wide">目标点偏移（°，最多 8 点，逗号分隔）<input id="tr-points" type="text" value="+15, 0, -15, 0"></label>
-        <label>每点停留（s）<input id="tr-dwell" type="number" min="0" max="600" step="0.001" value="2"></label>
+        <label class="tr-wide">目标点偏移（°，最多 8 点，逗号分隔）<input id="tr-points" type="text" value="+60, 0, -60, 0"></label>
+        <label>每点停留（s）<input id="tr-dwell" type="number" min="0" max="600" step="0.001" value="3"></label>
       </div>
       <p id="tr-preview-info" class="help">规划预览，非实测</p>
       <div class="tr-plots"><div><h3>规划位置</h3><div id="tr-preview-position"></div></div><div><h3>规划速度</h3><div id="tr-preview-velocity"></div></div></div>
       <div class="tr-actions"><button id="tr-run" type="button" class="primary" disabled>执行轨迹</button><button id="tr-query" type="button" disabled>查询板端状态</button><button id="tr-export" type="button" disabled>导出任务 CSV</button><strong id="tr-state">未连接</strong></div>
-      <p id="tr-run-help" class="help" role="status">轨迹执行前需通过网页进入速度环。</p>
-      <p id="tr-message" class="message" role="status">先使用低幅值与较长用时验证；规划终点后仍需板端实际到位确认。</p>
+      <p id="tr-run-help" class="help" role="status">识别 TRJ2 后，按 K1/K3 进入位置平衡即可执行轨迹。</p>
+      <p id="tr-message" class="message" role="status">默认 +60° / 15 s，正弦幅值 60° / 周期 20 s。先从 60°预设开始，规划终点后仍需板端实际到位确认。</p>
       <div class="tr-readings"><span>进度：<strong id="tr-progress">—</strong></span><span>参考位置：<strong id="tr-reference">—</strong></span><span>实际位置：<strong id="tr-actual">—</strong></span><span>参考速度：<strong id="tr-reference-speed">—</strong></span><span>板端速度：<strong id="tr-measured-speed">等待 VEL1 回读</strong></span><span>修正后目标速度：<strong id="tr-target-speed">—</strong></span><span>位置拟合速度：<strong id="tr-actual-speed">等待位置遥测</strong></span></div>
-      <div class="tr-plots"><div><h3>板端参考位置采样</h3><div id="tr-live-position"></div></div><div><h3>速度跟踪采样</h3><div id="tr-live-velocity"></div><p class="help">橙：参考速度 · 青：修正后目标速度 · 紫：板端反馈速度；状态查询采样，非 1 ms 全量数据。</p></div></div>
+      <div class="tr-plots"><div><h3>参考位置与实际位置</h3><div id="tr-live-position"></div><p class="help">橙：参考位置 · 青：编码器实际位置。</p></div><div><h3>参考速度与实际速度</h3><div id="tr-live-velocity"></div><p class="help">橙：参考速度 · 青：编码器实际速度；状态查询采样，非 1 ms 全量数据。</p></div></div>
       <p class="help">完整行程限 ±10 圈，峰值参考速度限 30°/s。到达规划终点后保持目标，实际误差连续 200 ms 不超过 2 counts 才显示已到位。任务 CSV 含配置、实际位置环周期、状态及当前保留的对应遥测；普通 CSV 保持原格式。</p>
     </section>
     <section class="arm-card" aria-labelledby="arm-title">

@@ -40,7 +40,7 @@
   for(const id of fields.position.concat(fields.speed))$(id).addEventListener('input',()=>dirty.add(id));
   $('pos-apply').addEventListener('click',applyPosition);$('tr-speed-apply').addEventListener('click',applySpeed);$('tr-t-apply').addEventListener('click',applyFriction);$('tr-t-query').addEventListener('click',()=>query().catch(e=>message(e.message,true)));
   function reset(){session++;pc=false;vc=false;p=null;v=null;pa=0;va=0;pending=null;uncertain=false;buffer='';pNext=null;vNext=null;probing=0;lastProbe=0;lastPoll=0;lastPosPoll=0;speedMax=2500;update();}
-  update();return {feed,update,poll,query,applyPosition,applySpeed,applyFriction,get locked(){return !!pending||uncertain;},get canRun(){return connected()&&vc&&fresh(va)&&v?.state===4&&v.outer===1&&v.handover===0&&!pending&&!uncertain;},get snapshot(){return {position:p?{...p}:null,speed:v?{...v}:null};},async connected(){reset();await query();},disconnected:reset};
+  update();return {feed,update,poll,query,applyPosition,applySpeed,applyFriction,get locked(){return !!pending||uncertain;},get canRun(){return connected()&&pc&&vc&&fresh(pa)&&fresh(va)&&p?.state===4&&v?.state===4&&v.outer===0&&v.handover===0&&!pending&&!uncertain;},get snapshot(){return {position:p?{...p}:null,speed:v?{...v}:null};},async connected(){reset();await query();},disconnected:reset};
  }
  root.DualPidApp={create};if(typeof module==='object')module.exports={create};
 })(typeof globalThis!=='undefined'?globalThis:this);

@@ -20,15 +20,17 @@ module tb_velocity_feedback;
   if(velocity<2550000||velocity>2670000)$fatal(1,"FAIL: period scale/40ms filter %0d",velocity);
   saved=velocity;clocks(15000);
   if(velocity<=0||velocity>=saved/2)$fatal(1,"FAIL: no-edge age decay %0d vs %0d",velocity,saved);
-  edge_at(1,1);clocks(5);if(velocity!=0)$fatal(1,"FAIL: reversal kept old sign");
+  edge_at(1,1);clocks(5);if(velocity<=0)$fatal(1,"FAIL: reversal erased filter history");
   repeat(20)edge_at(5000,1);
   if(velocity> -1250000||velocity< -1350000)$fatal(1,"FAIL: low-speed reverse measurement %0d",velocity);
   clocks(100200);if(velocity!=0)$fatal(1,"FAIL: timeout did not force exact zero");
   // Divider completion from the previous direction cannot republish after reversal.
-  edge_at(1,0);edge_at(500,0);wait(dut.start);edge_at(2,1);clocks(200);
-  if(velocity!=0)$fatal(1,"FAIL: stale divider result survived reversal");
+  edge_at(1,0);edge_at(500,0);wait(dut.start);edge_at(2,1);
+  wait(dut.fresh_batch);clocks(2);
+  if(dut.job_valid && !dut.pending_negative)$fatal(1,"FAIL: old positive job remained valid after reverse batch");
+  clocks(200);if(dut.raw_q>0)$fatal(1,"FAIL: stale positive divider result survived reversal");
   rst_n=0;clocks(2);if(velocity!=0)$fatal(1,"FAIL: reset");
-  $display("TEST PASSED: tb_velocity_feedback (first edge, units, low speed, decay, reversal epoch, stale cancellation, timeout)");$finish;
+  $display("TEST PASSED: tb_velocity_feedback (first edge, units, low speed, decay, continuous reversal, stale cancellation, timeout)");$finish;
  end
  initial begin #10000000;$fatal(1,"FAIL: estimator timeout");end
 endmodule

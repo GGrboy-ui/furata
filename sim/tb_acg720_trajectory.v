@@ -24,7 +24,7 @@ module tb_acg720_trajectory;
    if(line[length-1]!=13)$fatal(1,"FAIL: missing CR");
    if(line[0]=="T")begin if(length!=54)$fatal(1,"FAIL: T frame interleaved");telemetry=telemetry+1;end
    else if(line[0]=="@"&&line[1]=="I")begin
-    if(line[3]=="T")begin if(length!=28)$fatal(1,"FAIL: TRJ capability length %0d",length);capabilities=capabilities+1;end
+    if(line[3]=="T")begin if(length!=28||line[6]!="2")$fatal(1,"FAIL: TRJ2 position capability");capabilities=capabilities+1;end
     else begin if(length!=23)$fatal(1,"FAIL: ARM capability length");arm_caps=arm_caps+1;end
    end else if(line[0]=="@"&&line[1]=="V")begin
     if(length!=97)$fatal(1,"FAIL: VEL status length");
@@ -64,8 +64,8 @@ module tb_acg720_trajectory;
   byte_send("X");clocks(13000);
   command("@TC,20,5\n");clocks(13000);
   command("@TVE,21,20,6554,1311,0,32768,0\n");clocks(15000);
-  position=1234;key3;key2;repeat(200)ms;
-  if(!dut.outer_speed)$fatal(1,"FAIL: speed entry required for trajectory");command("@T,3,1,1000,0,1,1,+50\n");wait(dut.trajectory_phase==2);wait(last_code==1);clocks(100);
+  position=1234;key3;repeat(200)ms;
+  if(dut.outer_speed)$fatal(1,"FAIL: trajectory must use position mode");command("@T,3,1,1000,0,1,1,+50\n");wait(dut.trajectory_phase==2);wait(last_code==1);clocks(100);
   if(!dut.trajectory_selected||last_code!=1)$fatal(1,"FAIL: task selection/ACK");
   command("@TC,4,50\n");wait(last_code==17);clocks(100);if(dut.actual_position_ms!=5||last_code!=17)$fatal(1,"FAIL: period changed while moving");
   command("@M,1,+100\n");clocks(5000);if(dut.arm_busy)$fatal(1,"FAIL: ARM1 interlock");
@@ -76,7 +76,7 @@ module tb_acg720_trajectory;
   command("@T,5,4,1000,0,1,1,-50\n");wait(dut.trajectory_phase==2);repeat(10)ms;
   keys[3]=0;clocks(1100);keys[3]=1;wait(last_code==3);clocks(100);
   if(dut.actual_position_ms!=5||dut.trajectory_busy||dut.state!=0||last_code!=3||dut.motor_ready)$fatal(1,"FAIL: K4 cancellation/config persistence");
-  key3;key2;repeat(200)ms;command("@T,6,2,1000,0,2,1,+10\n");wait(dut.trajectory_phase==2);
+  key3;repeat(200)ms;command("@T,6,2,1000,0,2,1,+10\n");wait(dut.trajectory_phase==2);
   command("@T,7,1,1000,0,1,1,+5X");clocks(14000);
   if(dut.trajectory_busy||dut.state!=0||dut.motor_ready||dut.actual_position_ms!=5)$fatal(1,"FAIL: X inside packet");
   command("@TQ\n");repeat(200)ms;command("@TQ\n");clocks(13000);

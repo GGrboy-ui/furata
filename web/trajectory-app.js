@@ -9,7 +9,7 @@
   let min=Math.min(0,...valid.map(s=>s.q)),max=Math.max(0,...valid.map(s=>s.q));
   if(max-min<1){min-=.5;max+=.5;}const pad=(max-min)*.12;min-=pad;max+=pad;
   const total=Math.max(1,...valid.map(s=>s.t));
-  const paths=[...new Set(valid.map(s=>s.group||0))].map(group=>{const path=valid.filter(s=>(s.group||0)===group).map((s,i)=>`${i?'L':'M'}${(left+s.t/total*(right-left)).toFixed(2)},${(bottom-(s.q-min)/(max-min)*(bottom-top)).toFixed(2)}`).join(' ');return `<path d="${path}" fill="none" stroke="${[velocity?'#f5b868':'#62dfc5','#62dfc5','#b79bff'][group]||'#62dfc5'}" stroke-width="2"/>`;}).join('');
+  const paths=[...new Set(valid.map(s=>s.group||0))].map(group=>{const path=valid.filter(s=>(s.group||0)===group).map((s,i)=>`${i?'L':'M'}${(left+s.t/total*(right-left)).toFixed(2)},${(bottom-(s.q-min)/(max-min)*(bottom-top)).toFixed(2)}`).join(' ');return `<path d="${path}" fill="none" stroke="${['#f5b868','#62dfc5','#b79bff'][group]||'#62dfc5'}" stroke-width="2"/>`;}).join('');
   return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${velocity?'参考速度':'参考位置'}曲线"><path d="M${left},${top}V${bottom}H${right}" fill="none" stroke="#526076"/>${paths}<g fill="#aebbd0" font-size="12"><text x="5" y="16">${velocity?'°/s':'°'}</text><text x="5" y="35">${max.toFixed(1)}</text><text x="5" y="145">${min.toFixed(1)}</text><text x="55" y="168">0</text><text x="635" y="168">${(total/1000).toFixed(1)} s</text></g></svg>`;
  }
  function create(options) {
@@ -24,14 +24,28 @@
   const busy=()=>!!status&&[1,2,3].includes(status.phase);
   const locked=()=>pending||uncertain||busy()||!!pid?.locked;
   function show(text,error=false){$('tr-message').textContent=text;$('tr-message').classList.toggle('error',error);}
-  function params() {
+  function params(validate=true) {
    const mode=Trajectory.integer($('tr-mode').value,1,4,'模式');
    const time=Trajectory.seconds($(mode===2?'tr-wave-period':'tr-time').value,.5,600,mode===2?'正弦周期':'每段移动用时');
    let angles;
    if(mode===3){const text=$('tr-points').value.trim();angles=text.split(/[\s,，;；]+/).filter(Boolean).map(Trajectory.angle);}
    else angles=[Trajectory.angle($(mode===2?'tr-amplitude':'tr-angle').value)];
-   return Trajectory.validate({mode,time,dwell:mode===3?Trajectory.seconds($('tr-dwell').value,0,600,'停留时间'):0,
-    cycles:mode===2?Trajectory.integer($('tr-cycles').value,1,100,'周期数'):1,angles},capability?.speed||30);
+   const config={mode,time,dwell:mode===3?Trajectory.seconds($('tr-dwell').value,0,600,'停留时间'):0,
+    cycles:mode===2?Trajectory.integer($('tr-cycles').value,1,100,'周期数'):1,angles};
+   return validate?Trajectory.validate(config,capability?.speed||30):config;
+  }
+  function slowTime() {
+   try{const config=params(false),time=Math.max(config.time,Trajectory.recommendedTime(config,capability?.speed||30));
+    $(config.mode===2?'tr-wave-period':'tr-time').value=String(time/1000);
+    refreshPreview();
+   }catch(e){show(e.message,true);}
+  }
+  function preset() {
+   const angle=Trajectory.integer($('tr-size').value,60,360,'推荐角度'),sign=$('tr-angle').value.trim().startsWith('-')?-1:1;
+   $('tr-angle').value=`${sign<0?'-':'+'}${angle}`;$('tr-amplitude').value=String(angle);
+   $('tr-points').value=`${sign*angle}, 0, ${-sign*angle}, 0`;
+   $('tr-time').value='15';$('tr-wave-period').value='20';
+   slowTime();
   }
   function refreshPreview() {
    const mode=Number($('tr-mode').value);
@@ -44,13 +58,13 @@
     $('tr-preview-position').innerHTML=plot(points.map(p=>({t:p.t,q:p.q})));
     $('tr-preview-velocity').innerHTML=plot(points.map(p=>({t:p.t,q:p.v})),true);
     const vmax=Math.max(...points.map(p=>Math.abs(p.v)));
-    $('tr-preview-info').textContent=`规划预览（相对本次起点，非实测）：${Trajectory.names[mode]} · ${(total/1000).toFixed(3)} s · 峰值参考速度约 ${vmax.toFixed(2)}°/s${mode===4?' · 七段时长比 1:1:1:2:1:1:1':''}`;
+    $('tr-preview-info').textContent=`位置环规划预览（相对本次起点，非实测）：${Trajectory.names[mode]} · ${(total/1000).toFixed(3)} s · 峰值参考速度约 ${vmax.toFixed(2)}°/s${mode===4?' · 七段时长比 1:1:1:2:1:1:1':''}`;
    }catch(e){preview=null;$('tr-preview-info').textContent=e.message;$('tr-preview-position').innerHTML='';$('tr-preview-velocity').innerHTML='';}
    update();
   }
   function update() {
    const motionLocked=locked()||!!options.legacyLocked?.();
-   $('tr-run').disabled=(pid&&!pid.canRun)||!connected()||!capability||!fresh()||status?.state!==4||motionLocked||!preview||(velocityCapability&&(!velocityStatus||velocityStatus.outer!==1||now()-velocityAt>=1500));
+   $('tr-run').disabled=(pid&&!pid.canRun)||!connected()||capability?.version!==2||!fresh()||status?.state!==4||motionLocked||!preview||(velocityCapability&&(!velocityStatus||velocityStatus.outer!==0||now()-velocityAt>=1500));
    if(!pid){$('tr-period-apply').disabled=!connected()||!capability||!fresh()||![0,4].includes(status?.state)||motionLocked;
    $('tr-period-default').disabled=$('tr-period-apply').disabled;
    }
@@ -60,7 +74,6 @@
    const speedEnabled=connected()&&velocityCapability&&(frictionMax===null||velocityStatus?.frictionT!=null)&&fresh()&&status?.state===0&&velocityStatus?.state===0&&now()-velocityAt<1500&&!motionLocked;
    $('tr-speed-apply').disabled=!speedEnabled;
    $('tr-enter-speed').disabled=!speedEnabled;$('tr-enter-position').disabled=!speedEnabled;
-   $('tr-run-help').textContent=!velocityCapability?'等待 VEL1；旧 TRJ1 固件仍保留原轨迹功能。':!velocityStatus||now()-velocityAt>=1500?'等待最新板端外环回读。':velocityStatus.outer!==1?'当前为位置环。请先 X/K4 停机，点击「应用参数并进入速度环」，确认回读后按 K3，再执行轨迹。':status?.state!==4?'速度环已选择。请按实体 K3 进入直立平衡，再执行轨迹。':'轨迹使用速度外环；终点保持继续进行位置修正。';
    speedFields.forEach(id=>$(id).disabled=!speedEnabled);
    $('tr-speed-t').disabled=false;
    $('tr-t-apply').disabled=!speedEnabled||frictionMax===null;
@@ -69,8 +82,9 @@
    $('tr-friction-info').textContent=`t 输入为待应用值，编辑不会直接改变板端。${tReason}。范围 0～${frictionMax??2500} PWM 计数，0 关闭。`;
    if(frictionMax!==null)$('tr-speed-t').max=String(frictionMax);
    $('tr-speed-capability').textContent=velocityCapability?`${frictionMax===null?'VEL1':'VEL2'} 已识别 · ${!velocityStatus||now()-velocityAt>=1500?'等待板端回读':velocityStatus.state!==0?'请先 X/K4 停机后设置':'可设置模式、Kp、Ki、Kpos 和速度周期'}`:'未识别 VEL1；速度外环设置不可用，旧固件仍可使用原功能';
-   }else{pid.update();$('tr-run-help').textContent='K1/K3 进入位置平衡，平衡空闲后按 K2，等待 200 ms 交接完成再执行轨迹。';}
-   $('tr-capability').textContent=capability?`TRJ1 · ${capability.cpr} counts/圈 · 最大 ${capability.speed}°/s · 行程 ±${capability.limit*360/capability.cpr}°`:'需要支持 TRJ1 的新固件；旧 ARM1 普通移动保留';
+   }else pid.update();
+   $('tr-run-help').textContent=capability?.version!==2?'请下载 TRJ2 位置轨迹固件；旧 TRJ1 轨迹使用速度环，本页面不执行旧模式。':!connected()?'连接串口后查询板端状态。':!velocityStatus||now()-velocityAt>=1500?'等待板端实际外环回读。':velocityStatus.outer!==0?'当前为速度环。请先 X/K4 停机，再按 K1/K3 进入位置平衡后执行轨迹。':status?.state!==4?'请按 K1 起摆或 K3 进入位置环直立平衡，再执行轨迹。':'位置 PID 跟随规划位置，速度曲线为该位置曲线的导数；保持位置模式，不按 K2 切速度环。';
+   $('tr-capability').textContent=capability?`TRJ${capability.version} · ${capability.version===2?'位置环轨迹':'旧速度环轨迹，需升级'} · ${capability.cpr} counts/圈 · 最大 ${capability.speed}°/s · 行程 ±${capability.limit*360/capability.cpr}°`:'需要支持 TRJ2 的位置轨迹固件；旧 ARM1 普通移动保留';
    $('tr-state').textContent=!connected()?'未连接':!fresh()?'等待板端状态':`${status.state===4?'直立平衡':status.state===0?'停机':`控制状态 ${status.state}`} · ${phaseNames[status.phase]}${pending?' · 等待请求确认':''}${uncertain?' · 结果不确定':''}`;
    options.onStateChange?.();
   }
@@ -92,7 +106,7 @@
      if(taskRows.length>20000){taskRows.shift();truncated=true;}
     }
     const rows=taskRows.slice(-1200);
-    $('tr-live-position').innerHTML=plot(rows.map(r=>({t:r.elapsed,q:r.target*scale})));
+    $('tr-live-position').innerHTML=plot(rows.flatMap(r=>[{t:r.elapsed,q:r.target*scale,group:0},{t:r.elapsed,q:r.actual*scale,group:1}]));
     if(!velocityCapability)$('tr-live-velocity').innerHTML=plot(rows.map(r=>({t:r.elapsed,q:r.velocity*scale})),true);
    }
   }
@@ -118,17 +132,17 @@
      const scale=360/(capability?.cpr||408);
      if(!pid)$('tr-speed-actual').textContent=`板端：${frame.outer?'速度外环':'位置外环'} · ${frame.period} ms · Kp=${frame.kp.toFixed(5)} · Ki=${frame.ki.toFixed(5)} · Kpos=${frame.kpos.toFixed(5)} · t=${frame.frictionT==null?'未支持':frame.frictionT+' PWM 计数'}`;
      $('tr-measured-speed').textContent=`${(frame.actual*scale).toFixed(3)}°/s`;
-     $('tr-target-speed').textContent=`${(frame.target*scale).toFixed(3)}°/s`;
+     $('tr-target-speed').textContent=frame.outer===0?'—（位置环跟踪）':`${(frame.target*scale).toFixed(3)}°/s`;
      if(expected&&frame.id===expected&&pendingType==='speed'){
       pending=false;uncertain=false;pendingType='';show(frame.code===4?'外环及速度参数已生效，以上为板端回读':codes[frame.code]||'设置失败',frame.code!==4);
      }
      if(task&&frame.activeId===task.id&&!task.speedClosed){
       speedRows.push({...frame});if(frame.state!==4)task.speedClosed=true;if(speedRows.length>20000){speedRows.shift();truncated=true;}
       const rows=speedRows.slice(-1200),points=[];
-      rows.forEach(r=>{points.push({t:r.elapsed,q:r.reference*scale,group:0},{t:r.elapsed,q:r.target*scale,group:1},{t:r.elapsed,q:r.actual*scale,group:2});});
+      rows.forEach(r=>{points.push({t:r.elapsed,q:r.reference*scale,group:0},...(r.outer===0?[{t:r.elapsed,q:r.actual*scale,group:1}]:[{t:r.elapsed,q:r.target*scale,group:1},{t:r.elapsed,q:r.actual*scale,group:2}]));});
       $('tr-live-velocity').innerHTML=plot(points,true);
      }
-    } else if(frame.type==='capability'){capability=frame;show('已识别四种轨迹与位置环周期调节。上电默认位置环；按 K1 起摆进入位置平衡，再按 K2 切入速度环后执行轨迹。');void query();if(!pid)void send('@TVI\n').catch(e=>show(e.message,true));}
+    } else if(frame.type==='capability'){capability=frame;show(frame.version===2?'已识别位置环轨迹。按 K1/K3 进入位置平衡，使用 60°～360°预设及较长用时；无需切速度环。':'已识别旧 TRJ1 速度轨迹固件；请升级 TRJ2 后使用位置环轨迹。',frame.version!==2);void query();if(!pid)void send('@TVI\n').catch(e=>show(e.message,true));}
     else if(capability){
      status=frame;lastAt=now();if(!idSeeded&&!pending&&!uncertain){nextId=frame.id;idSeeded=true;}
      if(expected&&frame.id===expected&&pendingType!=='speed'){
@@ -238,6 +252,7 @@
   $('tr-enter-position').addEventListener('click',()=>applySpeed(0));
   }
   $('tr-run').addEventListener('click',run);$('tr-query').addEventListener('click',query);$('tr-emergency').addEventListener('click',emergency);
+  $('tr-preset').addEventListener('click',preset);$('tr-size').addEventListener('change',preset);$('tr-slow').addEventListener('click',slowTime);
   if(!pid)$('tr-period-apply').addEventListener('click',()=>applyPeriod());if(!pid)$('tr-period-default').addEventListener('click',()=>applyPeriod(true));
   for(const id of ['tr-mode','tr-angle','tr-time','tr-wave-period','tr-amplitude','tr-cycles','tr-points','tr-dwell'])$(id).addEventListener('input',refreshPreview);
   $('tr-export').addEventListener('click',()=>options.download(csv(),`furuta-trajectory-${Date.now()}.task.csv`));

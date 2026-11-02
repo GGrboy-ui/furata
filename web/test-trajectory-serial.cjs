@@ -16,7 +16,7 @@ async function receive(text){for(let i=0;i<text.length;i+=7)input.enqueue(new Te
 const report=(id,code,phase,period,active)=>`@T,${id.toString(16).padStart(4,'0')},${code.toString(16).padStart(2,'0')},4,${phase},3,${period.toString(16).padStart(4,'0')},00000064,00005DC0,00000001,00018000,00010000,00000000,0,0014,${active.toString(16).padStart(4,'0')}\r\n`.toUpperCase();
 (async()=>{
  await element('connect').handlers.click();assert.deepEqual(writes,['@TI\n','@I\n']);
- await receive('@I,TRJ1,0198,0FF0,001E,0032\r\n@I,ARM1,0198,001E,0FF0\r\n');
+ await receive('@I,TRJ2,0198,0FF0,001E,0032\r\n@I,ARM1,0198,001E,0FF0\r\n');
  await receive(report(0,0,0,50,0)+'@R,0000,00,4,0,00000000,00000000\r\nT,00000000,+000.0,+0000,+0000,+0000,+0000,+0000,+0000\r\n');
  assert.equal(element('tr-run').disabled,false);assert.equal(element('arm-send').disabled,false);
  await element('tr-period-apply').handlers.click();assert.equal(writes.at(-1),'@TC,1,20\n');assert.equal(element('arm-send').disabled,true);

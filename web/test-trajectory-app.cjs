@@ -8,7 +8,7 @@ const status=(id,code,state=4,phase=0,period=50,active=0)=>`@T,${id.toString(16)
 const flush=()=>new Promise(r=>setImmediate(r));
 (async()=>{
  assert.equal(element('tr-run').disabled,true);await app.connected();assert.equal(writes.at(-1),'@TI\n');
- app.feed('@I,TRJ1,0198,0FF0,001E,0032\r\n');await flush();app.feed(status(0,0,0));
+ app.feed('@I,TRJ2,0198,0FF0,001E,0032\r\n');await flush();app.feed(status(0,0,0));
  assert.equal(element('tr-run').disabled,true);assert.equal(element('tr-period-apply').disabled,false);
  element('tr-position-ms').value='0';await app.applyPeriod();assert.match(element('tr-message').textContent,/1～1000/);
  element('tr-position-ms').value='20';await app.applyPeriod();assert.equal(writes.at(-1),'@TC,1,20\n');assert.equal(app.locked,true);
